@@ -6,6 +6,7 @@ import player from "./player.js";
 import props from "./props.js";
 import points from "./pts.js";
 import renderer from "./renderer.js";
+import sketchup from "./sketchup.js";
 import viewport from "./viewport.js";
 
 glob.developer = true;
@@ -42,6 +43,7 @@ namespace hunt {
 		physics.boot();
 		props.boot();
 		renderer.boot();
+		sketchup.boot();
 		audio.boot();
 
 		gplayer = new player();

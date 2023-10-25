@@ -2,7 +2,34 @@ import props from "./props.js";
 import renderer from "./renderer.js";
 
 namespace sketchup {
+
+	const drainage = {
+		'twotonewall': './files/textures/twotonewall.png',
+		'scrappyfloor': './files/textures/scrappyfloor.png',
+	}
+
+	const sewer = {}
+
+	export function boot() {
+		const textureLoader = new THREE.TextureLoader();
+		const maxAnisotropy = renderer.renderer_.capabilities.getMaxAnisotropy();
+		for (let name in drainage) {
+			let path = drainage[name];
+			const map = textureLoader.load(path);
+			const material = new THREE.MeshLambertMaterial({
+				map: map,
+				flatShading: true,
+			});
+			map.wrapS = map.wrapT = THREE.RepeatWrapping;
+			material.map.minFilter = material.map.magFilter = THREE.NearestFilter;
+			sewer[name] = material;
+		}
+
+		load_room();
+	}
+
 	export function load_room() {
+
 		const loadingManager = new THREE.LoadingManager(function () {
 		});
 
@@ -21,19 +48,18 @@ namespace sketchup {
 				material.polygonOffsetFactor = -4;
 			}
 
-			function fix(material) {
-				//console.log(material);
-				material.flatShading = true;
-				material.needsUpdate = true;
-				if (material.name.includes('sticker'))
-					fix_sticker(material);
-				if (material.map) {
-					// mineify
-					//THREE.NearestFilter
-					//material.map.rotation = (Math.PI * Math.random());
-					material.map.minFilter = material.map.magFilter = THREE.NearestFilter;
-					material.map.anisotropy = renderer.renderer_.capabilities.getMaxAnisotropy();
+			function drain(object) {
+				const sewage = sewer[object.material.name];
+				if (!sewage)
+					return;
+				const dupe = sewage.clone();
+				const old = object.material;
+				if (old.map) {
+					dupe.map.wrapS = old.map.wrapS;
+					dupe.map.wrapT = old.map.wrapT;
 				}
+				if (old.name.includes('sticker'))
+					fix_sticker(old);
 			}
 
 			const propss: props.prop[] = [];
@@ -41,11 +67,14 @@ namespace sketchup {
 				object.castShadow = true;
 				object.receiveShadow = true;
 				if (object.material) {
-					if (!object.material.length)
-						fix(object.material);
-					else
-						for (let material of object.material)
-							fix(material);
+					if (!object.material.length) {
+						drain(object);
+					}
+					else {
+						console.warn('multiple materials');
+						for (let material of object.material) {
+						}
+					}
 				}
 				const prop = props.factory(object);
 				if (prop) {

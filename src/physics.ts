@@ -11,6 +11,7 @@ namespace physics {
 		cup: { mass: 0.2, material: 'plastic' },
 		compactdiscs: { mass: 0.7, material: 'cardboard' },
 		matress: { mass: 1.0, material: 'cardboard' },
+		barrel: { mass: 1.0, material: 'metal' },
 		none: { mass: 0.0, material: 'cardboard' }
 	}
 
@@ -175,7 +176,7 @@ namespace physics {
 			const halfExtents = new CANNON.Vec3(size.x, size.y, size.z);
 			const boxShape = new CANNON.Box(halfExtents);
 
-			const kind = kinds_of_props[this.prop.parameters.preset || 'none'];
+			const kind = kinds_of_props[this.prop.parameters.preset || 'none'] || kinds_of_props['none'];
 			
 			const weight = kind.weight || 1;
 			const mass = kind.mass;

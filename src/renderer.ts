@@ -13,20 +13,25 @@ uniform float glitch;
 uniform int compression;
 uniform sampler2D tDiffuse;
 float factor = 256.0;
-float saturation = 2.0;
+float saturation = 1.4;
 
 void main() {
 	vec4 diffuse = texture2D( tDiffuse, vUv );
 
-	factor -= glitch * 25.0;
+	// animate color reduction
+	//factor -= glitch * 25.0;
+
+	// animate oversaturation
+	saturation += glitch * 3.0;
 
 	factor = clamp(factor, 2.0, 256.0);
 
 	vec3 original = diffuse.rgb;
 	vec3 lumaWeights = vec3(.25,.50,.25);
 	vec3 grey = vec3(dot(lumaWeights, original));
-	diffuse = vec4(grey + saturation * (original - grey), 1.0);
-
+	
+	// sat then reduce
+	diffuse = vec4(grey + saturation * (diffuse.rgb - grey), 1.0);
 	diffuse = vec4(floor(diffuse.rgb * factor + 0.5) / factor, diffuse.a);
 
 	gl_FragColor = diffuse;
@@ -37,7 +42,6 @@ void main() {
 const vertexScreen = `
 varying vec2 vUv;
 uniform float glitch;
-uniform float bounce;
 void main() {
 	vUv = uv;
 	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
@@ -56,9 +60,8 @@ namespace renderer {
 
 	export var sun, sunOffset = [-0, 5, -0]
 
-	// i like the sketchup palette a lot,
-	// no need for color reduce
-	export var postToggle = true;
+	// reduce
+	export var enable_post = true;
 
 
 	export function boot() {
@@ -90,8 +93,9 @@ namespace renderer {
 		//scene2.background = new THREE.Color('white');
 
 		target = new THREE.WebGLRenderTarget(512, 512, {
+			type: THREE.FloatType, // hdr effect
 			minFilter: THREE.NearestFilter,
-			magFilter: THREE.NearestFilter
+			magFilter: THREE.NearestFilter,
 		});
 		post = new THREE.ShaderMaterial({
 			uniforms: {
@@ -131,10 +135,10 @@ namespace renderer {
 		renderer_.setClearColor(0xffffff, 0.0);
 		//renderer_.toneMapping = THREE.ReinhardToneMapping;
 
-		ambiance = new THREE.AmbientLight(0xffffff, 0.05);
+		ambiance = new THREE.AmbientLight(0xffffff, 0.02);
 		scene.add(ambiance);
 
-		sun = new THREE.DirectionalLight(0xffffff, 1.0);
+		sun = new THREE.DirectionalLight(0xd6b49b, 0.5);
 		sun.shadow.mapSize.width = 2048;
 		sun.shadow.mapSize.height = 2048;
 		sun.shadow.radius = 2;
@@ -158,8 +162,6 @@ namespace renderer {
 
 
 		window.addEventListener('resize', onWindowResize);
-
-		sketchup.load_room();
 	}
 
 	function redo() {
@@ -189,7 +191,7 @@ namespace renderer {
 	export function loop() {
 		if (glob.developer)
 			if (app.prompt_key('z') == 1)
-				postToggle = !postToggle;
+				enable_post = !enable_post;
 	}
 
 	export function render() {
@@ -220,18 +222,21 @@ namespace renderer {
 			app.fluke_set_innerhtml('day-stats', `fps: ${fps}`);
 		}
 
-		glitch += delta / 2.0;
+		const pulse_every = 3;
+
+		glitch += delta / (pulse_every / 2);
 		bounce += delta / 2.0;
 
-		if (glitch >= 1)
-			glitch -= 1;
+		if (glitch >= 2)
+			glitch -= 2;
 
-		if (bounce >= 1)
-			bounce -= 1;
+		if (bounce >= 2)
+			bounce -= 2;
 
-		let ease = easings.easeOutBounce(bounce);
-		post.uniforms.glitch.value = glitch;
-		post.uniforms.bounce.value = ease;
+		let itch = easings.easeOutBounce(glitch <= 1 ? glitch : 2 - glitch);
+		post.uniforms.glitch.value = itch;
+		//let ease = easings.easeOutBounce(bounce);
+		//post.uniforms.bounce.value = ease;
 		
 		let position = plane.getAttribute('position');
 		plane.getAttribute('position').needsUpdate = true;
@@ -248,7 +253,7 @@ namespace renderer {
 
 		//console.log('clock', clock.getElapsedTime());
 
-		if (postToggle) {
+		if (enable_post) {
 			renderer_.shadowMap.enabled = true;
 
 			renderer_.setRenderTarget(target);

@@ -131,7 +131,7 @@ var props;
     const light_presets = {
         sconce: { hide: false, color: 'white', intensity: 0.1, distance: 1, offset: [0, 0, -5] },
         openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
-        skylightstart: { hide: true, color: 'white', intensity: 0.1, distance: 2.5, decay: 0.1 },
+        skylightstart: { hide: true, color: 'white', intensity: 0.15, distance: 2.5, decay: 0.1 },
         none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
     };
     class plight extends prop {
