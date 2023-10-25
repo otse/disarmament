@@ -1,0 +1,65 @@
+<html>
+
+<head>
+	<title>day</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<script src="hunt.js"></script>
+	<!--<script src="js/rpg2.js" type="module"></script>
+    -->
+	<script>
+		var app;
+		var CANNON;
+		var THREE;
+		var collada_loader;
+		var first_person_controls;
+		var pointer_lock_controls;
+	</script>
+
+	<script type="importmap">
+		{
+			"imports": {
+				"cannon": "./js/cannon-es.js",
+				"three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+				"three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/"
+			}
+		}
+	</script>
+  
+	<script type="module">
+		import * as cannon from 'cannon';
+		import * as three from 'three';
+		import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
+		import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+		import { default as backwards } from "./js/app.js";
+		app = backwards;
+		CANNON = cannon;
+		THREE = three;
+		collada_loader = ColladaLoader;
+		pointer_lock_controls = PointerLockControls;
+	</script>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function (event) {
+			app.boot('');
+		});
+	</script>
+</head>
+
+<body>
+
+	<day-main>
+		<day-instructions>
+			early test of untitled game<br />
+			give it a sec to load the assets!! ...<br />
+			click to lock pointer and play<br /><br />
+			press z to toggle post
+		</day-instructions>
+
+		<day-stats>
+			fps: 
+		</day-stats>
+	</day-main>
+
+</body>
+
+</html>

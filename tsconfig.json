@@ -1,0 +1,26 @@
+{
+	"compilerOptions": {
+		"sourceMap": false,
+		"module": "es2022",
+		"target": "es2022",
+		"esModuleInterop": false,
+		"jsx": "preserve",
+		"lib": [
+			"dom",
+			"es6"
+		],
+		"outDir": "js",
+		"allowSyntheticDefaultImports": true,
+		"moduleResolution": "Node",
+		"strictNullChecks": true
+	},
+	"files": [
+		"src/hunt.d.ts"
+	],
+	"include": [
+		"./src"
+	],
+	"exclude": [
+		"node_modules"
+	],
+}

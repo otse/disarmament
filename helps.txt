@@ -1,0 +1,1 @@
+https://stackoverflow.com/questions/45932526/how-to-make-typescript-output-valid-es6-module-import-statements
