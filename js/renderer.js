@@ -2,6 +2,7 @@ import glob from "./glob.js";
 import app from "./app.js";
 import sketchup from "./sketchup.js";
 import easings from "./easings.js";
+import pts from "./pts.js";
 const fragmentPost = `
 varying vec2 vUv;
 uniform float glitch; 
@@ -39,9 +40,10 @@ var renderer;
 (function (renderer) {
     // set up three.js here
     renderer.delta = 0;
+    renderer.sunOffset = [-0, 5, -0];
     // i like the sketchup palette a lot,
     // no need for color reduce
-    renderer.postToggle = false;
+    renderer.postToggle = true;
     function boot() {
         window['renderer'] = renderer;
         console.log('renderer boot');
@@ -96,18 +98,23 @@ var renderer;
         renderer.renderer_.shadowMap.type = THREE.BasicShadowMap;
         renderer.renderer_.setClearColor(0xffffff, 0.0);
         //renderer_.toneMapping = THREE.ReinhardToneMapping;
-        renderer.ambiance = new THREE.AmbientLight(0xffffff, 1);
+        renderer.ambiance = new THREE.AmbientLight(0xffffff, 0.05);
         renderer.scene.add(renderer.ambiance);
-        let sun = new THREE.DirectionalLight(0xffffff, 2);
-        sun.shadow.mapSize.width = 2048;
-        sun.shadow.mapSize.height = 2048;
-        sun.shadow.camera.near = 0.5;
-        sun.shadow.camera.far = 500;
+        renderer.sun = new THREE.DirectionalLight(0xffffff, 1.0);
+        renderer.sun.shadow.mapSize.width = 2048;
+        renderer.sun.shadow.mapSize.height = 2048;
+        renderer.sun.shadow.radius = 2;
+        renderer.sun.shadow.bias = 0.0005;
+        renderer.sun.shadow.camera.near = 0.5;
+        renderer.sun.shadow.camera.far = 500;
+        renderer.sun.shadow.camera.left = renderer.sun.shadow.camera.bottom = -10;
+        renderer.sun.shadow.camera.right = renderer.sun.shadow.camera.top = 10;
         const extend = 1000;
-        sun.position.set(-30, 100, -150);
-        sun.castShadow = true;
-        renderer.scene.add(sun);
-        renderer.scene.add(sun.target);
+        renderer.sun.position.fromArray(renderer.sunOffset);
+        renderer.sun.castShadow = true;
+        renderer.scene.add(renderer.sun);
+        renderer.scene.add(renderer.sun.target);
+        renderer.scene.add(new THREE.CameraHelper(renderer.sun.shadow.camera));
         const day_main = document.querySelector('day-main');
         day_main.appendChild(renderer.renderer_.domElement);
         // test
@@ -138,6 +145,14 @@ var renderer;
     renderer.loop = loop;
     function render() {
         loop();
+        const jump_sun_every = 1;
+        let xz = [renderer.camera.position.x, renderer.camera.position.z];
+        let div = pts.divide(xz, jump_sun_every);
+        xz = pts.mult(pts.floor(div), jump_sun_every);
+        //xz = pts.mult(xz, hunt.inchMeter);
+        //console.log('zx', xz);
+        renderer.sun.position.fromArray([xz[0] + renderer.sunOffset[0], renderer.sunOffset[1], xz[1] + renderer.sunOffset[2]]);
+        renderer.sun.target.position.fromArray([xz[0], 0, xz[1]]);
         renderer.delta = renderer.clock.getDelta();
         frames++;
         time = (performance || Date).now();

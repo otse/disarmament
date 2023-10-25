@@ -97,16 +97,16 @@ class player {
 
 		let x = 0, z = 0;
 
-		if (app.prompt_key('w'))
+		if (app.prompt_key('w') && !app.prompt_key('s'))
 			z = 1;
 
-		if (app.prompt_key('s'))
+		if (app.prompt_key('s') && !app.prompt_key('w'))
 			z = -1;
 
-		if (app.prompt_key('a'))
+		if (app.prompt_key('a') && !app.prompt_key('d'))
 			x = -1;
 
-		if (app.prompt_key('d'))
+		if (app.prompt_key('d') && !app.prompt_key('a'))
 			x = 1;
 
 		if (app.prompt_key(' ') && this.canJump) {

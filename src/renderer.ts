@@ -4,6 +4,8 @@ import player from "./player.js";
 import props from "./props.js";
 import sketchup from "./sketchup.js";
 import easings from "./easings.js";
+import pts from "./pts.js";
+import hunt from "./hunt.js";
 
 const fragmentPost = `
 varying vec2 vUv;
@@ -52,9 +54,11 @@ namespace renderer {
 
 	export var scene2, camera2, target, post, quad, plane, glitch, bounce
 
+	export var sun, sunOffset = [-0, 5, -0]
+
 	// i like the sketchup palette a lot,
 	// no need for color reduce
-	export var postToggle = false;
+	export var postToggle = true;
 
 
 	export function boot() {
@@ -127,19 +131,25 @@ namespace renderer {
 		renderer_.setClearColor(0xffffff, 0.0);
 		//renderer_.toneMapping = THREE.ReinhardToneMapping;
 
-		ambiance = new THREE.AmbientLight(0xffffff, 1);
+		ambiance = new THREE.AmbientLight(0xffffff, 0.05);
 		scene.add(ambiance);
 
-		let sun = new THREE.DirectionalLight(0xffffff, 2);
+		sun = new THREE.DirectionalLight(0xffffff, 1.0);
 		sun.shadow.mapSize.width = 2048;
 		sun.shadow.mapSize.height = 2048;
+		sun.shadow.radius = 2;
+		sun.shadow.bias = 0.0005;
 		sun.shadow.camera.near = 0.5;
 		sun.shadow.camera.far = 500;
+		sun.shadow.camera.left = sun.shadow.camera.bottom = -10;
+		sun.shadow.camera.right = sun.shadow.camera.top = 10;
 		const extend = 1000;
-		sun.position.set(-30, 100, -150);
+		sun.position.fromArray(sunOffset);
 		sun.castShadow = true;
 		scene.add(sun);
 		scene.add(sun.target);
+
+		scene.add(new THREE.CameraHelper(sun.shadow.camera));
 
 		const day_main = document.querySelector('day-main')!;
 
@@ -184,6 +194,17 @@ namespace renderer {
 
 	export function render() {
 		loop();
+
+		const jump_sun_every = 1;
+		let xz = [camera.position.x, camera.position.z] as vec2;
+		let div = pts.divide(xz, jump_sun_every);
+		xz = pts.mult(pts.floor(div), jump_sun_every);
+		//xz = pts.mult(xz, hunt.inchMeter);
+		
+		//console.log('zx', xz);
+		
+		sun.position.fromArray([xz[0] + sunOffset[0], sunOffset[1], xz[1] + sunOffset[2]]);
+		sun.target.position.fromArray([xz[0], 0, xz[1]]);
 
 		delta = clock.getDelta();
 
