@@ -136,9 +136,11 @@ var renderer;
     }
     renderer.boot = boot;
     function redo() {
-        renderer.target.setSize(window.innerWidth, window.innerHeight);
-        renderer.quad.geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
-        renderer.camera2 = new THREE.OrthographicCamera(window.innerWidth / -2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / -2, -100, 100);
+        const wh = pts.make(window.innerWidth, window.innerHeight);
+        const half = pts.divide(wh, 2);
+        renderer.target.setSize(half[0], half[1]);
+        renderer.quad.geometry = new THREE.PlaneGeometry(wh[0], wh[1]);
+        renderer.camera2 = new THREE.OrthographicCamera(wh[0] / -2, wh[0] / 2, wh[1] / 2, wh[1] / -2, -100, 100);
         renderer.camera2.updateProjectionMatrix();
     }
     function onWindowResize() {

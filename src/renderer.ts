@@ -176,11 +176,15 @@ namespace renderer {
 	}
 
 	function redo() {
-		target.setSize(window.innerWidth, window.innerHeight);
-		quad.geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
+		const wh = pts.make(window.innerWidth, window.innerHeight);
+		const half = pts.divide(wh, 2);
+
+		target.setSize(half[0], half[1]);
+
+		quad.geometry = new THREE.PlaneGeometry(wh[0], wh[1]);
 
 		camera2 = new THREE.OrthographicCamera(
-			window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -100, 100);
+			wh[0] / - 2, wh[0] / 2, wh[1] / 2, wh[1] / - 2, -100, 100);
 		camera2.updateProjectionMatrix();
 	}
 
