@@ -16,7 +16,7 @@ namespace hunt {
 	export const inchMeter = (1 / 0.0254)
 	export const timeStep = (1 / 60)
 
-	export var day_main, day_instructions
+	export var hunt_main, hunt_instructions
 	export var dt = 0
 
 	export var gviewport: viewport
@@ -35,8 +35,8 @@ namespace hunt {
 
 		gviewport = new viewport;
 
-		day_instructions = document.querySelector('day-instructions')! as HTMLElement;
-		day_main = document.querySelector('day-main');
+		hunt_instructions = document.querySelector('hunt-instructions')! as HTMLElement;
+		hunt_main = document.querySelector('hunt-main');
 
 		points.add([0, 0], [1, 1]);
 

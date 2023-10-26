@@ -19,18 +19,18 @@ class player {
         this.plc.enabled = true;
         this.plc.getObject().position.y = 1.5;
         const controler = this.plc;
-        hunt.day_instructions.addEventListener('click', function () {
+        hunt.hunt_instructions.addEventListener('click', function () {
             controler.lock();
         });
         this.plc.addEventListener('lock', function () {
             console.log('lock');
-            hunt.day_instructions.style.display = 'none';
+            hunt.hunt_instructions.style.display = 'none';
             //blocker.style.display = 'none';
         });
         this.plc.addEventListener('unlock', function () {
             console.log('unlock');
             //blocker.style.display = 'block';
-            hunt.day_instructions.style.display = '';
+            hunt.hunt_instructions.style.display = '';
         });
         renderer.scene.add(this.plc.getObject());
     }

@@ -3,6 +3,7 @@ import renderer from "./renderer.js";
 var sketchup;
 (function (sketchup) {
     const paths = {
+        'crete1': ['./assets/textures/crete1', false, false],
         'twotonewall': ['./assets/textures/twotonewall', true, true],
         'scrappyfloor': ['./assets/textures/scrappyfloor', false, false],
         'rustydoorframe': ['./assets/textures/rustydoorframe', false, false],

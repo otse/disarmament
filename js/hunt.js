@@ -25,8 +25,8 @@ var hunt;
     function boot() {
         console.log('day setting up');
         hunt.gviewport = new viewport;
-        hunt.day_instructions = document.querySelector('day-instructions');
-        hunt.day_main = document.querySelector('day-main');
+        hunt.hunt_instructions = document.querySelector('hunt-instructions');
+        hunt.hunt_main = document.querySelector('hunt-main');
         points.add([0, 0], [1, 1]);
         physics.boot();
         props.boot();

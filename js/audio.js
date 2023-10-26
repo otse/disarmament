@@ -47,7 +47,7 @@ var audio;
     }
     audio.gesture = gesture;
     function boot() {
-        hunt.day_instructions.addEventListener('click', function () {
+        hunt.hunt_instructions.addEventListener('click', function () {
             console.log('create gesture');
             gesture();
         });

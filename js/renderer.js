@@ -8,7 +8,7 @@ uniform float glitch;
 uniform int compression;
 uniform sampler2D tDiffuse;
 float factor = 256.0;
-float saturation = 3.0;
+float saturation = 2.0;
 
 #define TONE_MAPPING 
 #include <tonemapping_pars_fragment>
@@ -21,10 +21,10 @@ void main() {
 	vec4 diffuse = texture2D( tDiffuse, vUv );
 
 	// animate color reduction
-	factor -= glitch * 40.0;
+	factor -= glitch * 10.0;
 
 	// animate oversaturation
-	//saturation += glitch * 0.5;
+	saturation += glitch * 2.0;
 
 	factor = clamp(factor, 2.0, 256.0);
 
@@ -52,10 +52,12 @@ void main() {
 var renderer;
 (function (renderer) {
     // set up three.js here
+    const render_target_factor = 1;
     renderer.delta = 0;
     renderer.sunOffset = [1.0, 10, -1.0];
     // reduce
     renderer.enable_post = true;
+    renderer.animate_post = true;
     function boot() {
         window['renderer'] = renderer;
         console.log('renderer boot');
@@ -129,15 +131,15 @@ var renderer;
         renderer.scene.add(renderer.sun);
         renderer.scene.add(renderer.sun.target);
         // scene.add(new THREE.CameraHelper(sun.shadow.camera));
-        const day_main = document.querySelector('day-main');
-        day_main.appendChild(renderer.renderer_.domElement);
+        const hunt_main = document.querySelector('hunt-main');
+        hunt_main.appendChild(renderer.renderer_.domElement);
         // test
         window.addEventListener('resize', onWindowResize);
     }
     renderer.boot = boot;
     function redo() {
         const wh = pts.make(window.innerWidth, window.innerHeight);
-        const half = pts.divide(wh, 2);
+        const half = pts.divide(wh, render_target_factor);
         renderer.target.setSize(half[0], half[1]);
         renderer.quad.geometry = new THREE.PlaneGeometry(wh[0], wh[1]);
         renderer.camera2 = new THREE.OrthographicCamera(wh[0] / -2, wh[0] / 2, wh[1] / 2, wh[1] / -2, -100, 100);
@@ -153,9 +155,12 @@ var renderer;
     var prevTime = 0, time = 0, frames = 0;
     renderer.fps = 0;
     function loop() {
-        if (glob.developer)
+        if (glob.developer) {
             if (app.prompt_key('z') == 1)
                 renderer.enable_post = !renderer.enable_post;
+            if (app.prompt_key('x') == 1)
+                renderer.animate_post = !renderer.animate_post;
+        }
     }
     renderer.loop = loop;
     function render() {
@@ -175,7 +180,10 @@ var renderer;
             renderer.fps = (frames * 1000) / (time - prevTime);
             prevTime = time;
             frames = 0;
-            app.fluke_set_innerhtml('day-stats', `fps: ${renderer.fps}`);
+            app.fluke_set_innerhtml('hunt-stats', `
+				fps: ${renderer.fps}<br />
+				render target scale: ${1 / render_target_factor}
+			`);
         }
         const pulse_cycle = 3;
         renderer.glitch += renderer.delta / (pulse_cycle / 2);
@@ -184,11 +192,17 @@ var renderer;
             renderer.glitch -= 2;
         if (renderer.hdr >= 1)
             renderer.hdr -= 1;
-        let itch = easings.easeOutBounce(renderer.glitch <= 1 ? renderer.glitch : 2 - renderer.glitch);
-        renderer.post.uniforms.glitch.value = itch;
-        renderer.post.uniforms.toneMappingExposure.value = 2.0; // + hdr;
-        //let ease = easings.easeOutBounce(bounce);
-        //post.uniforms.bounce.value = ease;
+        if (renderer.animate_post) {
+            let itch = easings.easeOutBounce(renderer.glitch <= 1 ? renderer.glitch : 2 - renderer.glitch);
+            renderer.post.uniforms.glitch.value = itch;
+            renderer.post.uniforms.toneMappingExposure.value = 2.0; // + hdr;
+            //let ease = easings.easeOutBounce(bounce);
+            //post.uniforms.bounce.value = ease;
+        }
+        else {
+            renderer.post.uniforms.toneMappingExposure.value = 2.0;
+            renderer.post.uniforms.glitch.value = 0.1;
+        }
         let position = renderer.plane.getAttribute('position');
         renderer.plane.getAttribute('position').needsUpdate = true;
         renderer.plane.needsUpdate = true;
