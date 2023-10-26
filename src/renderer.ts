@@ -12,7 +12,7 @@ varying vec2 vUv;
 uniform float glitch; 
 uniform int compression;
 uniform sampler2D tDiffuse;
-float factor = 128.0;
+float factor = 256.0;
 float saturation = 3.0;
 
 void main() {
@@ -57,7 +57,7 @@ namespace renderer {
 
 	export var scene2, camera2, target, post, quad, plane, glitch, bounce
 
-	export var sun, sunOffset = [-0, 5, -0]
+	export var sun, sunOffset = [1.0, 10, -1.0]
 
 	// reduce
 	export var enable_post = true;
@@ -137,7 +137,7 @@ namespace renderer {
 		ambiance = new THREE.AmbientLight(0xffffff, 0.05);
 		scene.add(ambiance);
 
-		sun = new THREE.DirectionalLight(0xd6b49b, 0.5);
+		sun = new THREE.DirectionalLight(0xd6b49b, 0.7);
 		sun.shadow.mapSize.width = 2048;
 		sun.shadow.mapSize.height = 2048;
 		sun.shadow.radius = 2;

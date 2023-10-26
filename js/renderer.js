@@ -7,7 +7,7 @@ varying vec2 vUv;
 uniform float glitch; 
 uniform int compression;
 uniform sampler2D tDiffuse;
-float factor = 128.0;
+float factor = 256.0;
 float saturation = 3.0;
 
 void main() {
@@ -42,7 +42,7 @@ var renderer;
 (function (renderer) {
     // set up three.js here
     renderer.delta = 0;
-    renderer.sunOffset = [-0, 5, -0];
+    renderer.sunOffset = [1.0, 10, -1.0];
     // reduce
     renderer.enable_post = true;
     function boot() {
@@ -102,7 +102,7 @@ var renderer;
         //renderer_.toneMapping = THREE.ReinhardToneMapping;
         renderer.ambiance = new THREE.AmbientLight(0xffffff, 0.05);
         renderer.scene.add(renderer.ambiance);
-        renderer.sun = new THREE.DirectionalLight(0xd6b49b, 0.5);
+        renderer.sun = new THREE.DirectionalLight(0xd6b49b, 0.7);
         renderer.sun.shadow.mapSize.width = 2048;
         renderer.sun.shadow.mapSize.height = 2048;
         renderer.sun.shadow.radius = 2;

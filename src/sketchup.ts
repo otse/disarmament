@@ -3,27 +3,40 @@ import renderer from "./renderer.js";
 
 namespace sketchup {
 
-	const drainage = {
-		'twotonewall': './assets/textures/twotonewall.png',
-		'scrappyfloor': './assets/textures/scrappyfloor.png',
-		'rustydoorframe': './assets/textures/rustydoorframe.png',
+	const paths = {
+		'twotonewall': ['./assets/textures/twotonewall', true, true],
+		'scrappyfloor': ['./assets/textures/scrappyfloor', false, false],
+		'rustydoorframe': ['./assets/textures/rustydoorframe', false, false],
 	}
 
-	const sewer = {}
+	const library = {}
 
 	export function boot() {
 		const textureLoader = new THREE.TextureLoader();
 		const maxAnisotropy = renderer.renderer_.capabilities.getMaxAnisotropy();
-		for (let name in drainage) {
-			let path = drainage[name];
-			const map = textureLoader.load(path);
-			const material = new THREE.MeshLambertMaterial({
+		for (let name in paths) {
+			const tuple = paths[name];
+			const map = textureLoader.load(`${tuple[0]}.png`);
+			const material = new THREE.MeshPhongMaterial({
 				map: map,
-				flatShading: true,
+				flatShading: true
 			});
+			if (tuple[1]) {
+				const map = textureLoader.load(`${tuple[0]}_normal.png`);
+				material.normalMap = map;
+			}
+			if (tuple[2]) {
+				console.log('attach a specular to', tuple[0]);
+
+				const map = textureLoader.load(`${tuple[0]}_specular.png`);
+				material.specular.set(0.04, 0.04, 0.04);
+				//material.emissive.set(0.01, 0, 0);
+				material.shininess = 120;				
+				material.specularMap = map;
+			}
 			map.wrapS = map.wrapT = THREE.RepeatWrapping;
 			material.map.minFilter = material.map.magFilter = THREE.NearestFilter;
-			sewer[name] = material;
+			library[name] = material;
 		}
 
 		load_room();
@@ -49,19 +62,28 @@ namespace sketchup {
 				material.polygonOffsetFactor = -4;
 			}
 
-			function drain(object, material) {
-				const sewage = sewer[material.name];
-				if (!sewage)
+			function drain(object, index) {
+				const old = index == -1 ? object.material : object.material[index];
+				const prefab = library[old.name];
+				if (!prefab)
 					return;
-				const old = material;
-				const dupe = sewage.clone();
-				//const dupe = sewage.copy(old);
+				const dupe = prefab.clone();
 				if (old.map) {
-					console.log('drain', material.name);
-					//dupe.map.wrapS = old.map.wrapS;
-					//dupe.map.wrapT = old.map.wrapT;
+					dupe.map.wrapS = old.map.wrapS;
+					dupe.map.wrapT = old.map.wrapT;
+					if (dupe.normalMap) {
+						dupe.normalMap.wrapS = old.map.wrapS;
+						dupe.normalMap.wrapT = old.map.wrapT;
+					}
+					if (dupe.specularMap) {
+						dupe.specularMap.wrapS = old.map.wrapS;
+						dupe.specularMap.wrapT = old.map.wrapT;
+					}
 				}
-				material.copy(dupe);
+				if (index == -1)
+					object.material = dupe;
+				else
+					object.material[index] = dupe;
 				if (old.name.includes('sticker'))
 					fix_sticker(old);
 			}
@@ -72,12 +94,12 @@ namespace sketchup {
 				object.receiveShadow = true;
 				if (object.material) {
 					if (!object.material.length) {
-						drain(object, object.material);
+						drain(object, -1);
 					}
 					else {
 						console.warn('multiple materials');
-						for (let material of object.material) {
-							drain(object, material);
+						for (let index in object.material) {
+							drain(object, index);
 						}
 					}
 				}
