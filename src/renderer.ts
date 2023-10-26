@@ -15,11 +15,18 @@ uniform sampler2D tDiffuse;
 float factor = 256.0;
 float saturation = 3.0;
 
+#define TONE_MAPPING 
+#include <tonemapping_pars_fragment>
+
+vec4 LinearToGamma( in vec4 value, in float gammaFactor ) {
+	return vec4( pow( value.rgb, vec3( 1.0 / gammaFactor ) ), value.a );
+}
+
 void main() {
 	vec4 diffuse = texture2D( tDiffuse, vUv );
 
 	// animate color reduction
-	factor -= glitch * 10.0;
+	factor -= glitch * 40.0;
 
 	// animate oversaturation
 	//saturation += glitch * 0.5;
@@ -33,7 +40,11 @@ void main() {
 	diffuse = vec4(grey + saturation * (diffuse.rgb - grey), 1.0);
 	diffuse = vec4(floor(diffuse.rgb * factor + 0.5) / factor, diffuse.a);
 
+	//diffuse = LinearToGamma( diffuse, 0.7);
 	gl_FragColor = diffuse;
+	//#include <tonemapping_fragment>
+	// LinearToneMapping ReinhardToneMapping OptimizedCineonToneMapping ACESFilmicToneMapping
+	gl_FragColor.rgb = OptimizedCineonToneMapping( gl_FragColor.rgb );
 	#include <colorspace_fragment>
 }`
 
@@ -55,7 +66,7 @@ namespace renderer {
 
 	export var propsGroup;
 
-	export var scene2, camera2, target, post, quad, plane, glitch, bounce
+	export var scene2, camera2, target, post, quad, plane, glitch, hdr
 
 	export var sun, sunOffset = [1.0, 10, -1.0]
 
@@ -101,7 +112,8 @@ namespace renderer {
 				tDiffuse: { value: target.texture },
 				glitch: { value: 0.0 },
 				bounce: { value: 0.0 },
-				compression: { value: 1 }
+				compression: { value: 1 },
+				toneMappingExposure: { value: 1.0 }
 			},
 			vertexShader: vertexScreen,
 			fragmentShader: fragmentPost,
@@ -114,7 +126,7 @@ namespace renderer {
 		scene2.add(quad);
 
 		glitch = 0;
-		bounce = 0;
+		hdr = 0;
 
 		redo();
 
@@ -224,16 +236,17 @@ namespace renderer {
 		const pulse_cycle = 3;
 
 		glitch += delta / (pulse_cycle / 2);
-		bounce += delta / 2.0;
+		hdr += delta / 1.0;
 
 		if (glitch >= 2)
 			glitch -= 2;
 
-		if (bounce >= 2)
-			bounce -= 2;
+		if (hdr >= 1)
+			hdr -= 1;
 
 		let itch = easings.easeOutBounce(glitch <= 1 ? glitch : 2 - glitch);
-		post.uniforms.glitch.value = itch;
+		post.uniforms.glitch.value = itch;		
+		post.uniforms.toneMappingExposure.value = 2.0;// + hdr;
 		//let ease = easings.easeOutBounce(bounce);
 		//post.uniforms.bounce.value = ease;
 		

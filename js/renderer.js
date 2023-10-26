@@ -10,11 +10,18 @@ uniform sampler2D tDiffuse;
 float factor = 256.0;
 float saturation = 3.0;
 
+#define TONE_MAPPING 
+#include <tonemapping_pars_fragment>
+
+vec4 LinearToGamma( in vec4 value, in float gammaFactor ) {
+	return vec4( pow( value.rgb, vec3( 1.0 / gammaFactor ) ), value.a );
+}
+
 void main() {
 	vec4 diffuse = texture2D( tDiffuse, vUv );
 
 	// animate color reduction
-	factor -= glitch * 10.0;
+	factor -= glitch * 40.0;
 
 	// animate oversaturation
 	//saturation += glitch * 0.5;
@@ -28,7 +35,11 @@ void main() {
 	diffuse = vec4(grey + saturation * (diffuse.rgb - grey), 1.0);
 	diffuse = vec4(floor(diffuse.rgb * factor + 0.5) / factor, diffuse.a);
 
+	//diffuse = LinearToGamma( diffuse, 0.7);
 	gl_FragColor = diffuse;
+	//#include <tonemapping_fragment>
+	// LinearToneMapping ReinhardToneMapping OptimizedCineonToneMapping ACESFilmicToneMapping
+	gl_FragColor.rgb = OptimizedCineonToneMapping( gl_FragColor.rgb );
 	#include <colorspace_fragment>
 }`;
 const vertexScreen = `
@@ -74,7 +85,8 @@ var renderer;
                 tDiffuse: { value: renderer.target.texture },
                 glitch: { value: 0.0 },
                 bounce: { value: 0.0 },
-                compression: { value: 1 }
+                compression: { value: 1 },
+                toneMappingExposure: { value: 1.0 }
             },
             vertexShader: vertexScreen,
             fragmentShader: fragmentPost,
@@ -86,7 +98,7 @@ var renderer;
         renderer.quad.matrixAutoUpdate = false;
         renderer.scene2.add(renderer.quad);
         renderer.glitch = 0;
-        renderer.bounce = 0;
+        renderer.hdr = 0;
         redo();
         renderer.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const helper = new THREE.AxesHelper(1);
@@ -165,13 +177,14 @@ var renderer;
         }
         const pulse_cycle = 3;
         renderer.glitch += renderer.delta / (pulse_cycle / 2);
-        renderer.bounce += renderer.delta / 2.0;
+        renderer.hdr += renderer.delta / 1.0;
         if (renderer.glitch >= 2)
             renderer.glitch -= 2;
-        if (renderer.bounce >= 2)
-            renderer.bounce -= 2;
+        if (renderer.hdr >= 1)
+            renderer.hdr -= 1;
         let itch = easings.easeOutBounce(renderer.glitch <= 1 ? renderer.glitch : 2 - renderer.glitch);
         renderer.post.uniforms.glitch.value = itch;
+        renderer.post.uniforms.toneMappingExposure.value = 2.0; // + hdr;
         //let ease = easings.easeOutBounce(bounce);
         //post.uniforms.bounce.value = ease;
         let position = renderer.plane.getAttribute('position');
