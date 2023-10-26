@@ -12,23 +12,22 @@ varying vec2 vUv;
 uniform float glitch; 
 uniform int compression;
 uniform sampler2D tDiffuse;
-float factor = 256.0;
-float saturation = 1.4;
+float factor = 128.0;
+float saturation = 3.0;
 
 void main() {
 	vec4 diffuse = texture2D( tDiffuse, vUv );
 
 	// animate color reduction
-	//factor -= glitch * 25.0;
+	factor -= glitch * 10.0;
 
 	// animate oversaturation
-	saturation += glitch * 3.0;
+	//saturation += glitch * 0.5;
 
 	factor = clamp(factor, 2.0, 256.0);
 
-	vec3 original = diffuse.rgb;
 	vec3 lumaWeights = vec3(.25,.50,.25);
-	vec3 grey = vec3(dot(lumaWeights, original));
+	vec3 grey = vec3(dot(lumaWeights, diffuse.rgb));
 	
 	// sat then reduce
 	diffuse = vec4(grey + saturation * (diffuse.rgb - grey), 1.0);
@@ -135,7 +134,7 @@ namespace renderer {
 		renderer_.setClearColor(0xffffff, 0.0);
 		//renderer_.toneMapping = THREE.ReinhardToneMapping;
 
-		ambiance = new THREE.AmbientLight(0xffffff, 0.02);
+		ambiance = new THREE.AmbientLight(0xffffff, 0.05);
 		scene.add(ambiance);
 
 		sun = new THREE.DirectionalLight(0xd6b49b, 0.5);
@@ -153,7 +152,7 @@ namespace renderer {
 		scene.add(sun);
 		scene.add(sun.target);
 
-		scene.add(new THREE.CameraHelper(sun.shadow.camera));
+		// scene.add(new THREE.CameraHelper(sun.shadow.camera));
 
 		const day_main = document.querySelector('day-main')!;
 
@@ -166,7 +165,7 @@ namespace renderer {
 
 	function redo() {
 		target.setSize(window.innerWidth, window.innerHeight);
-		plane = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
+		quad.geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
 
 		camera2 = new THREE.OrthographicCamera(
 			window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -100, 100);
@@ -222,9 +221,9 @@ namespace renderer {
 			app.fluke_set_innerhtml('day-stats', `fps: ${fps}`);
 		}
 
-		const pulse_every = 3;
+		const pulse_cycle = 3;
 
-		glitch += delta / (pulse_every / 2);
+		glitch += delta / (pulse_cycle / 2);
 		bounce += delta / 2.0;
 
 		if (glitch >= 2)

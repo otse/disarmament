@@ -3,8 +3,9 @@ import renderer from "./renderer.js";
 var sketchup;
 (function (sketchup) {
     const drainage = {
-        'twotonewall': './files/textures/twotonewall.png',
-        'scrappyfloor': './files/textures/scrappyfloor.png',
+        'twotonewall': './assets/textures/twotonewall.png',
+        'scrappyfloor': './assets/textures/scrappyfloor.png',
+        'rustydoorframe': './assets/textures/rustydoorframe.png',
     };
     const sewer = {};
     function boot() {
@@ -37,16 +38,19 @@ var sketchup;
                 material.polygonOffset = true;
                 material.polygonOffsetFactor = -4;
             }
-            function drain(object) {
-                const sewage = sewer[object.material.name];
+            function drain(object, material) {
+                const sewage = sewer[material.name];
                 if (!sewage)
                     return;
+                const old = material;
                 const dupe = sewage.clone();
-                const old = object.material;
+                //const dupe = sewage.copy(old);
                 if (old.map) {
-                    dupe.map.wrapS = old.map.wrapS;
-                    dupe.map.wrapT = old.map.wrapT;
+                    console.log('drain', material.name);
+                    //dupe.map.wrapS = old.map.wrapS;
+                    //dupe.map.wrapT = old.map.wrapT;
                 }
+                material.copy(dupe);
                 if (old.name.includes('sticker'))
                     fix_sticker(old);
             }
@@ -56,11 +60,12 @@ var sketchup;
                 object.receiveShadow = true;
                 if (object.material) {
                     if (!object.material.length) {
-                        drain(object);
+                        drain(object, object.material);
                     }
                     else {
                         console.warn('multiple materials');
                         for (let material of object.material) {
+                            drain(object, material);
                         }
                     }
                 }

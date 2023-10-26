@@ -67,7 +67,7 @@ class player {
         });
         this.bodyVelocity = this.cannonBody.velocity;
     }
-    force = 12.0;
+    force = 7.0;
     bodyVelocity;
     loop(delta) {
         if (this.plc.enabled === false)
