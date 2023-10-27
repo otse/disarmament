@@ -57,6 +57,7 @@ class player {
 		sphereBody.position.set(0, 1, 0);
 		sphereBody.linearDamping = 0.95;
 		sphereBody.angularDamping = 0.999;
+
 		physics.world.addBody(sphereBody);
 		this.cannonBody = sphereBody;
 
@@ -85,23 +86,73 @@ class player {
 		this.bodyVelocity = this.cannonBody.velocity;
 	}
 
-	force = 7.0;
 	bodyVelocity;
+	noclip = false
 
 	loop(delta: number) {
 
 		if (this.plc.enabled === false)
 			return;
 
+		if (app.prompt_key('v') == 1) {
+			this.noclip = !this.noclip;
+
+			//this.cannonBody.collisionResponse = this.noclip ? true : 0;
+		}
+
+		this.noclip ? this.noclip_move(delta) : this.physics_move(delta);
+
+	}
+
+	noclip_move(delta) {
+		const camera = this.plc.getObject();
+		const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
+
+		let x = 0, y = 0, z = 0;
+
+		if (app.prompt_key('w') && !app.prompt_key('s'))
+			z = -1;
+
+		if (app.prompt_key('s') && !app.prompt_key('w'))
+			z = 1;
+
+		if (app.prompt_key('a') && !app.prompt_key('d'))
+			x = -1;
+
+		if (app.prompt_key('d') && !app.prompt_key('a'))
+			x = 1;
+
+		if (app.prompt_key('shift')) {
+			z *= 2;
+			x *= 2;
+		}
+
+		if (x || y || z) {
+
+			z *= 0.01;
+			x *= 0.01;
+
+			let quat = new THREE.Quaternion().setFromEuler(euler);
+			let towards = new THREE.Vector3(x, y, z);
+			towards.applyQuaternion(quat);
+
+			const position = new THREE.Vector3();
+			position.copy(camera.position);
+			position.add(towards);
+			camera.position.copy(position);
+		}
+	}
+
+	physics_move(delta) {
 		let inputVelocity = new THREE.Vector3();
 
 		let x = 0, z = 0;
 
 		if (app.prompt_key('w') && !app.prompt_key('s'))
-			z = 1;
+			z = -1;
 
 		if (app.prompt_key('s') && !app.prompt_key('w'))
-			z = -1;
+			z = 1;
 
 		if (app.prompt_key('a') && !app.prompt_key('d'))
 			x = -1;
@@ -114,21 +165,21 @@ class player {
 			this.canJump = false;
 		}
 
-		const force = this.force * delta;
-		let angle = pts.angle([0, 0], [x, z]);
+		z *= 0.04;
+		x *= 0.04;
+
+		if (app.prompt_key('shift')) {
+			z *= 1.5;
+			x *= 1.5;
+		}
 
 		const camera = this.plc.getObject();
 		const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
-		
 		// set our pitch to 0 which is forward 
 		// else our forward speed is 0 when looking down or up
 		euler.x = 0;
 
-
 		if (x || z) {
-			x = force * Math.sin(angle);
-			z = force * Math.cos(angle);
-
 			inputVelocity.x = x;
 			inputVelocity.z = z;
 		}

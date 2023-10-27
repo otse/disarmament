@@ -5,6 +5,7 @@ namespace sketchup {
 
 	const paths = {
 		'crete1': ['./assets/textures/crete1', false, false],
+		'brick1': ['./assets/textures/brick1', true, false],
 		'twotonewall': ['./assets/textures/twotonewall', true, true],
 		'scrappyfloor': ['./assets/textures/scrappyfloor', false, false],
 		'rustydoorframe': ['./assets/textures/rustydoorframe', false, false],

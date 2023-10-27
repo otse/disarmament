@@ -311,7 +311,7 @@ namespace physics {
 			const staticShape = new CANNON.Box(halfExtents2);
 			const staticBody = new CANNON.Body({ mass: 0 });
 			staticBody.addShape(staticShape);
-			staticBody.position.copy(center);
+			staticBody.position.copy(center);			
 			staticBody.collisionResponse = 0;
 			world.addBody(staticBody);
 

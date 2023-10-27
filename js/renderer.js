@@ -52,8 +52,8 @@ void main() {
 var renderer;
 (function (renderer) {
     // set up three.js here
-    const render_target_factor = 1;
-    renderer.delta = 0;
+    const render_target_factor = 2;
+    renderer.dt = 0;
     renderer.sunOffset = [1.0, 10, -1.0];
     // reduce
     renderer.enable_post = true;
@@ -173,7 +173,12 @@ var renderer;
         //console.log('zx', xz);
         renderer.sun.position.fromArray([xz[0] + renderer.sunOffset[0], renderer.sunOffset[1], xz[1] + renderer.sunOffset[2]]);
         renderer.sun.target.position.fromArray([xz[0], 0, xz[1]]);
-        renderer.delta = renderer.clock.getDelta();
+        renderer.dt = renderer.clock.getDelta();
+        // if we run sub 10 fps, pretend it's 10
+        // this prevents huge dt of seconds, minutes, hours
+        // if your fps is very low, the game will appear to be in slow motion
+        const min_dt = 1.0 / 10.0;
+        renderer.dt = renderer.dt > min_dt ? min_dt : renderer.dt;
         frames++;
         time = (performance || Date).now();
         if (time >= prevTime + 1000) {
@@ -186,8 +191,8 @@ var renderer;
 			`);
         }
         const pulse_cycle = 3;
-        renderer.glitch += renderer.delta / (pulse_cycle / 2);
-        renderer.hdr += renderer.delta / 1.0;
+        renderer.glitch += renderer.dt / (pulse_cycle / 2);
+        renderer.hdr += renderer.dt / 1.0;
         if (renderer.glitch >= 2)
             renderer.glitch -= 2;
         if (renderer.hdr >= 1)
@@ -195,14 +200,13 @@ var renderer;
         if (renderer.animate_post) {
             let itch = easings.easeOutBounce(renderer.glitch <= 1 ? renderer.glitch : 2 - renderer.glitch);
             renderer.post.uniforms.glitch.value = itch;
-            renderer.post.uniforms.toneMappingExposure.value = 2.0; // + hdr;
             //let ease = easings.easeOutBounce(bounce);
             //post.uniforms.bounce.value = ease;
         }
         else {
-            renderer.post.uniforms.toneMappingExposure.value = 2.0;
             renderer.post.uniforms.glitch.value = 0.1;
         }
+        renderer.post.uniforms.toneMappingExposure.value = 2.5;
         let position = renderer.plane.getAttribute('position');
         renderer.plane.getAttribute('position').needsUpdate = true;
         renderer.plane.needsUpdate = true;

@@ -60,11 +60,11 @@ void main() {
 namespace renderer {
 	// set up three.js here
 
-	const render_target_factor = 1;
+	const render_target_factor = 2;
 
 	export var scene, camera, renderer_, ambiance, clock;
 
-	export var delta = 0;
+	export var dt = 0;
 
 	export var propsGroup;
 
@@ -229,7 +229,13 @@ namespace renderer {
 		sun.position.fromArray([xz[0] + sunOffset[0], sunOffset[1], xz[1] + sunOffset[2]]);
 		sun.target.position.fromArray([xz[0], 0, xz[1]]);
 
-		delta = clock.getDelta();
+		dt = clock.getDelta();
+
+		// if we run sub 10 fps, pretend it's 10
+		// this prevents huge dt of seconds, minutes, hours
+		// if your fps is very low, the game will appear to be in slow motion
+		const min_dt = 1.0 / 10.0;
+		dt = dt > min_dt ? min_dt : dt;
 
 		frames++;
 		time = (performance || Date).now();
@@ -248,8 +254,8 @@ namespace renderer {
 
 		const pulse_cycle = 3;
 
-		glitch += delta / (pulse_cycle / 2);
-		hdr += delta / 1.0;
+		glitch += dt / (pulse_cycle / 2);
+		hdr += dt / 1.0;
 
 		if (glitch >= 2)
 			glitch -= 2;
@@ -260,14 +266,13 @@ namespace renderer {
 		if (animate_post) {
 			let itch = easings.easeOutBounce(glitch <= 1 ? glitch : 2 - glitch);
 			post.uniforms.glitch.value = itch;
-			post.uniforms.toneMappingExposure.value = 2.0;// + hdr;
 			//let ease = easings.easeOutBounce(bounce);
 			//post.uniforms.bounce.value = ease;
 		}
 		else {
-			post.uniforms.toneMappingExposure.value = 2.0;
 			post.uniforms.glitch.value = 0.1;
 		}
+		post.uniforms.toneMappingExposure.value = 2.5;
 		let position = plane.getAttribute('position');
 		plane.getAttribute('position').needsUpdate = true;
 		plane.needsUpdate = true;
