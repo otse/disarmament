@@ -12,8 +12,8 @@ varying vec2 vUv;
 uniform float glitch; 
 uniform int compression;
 uniform sampler2D tDiffuse;
-float factor = 256.0;
-float saturation = 2.0;
+float factor = 200.0;
+float saturation = 1.0;
 
 #define TONE_MAPPING 
 #include <tonemapping_pars_fragment>
@@ -26,25 +26,31 @@ void main() {
 	vec4 diffuse = texture2D( tDiffuse, vUv );
 
 	// animate color reduction
-	factor -= glitch * 10.0;
+	factor -= glitch * 40.0;
 
 	// animate oversaturation
-	saturation += glitch * 2.0;
+	saturation += glitch * 3.0;
 
-	factor = clamp(factor, 2.0, 256.0);
+	//factor = clamp(factor, 2.0, 256.0);
 
 	vec3 lumaWeights = vec3(.25,.50,.25);
 	vec3 grey = vec3(dot(lumaWeights, diffuse.rgb));
 	
-	// sat then reduce
+	/// saturate
 	diffuse = vec4(grey + saturation * (diffuse.rgb - grey), 1.0);
-	diffuse = vec4(floor(diffuse.rgb * factor + 0.5) / factor, diffuse.a);
+
+	/// now colround
+	diffuse *= factor;
+	diffuse = vec4( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b), ceil(diffuse.a) );
+	diffuse /= factor;
+
+	//diffuse = vec4(floor(diffuse.rgb * factor + 0.5) / factor, diffuse.a); // reduce
 
 	//diffuse = LinearToGamma( diffuse, 0.7);
 	gl_FragColor = diffuse;
 	//#include <tonemapping_fragment>
 	// LinearToneMapping ReinhardToneMapping OptimizedCineonToneMapping ACESFilmicToneMapping
-	gl_FragColor.rgb = OptimizedCineonToneMapping( gl_FragColor.rgb );
+	gl_FragColor.rgb = ACESFilmicToneMapping( gl_FragColor.rgb );
 	#include <colorspace_fragment>
 }`
 
@@ -60,7 +66,7 @@ void main() {
 namespace renderer {
 	// set up three.js here
 
-	const render_target_factor = 2;
+	const render_target_factor = 1;
 
 	export var scene, camera, renderer_, ambiance, clock;
 
@@ -75,6 +81,7 @@ namespace renderer {
 	// reduce
 	export var enable_post = true;
 	export var animate_post = true;
+	export var ren_stats = false;
 
 
 	export function boot() {
@@ -149,7 +156,7 @@ namespace renderer {
 		renderer_.setClearColor(0xffffff, 0.0);
 		//renderer_.toneMapping = THREE.ReinhardToneMapping;
 
-		ambiance = new THREE.AmbientLight(0xffffff, 0.05);
+		ambiance = new THREE.AmbientLight(0xffffff, 0.06);
 		scene.add(ambiance);
 
 		sun = new THREE.DirectionalLight(0xd6b49b, 0.7);
@@ -208,10 +215,14 @@ namespace renderer {
 
 	export function loop() {
 		if (glob.developer) {
-			if (app.prompt_key('z') == 1)
+			if (glob.z == 1)
 				enable_post = !enable_post;
-			if (app.prompt_key('x') == 1)
+			if (glob.x == 1)
 				animate_post = !animate_post;
+			if (glob.h == 1) {
+				ren_stats = !ren_stats;
+				app.fluke_set_style('hunt-stats', 'visibility', ren_stats ? '' : 'hidden');
+			}
 		}
 	}
 
@@ -246,10 +257,13 @@ namespace renderer {
 
 			prevTime = time;
 			frames = 0;
-			app.fluke_set_innerhtml('hunt-stats', `
+
+			if (ren_stats) {
+				app.fluke_set_innerhtml('hunt-stats', `
 				fps: ${fps}<br />
 				render target scale: ${1 / render_target_factor}
 			`);
+			}
 		}
 
 		const pulse_cycle = 3;
@@ -270,9 +284,9 @@ namespace renderer {
 			//post.uniforms.bounce.value = ease;
 		}
 		else {
-			post.uniforms.glitch.value = 0.1;
+			post.uniforms.glitch.value = 0;
 		}
-		post.uniforms.toneMappingExposure.value = 2.5;
+		post.uniforms.toneMappingExposure.value = 1.0;
 		let position = plane.getAttribute('position');
 		plane.getAttribute('position').needsUpdate = true;
 		plane.needsUpdate = true;

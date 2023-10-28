@@ -56,6 +56,17 @@ namespace hunt {
 
 		dt = delta;
 
+		glob.w = app.proompt('w');
+		glob.s = app.proompt('s');
+		glob.a = app.proompt('a');
+		glob.d = app.proompt('d');
+		glob.shift = app.proompt('shift');
+		glob.space_bar = app.proompt(' ');
+		glob.x = app.proompt('x');
+		glob.z = app.proompt('z');
+		glob.v = app.proompt('v');
+		glob.h = app.proompt('h');
+
 		gplayer.loop(delta);
 		physics.loop(hunt.timeStep);
 		props.loop();

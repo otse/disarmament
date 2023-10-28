@@ -4,7 +4,8 @@ var sketchup;
 (function (sketchup) {
     const paths = {
         'crete1': ['./assets/textures/crete1', false, false],
-        'brick1': ['./assets/textures/brick1', true, false],
+        'brick1': ['./assets/textures/brick1', true, true],
+        'metal1': ['./assets/textures/metal1', true, false],
         'twotonewall': ['./assets/textures/twotonewall', true, true],
         'scrappyfloor': ['./assets/textures/scrappyfloor', false, false],
         'rustydoorframe': ['./assets/textures/rustydoorframe', false, false],
@@ -58,6 +59,7 @@ var sketchup;
                 if (!prefab)
                     return;
                 const dupe = prefab.clone();
+                // dupe.color.set('red'); // debug
                 if (old.map) {
                     dupe.map.wrapS = old.map.wrapS;
                     dupe.map.wrapT = old.map.wrapT;

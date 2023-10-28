@@ -29,7 +29,7 @@ namespace app {
 			event.preventDefault();
 	}
 
-	export function prompt_key(k: string) {
+	export function proompt(k: string) {
 		return keys[k] || KEY.UNPRESSED;
 	}
 
@@ -134,6 +134,10 @@ namespace app {
 	export function fluke_set_innerhtml(selector, html) {
 		let element = document.querySelectorAll(selector)[0];
 		element.innerHTML = html;
+	}
+	export function fluke_set_style(selector, style, property) {
+		let element = document.querySelectorAll(selector)[0];
+		element.style[style] = property;
 	}
 }
 

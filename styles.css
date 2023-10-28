@@ -1,6 +1,7 @@
 body {
   margin: 0;
   background: gainsboro;
+  font-family: 'Waiting for the Sunrise', cursive;
 }
 hunt-main {
   display: flex;
@@ -15,6 +16,7 @@ hunt-instructions {
   position: absolute;
   color: white;
   text-shadow: 1px 1px 5px black;
+  text-align: center;
 }
 hunt-stats {
   display: flex;

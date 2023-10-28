@@ -130,8 +130,10 @@ var props;
     props_1.pdoor = pdoor;
     const light_presets = {
         sconce: { hide: false, color: 'white', intensity: 0.1, distance: 1, offset: [0, 0, -5] },
+        sconce1: { hide: true, color: 'white', intensity: 0.1, distance: 2.0, decay: 0.1 },
         openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
-        skylightstart: { hide: true, color: 'white', intensity: 0.1, distance: 2.0, decay: 0.1 },
+        skylightstart: { hide: true, color: 'white', intensity: 0.2, distance: 2.0, decay: 0.05 },
+        skirt: { hide: true, color: 'green', intensity: 0.3, distance: 0.8, decay: 0.7 },
         none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
     };
     class plight extends prop {
@@ -141,11 +143,16 @@ var props;
         setup() {
             //this.object.visible = false;
             const preset = light_presets[this.parameters.preset || 'none'];
-            const center = new THREE.Vector3();
             this.object.visible = !preset.hide;
+            const size = new THREE.Vector3();
+            const center = new THREE.Vector3();
+            this.aabb.getSize(size);
             this.aabb.getCenter(center);
+            size.multiplyScalar(hunt.inchMeter);
+            //console.log('light size, center', size, center);
             let light = new THREE.PointLight(preset.color, preset.intensity, preset.distance, preset.decay);
             light.position.fromArray(preset.offset || [0, 0, 0]);
+            light.position.add(size.divideScalar(2.0));
             //this.group.add(new THREE.AxesHelper(10));
             this.group.add(light);
         }

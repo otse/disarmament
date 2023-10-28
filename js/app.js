@@ -34,10 +34,10 @@ var app;
             event.preventDefault();
     }
     app.onkeys = onkeys;
-    function prompt_key(k) {
+    function proompt(k) {
         return keys[k] || KEY.UNPRESSED;
     }
-    app.prompt_key = prompt_key;
+    app.proompt = proompt;
     function boot(version) {
         console.log('app boot');
         hooks.call('AppBoot', null);
@@ -139,6 +139,11 @@ var app;
         element.innerHTML = html;
     }
     app.fluke_set_innerhtml = fluke_set_innerhtml;
+    function fluke_set_style(selector, style, property) {
+        let element = document.querySelectorAll(selector)[0];
+        element.style[style] = property;
+    }
+    app.fluke_set_style = fluke_set_style;
 })(app || (app = {}));
 window['App'] = app;
 export default app;
