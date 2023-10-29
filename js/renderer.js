@@ -58,7 +58,7 @@ void main() {
 var renderer;
 (function (renderer) {
     // set up three.js here
-    const render_target_factor = 1;
+    const render_target_factor = 2;
     renderer.dt = 0;
     renderer.sunOffset = [1.0, 10, -1.0];
     // reduce

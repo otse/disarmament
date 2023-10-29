@@ -23,7 +23,7 @@ var sketchup;
             });
             if (tuple[1]) {
                 const map = textureLoader.load(`${tuple[0]}_normal.png`);
-                material.normalMap = map;
+                //material.normalMap = map;
             }
             if (tuple[2]) {
                 console.log('attach a specular to', tuple[0]);

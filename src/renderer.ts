@@ -66,7 +66,7 @@ void main() {
 namespace renderer {
 	// set up three.js here
 
-	const render_target_factor = 1;
+	const render_target_factor = 2;
 
 	export var scene, camera, renderer_, ambiance, clock;
 
