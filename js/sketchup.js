@@ -5,7 +5,7 @@ var sketchup;
     const paths = {
         'crete1': ['./assets/textures/crete1', false, false],
         'brick1': ['./assets/textures/brick1', true, true],
-        'metal1': ['./assets/textures/metal1', true, false],
+        'metal1': ['./assets/textures/metal1', true, false, true],
         'twotonewall': ['./assets/textures/twotonewall', true, true],
         'scrappyfloor': ['./assets/textures/scrappyfloor', false, false],
         'rustydoorframe': ['./assets/textures/rustydoorframe', false, false],
@@ -33,6 +33,10 @@ var sketchup;
                 material.shininess = 120;
                 material.specularMap = map;
             }
+            if (tuple[3]) {
+                const map = textureLoader.load(`${tuple[0]}_aomap.png`);
+                material.aoMap = map;
+            }
             map.wrapS = map.wrapT = THREE.RepeatWrapping;
             material.map.minFilter = material.map.magFilter = THREE.NearestFilter;
             library[name] = material;
@@ -48,6 +52,7 @@ var sketchup;
             const myScene = collada.scene;
             myScene.updateMatrixWorld();
             console.log('myscene', myScene.scale);
+            // myScene.scale.set(1, 1, 1);
             function fix_sticker(material) {
                 material.transparent = true;
                 material.polygonOffset = true;
@@ -71,6 +76,15 @@ var sketchup;
                         dupe.specularMap.wrapS = old.map.wrapS;
                         dupe.specularMap.wrapT = old.map.wrapT;
                     }
+                    if (dupe.aoMap) {
+                        dupe.aoMap.wrapS = old.map.wrapS;
+                        dupe.aoMap.wrapT = old.map.wrapT;
+                    }
+                }
+                if (dupe.aoMap) {
+                    var uvs = object.geometry.attributes.uv.array;
+                    object.geometry.setAttribute('uv2', new THREE.BufferAttribute(uvs, 2));
+                    object.geometry.attributes.uv2 = object.geometry.attributes.uv.clone();
                 }
                 if (index == -1)
                     object.material = dupe;

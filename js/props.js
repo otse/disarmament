@@ -133,7 +133,7 @@ var props;
         sconce1: { hide: true, color: 'white', intensity: 0.1, distance: 2.0, decay: 0.1 },
         openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
         skylightstart: { hide: true, color: 'white', intensity: 0.2, distance: 2.0, decay: 0.05 },
-        skirt: { hide: true, color: 'green', intensity: 0.3, distance: 0.8, decay: 0.7 },
+        skirt: { hide: true, color: 'green', intensity: 0.3, distance: 1.0, decay: 0.7 },
         none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
     };
     class plight extends prop {

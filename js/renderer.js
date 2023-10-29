@@ -6,9 +6,9 @@ const fragmentPost = `
 varying vec2 vUv;
 uniform float glitch; 
 uniform int compression;
+uniform float saturation;
 uniform sampler2D tDiffuse;
 float factor = 200.0;
-float saturation = 1.0;
 
 #define TONE_MAPPING 
 #include <tonemapping_pars_fragment>
@@ -24,7 +24,7 @@ void main() {
 	factor -= glitch * 40.0;
 
 	// animate oversaturation
-	saturation += glitch * 3.0;
+	//saturation += glitch * 1.0;
 
 	//factor = clamp(factor, 2.0, 256.0);
 
@@ -93,6 +93,7 @@ var renderer;
             uniforms: {
                 tDiffuse: { value: renderer.target.texture },
                 glitch: { value: 0.0 },
+                saturation: { value: 1.0 },
                 bounce: { value: 0.0 },
                 compression: { value: 1 },
                 toneMappingExposure: { value: 1.0 }
@@ -199,7 +200,7 @@ var renderer;
             if (renderer.ren_stats) {
                 app.fluke_set_innerhtml('hunt-stats', `
 				fps: ${renderer.fps}<br />
-				render target scale: ${1 / render_target_factor}
+				render target scale: ${(1 / render_target_factor).toFixed(1)}
 			`);
             }
         }
@@ -213,13 +214,15 @@ var renderer;
         if (renderer.animate_post) {
             let itch = easings.easeOutBounce(renderer.glitch <= 1 ? renderer.glitch : 2 - renderer.glitch);
             renderer.post.uniforms.glitch.value = itch;
+            renderer.post.uniforms.saturation.value = 1 + itch;
             //let ease = easings.easeOutBounce(bounce);
             //post.uniforms.bounce.value = ease;
         }
         else {
             renderer.post.uniforms.glitch.value = 0;
+            renderer.post.uniforms.saturation.value = 2.0;
         }
-        renderer.post.uniforms.toneMappingExposure.value = 1.0;
+        renderer.post.uniforms.toneMappingExposure.value = 2.0;
         let position = renderer.plane.getAttribute('position');
         renderer.plane.getAttribute('position').needsUpdate = true;
         renderer.plane.needsUpdate = true;
