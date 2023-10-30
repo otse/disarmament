@@ -58,7 +58,7 @@ void main() {
 var renderer;
 (function (renderer) {
     // set up three.js here
-    const render_target_factor = 4;
+    const render_target_factor = 1;
     renderer.dt = 0;
     renderer.sunOffset = [1.0, 10, -1.0];
     // reduce
@@ -122,7 +122,8 @@ var renderer;
         renderer.renderer_.shadowMap.type = THREE.BasicShadowMap;
         renderer.renderer_.setClearColor(0xffffff, 0.0);
         //renderer_.toneMapping = THREE.ReinhardToneMapping;
-        renderer.ambiance = new THREE.AmbientLight(0xffffff, 0.06);
+        const percent = 2 / 100;
+        renderer.ambiance = new THREE.AmbientLight(0xffffff, percent);
         renderer.scene.add(renderer.ambiance);
         renderer.sun = new THREE.DirectionalLight(0xd6b49b, 0.7);
         renderer.sun.shadow.mapSize.width = 2048;
@@ -219,10 +220,10 @@ var renderer;
             //post.uniforms.bounce.value = ease;
         }
         else {
-            renderer.post.uniforms.glitch.value = 0;
+            renderer.post.uniforms.glitch.value = 1;
             renderer.post.uniforms.saturation.value = 2.0;
         }
-        renderer.post.uniforms.toneMappingExposure.value = 2.0;
+        renderer.post.uniforms.toneMappingExposure.value = 1.5;
         let position = renderer.plane.getAttribute('position');
         renderer.plane.getAttribute('position').needsUpdate = true;
         renderer.plane.needsUpdate = true;

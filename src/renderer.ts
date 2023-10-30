@@ -66,7 +66,7 @@ void main() {
 namespace renderer {
 	// set up three.js here
 
-	const render_target_factor = 4;
+	const render_target_factor = 1;
 
 	export var scene, camera, renderer_, ambiance, clock;
 
@@ -157,7 +157,8 @@ namespace renderer {
 		renderer_.setClearColor(0xffffff, 0.0);
 		//renderer_.toneMapping = THREE.ReinhardToneMapping;
 
-		ambiance = new THREE.AmbientLight(0xffffff, 0.06);
+		const percent = 2 / 100;
+		ambiance = new THREE.AmbientLight(0xffffff, percent);
 		scene.add(ambiance);
 
 		sun = new THREE.DirectionalLight(0xd6b49b, 0.7);
@@ -286,10 +287,10 @@ namespace renderer {
 			//post.uniforms.bounce.value = ease;
 		}
 		else {
-			post.uniforms.glitch.value = 0;
+			post.uniforms.glitch.value = 1;
 			post.uniforms.saturation.value = 2.0;
 		}
-		post.uniforms.toneMappingExposure.value = 2.0;
+		post.uniforms.toneMappingExposure.value = 1.5;
 
 		let position = plane.getAttribute('position');
 		plane.getAttribute('position').needsUpdate = true;

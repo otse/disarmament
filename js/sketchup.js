@@ -1,3 +1,4 @@
+import app from "./app.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
 var sketchup;
@@ -5,13 +6,34 @@ var sketchup;
     const paths = {
         'crete1': ['./assets/textures/crete1', false, false],
         'brick1': ['./assets/textures/brick1', true, true],
-        'metal1': ['./assets/textures/metal1', true, false, true],
+        'metal1': ['./assets/textures/metal1', true, true, true],
         'metal2': ['./assets/textures/metal2', true, false, false],
         'twotonewall': ['./assets/textures/twotonewall', true, true],
         'scrappyfloor': ['./assets/textures/scrappyfloor', false, false],
         'rustydoorframe': ['./assets/textures/rustydoorframe', false, false],
     };
     const library = {};
+    const activeMaterials = [];
+    function loop() {
+        if (app.proompt('r') == 1) {
+            reload_textures();
+        }
+    }
+    sketchup.loop = loop;
+    function reload_textures() {
+        for (const material of activeMaterials) {
+            const tuple = paths[material.name];
+            const loader = new THREE.TextureLoader();
+            const old = material.map;
+            material.map = loader.load(`${tuple[0]}.png`);
+            material.map.wrapS = old.wrapS;
+            material.map.wrapT = old.wrapT;
+            cubify(material.map);
+        }
+    }
+    function cubify(map) {
+        //map.minFilter = map.magFilter = THREE.NearestFilter;
+    }
     function boot() {
         const textureLoader = new THREE.TextureLoader();
         const maxAnisotropy = renderer.renderer_.capabilities.getMaxAnisotropy();
@@ -19,9 +41,12 @@ var sketchup;
             const tuple = paths[name];
             const map = textureLoader.load(`${tuple[0]}.png`);
             const material = new THREE.MeshPhongMaterial({
+                name: name,
                 map: map,
                 flatShading: true
             });
+            material.specular.set(0.04, 0.04, 0.04);
+            material.shininess = 100;
             if (tuple[1]) {
                 const map = textureLoader.load(`${tuple[0]}_normal.png`);
                 material.normalMap = map;
@@ -29,16 +54,15 @@ var sketchup;
             if (tuple[2]) {
                 console.log('attach a specular to', tuple[0]);
                 const map = textureLoader.load(`${tuple[0]}_specular.png`);
-                material.specular.set(0.04, 0.04, 0.04);
                 //material.emissive.set(0.01, 0, 0);
-                material.shininess = 120;
                 material.specularMap = map;
             }
-            if (tuple[3]) {
-                const map = textureLoader.load(`${tuple[0]}_aomap.png`);
-                material.aoMap = map;
-            }
+            //if (tuple[3]) {
+            //	const map = textureLoader.load(`${tuple[0]}_aomap.png`);
+            //	material.aoMap = map;
+            //}
             map.wrapS = map.wrapT = THREE.RepeatWrapping;
+            cubify(material.map);
             //material.map.minFilter = material.map.magFilter = THREE.NearestFilter;
             library[name] = material;
         }
@@ -65,6 +89,7 @@ var sketchup;
                 if (!prefab)
                     return;
                 const dupe = prefab.clone();
+                activeMaterials.push(dupe);
                 // dupe.color.set('red'); // debug
                 if (old.map) {
                     dupe.map.wrapS = old.map.wrapS;

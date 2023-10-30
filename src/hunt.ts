@@ -70,6 +70,7 @@ namespace hunt {
 		gplayer.loop(delta);
 		physics.loop(hunt.timeStep);
 		props.loop();
+		sketchup.loop();
 		renderer.render();
 
 	}
