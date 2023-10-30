@@ -58,7 +58,7 @@ void main() {
 var renderer;
 (function (renderer) {
     // set up three.js here
-    const render_target_factor = 2;
+    const render_target_factor = 4;
     renderer.dt = 0;
     renderer.sunOffset = [1.0, 10, -1.0];
     // reduce
@@ -199,8 +199,8 @@ var renderer;
             frames = 0;
             if (renderer.ren_stats) {
                 app.fluke_set_innerhtml('hunt-stats', `
-				fps: ${renderer.fps}<br />
-				render target scale: ${(1 / render_target_factor).toFixed(1)}
+					fps: ${renderer.fps.toFixed(1)}<br />
+					render target scale: ${(1 / render_target_factor).toFixed(1)}
 			`);
             }
         }

@@ -66,7 +66,7 @@ void main() {
 namespace renderer {
 	// set up three.js here
 
-	const render_target_factor = 2;
+	const render_target_factor = 4;
 
 	export var scene, camera, renderer_, ambiance, clock;
 
@@ -261,8 +261,8 @@ namespace renderer {
 
 			if (ren_stats) {
 				app.fluke_set_innerhtml('hunt-stats', `
-				fps: ${fps}<br />
-				render target scale: ${(1 / render_target_factor).toFixed(1)}
+					fps: ${fps.toFixed(1)}<br />
+					render target scale: ${(1 / render_target_factor).toFixed(1)}
 			`);
 			}
 		}
@@ -290,7 +290,7 @@ namespace renderer {
 			post.uniforms.saturation.value = 2.0;
 		}
 		post.uniforms.toneMappingExposure.value = 2.0;
-		
+
 		let position = plane.getAttribute('position');
 		plane.getAttribute('position').needsUpdate = true;
 		plane.needsUpdate = true;

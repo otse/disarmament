@@ -2,11 +2,12 @@ import props from "./props.js";
 import renderer from "./renderer.js";
 
 namespace sketchup {
-
+	
 	const paths = {
 		'crete1': ['./assets/textures/crete1', false, false],
 		'brick1': ['./assets/textures/brick1', true, true],
 		'metal1': ['./assets/textures/metal1', true, false, true],
+		'metal2': ['./assets/textures/metal2', true, false, false],
 		'twotonewall': ['./assets/textures/twotonewall', true, true],
 		'scrappyfloor': ['./assets/textures/scrappyfloor', false, false],
 		'rustydoorframe': ['./assets/textures/rustydoorframe', false, false],
@@ -26,7 +27,7 @@ namespace sketchup {
 			});
 			if (tuple[1]) {
 				const map = textureLoader.load(`${tuple[0]}_normal.png`);
-				//material.normalMap = map;
+				material.normalMap = map;
 			}
 			if (tuple[2]) {
 				console.log('attach a specular to', tuple[0]);
@@ -42,7 +43,7 @@ namespace sketchup {
 				material.aoMap = map;
 			}
 			map.wrapS = map.wrapT = THREE.RepeatWrapping;
-			material.map.minFilter = material.map.magFilter = THREE.NearestFilter;
+			//material.map.minFilter = material.map.magFilter = THREE.NearestFilter;
 			library[name] = material;
 		}
 

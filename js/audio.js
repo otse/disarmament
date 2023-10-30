@@ -76,6 +76,7 @@ var audio;
         let positional = new THREE.PositionalAudio(listener);
         positional.setBuffer(buffer);
         positional.setLoop(false);
+        volume = hunt.clamp(volume, 0, 0.2);
         positional.setVolume(volume);
         positional.play();
         return positional;
