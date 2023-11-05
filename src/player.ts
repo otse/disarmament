@@ -9,7 +9,7 @@ import renderer from "./renderer.js";
 // https://github.com/mrdoob/three.js/blob/master/examples/jsm/controls/PointerLockControls.js
 
 class player {
-	pointer_lock_controls
+	controls
 	can_jump
 	cannon_body
 	constructor() {
@@ -19,30 +19,32 @@ class player {
 
 	setup() {
 
-		this.pointer_lock_controls = new pointer_lock_controls(renderer.camera, renderer.renderer_.domElement);
-		this.pointer_lock_controls.enabled = true;
+		this.controls = new glob.PointerLockControls(
+			renderer.camera, renderer.renderer.domElement);
+		this.controls.enabled = true;
 
-		this.pointer_lock_controls.getObject().position.y = 1.5;
+		this.controls.getObject().rotation.y = -Math.PI / 2;
+		this.controls.getObject().position.y = 1.5;
 
-		const controler = this.pointer_lock_controls;
+		const controler = this.controls;
 
 		hunt.hunt_instructions.addEventListener('click', function () {
 			controler.lock();
 		});
 
-		this.pointer_lock_controls.addEventListener('lock', function () {
+		this.controls.addEventListener('lock', function () {
 			console.log('lock');
 			hunt.hunt_instructions.style.display = 'none';
 			//blocker.style.display = 'none';
 		});
 
-		this.pointer_lock_controls.addEventListener('unlock', function () {
+		this.controls.addEventListener('unlock', function () {
 			console.log('unlock');
 			//blocker.style.display = 'block';
 			hunt.hunt_instructions.style.display = '';
 		});
 
-		renderer.scene.add(this.pointer_lock_controls.getObject());
+		renderer.scene.add(this.controls.getObject());
 	}
 
 	make_physics() {
@@ -89,7 +91,7 @@ class player {
 
 	loop(delta: number) {
 
-		if (this.pointer_lock_controls.enabled === false)
+		if (this.controls.enabled === false)
 			return;
 
 		if (app.proompt('v') == 1) {
@@ -120,7 +122,7 @@ class player {
 			z *= 0.02;
 			x *= 0.02;
 
-			const camera = this.pointer_lock_controls.getObject();
+			const camera = this.controls.getObject();
 			const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
 			const position = new THREE.Vector3();
 			position.copy(camera.position).add(new THREE.Vector3(x, 0, z).applyQuaternion(new THREE.Quaternion().setFromEuler(euler)));
@@ -147,7 +149,7 @@ class player {
 			z *= 1.5;
 			x *= 1.5;
 		}
-		const camera = $.pointer_lock_controls.getObject();
+		const camera = $.controls.getObject();
 		const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
 
 		// set our pitch to 0 which is forward 
@@ -165,8 +167,8 @@ class player {
 			$.body_velocity.z += velocity.z;
 		}
 
-		$.pointer_lock_controls.getObject().position.copy($.cannon_body.position);
-		$.pointer_lock_controls.getObject().position.add(new THREE.Vector3(0, 1.2, 0));
+		$.controls.getObject().position.copy($.cannon_body.position);
+		$.controls.getObject().position.add(new THREE.Vector3(0, 1.2, 0));
 	}
 }
 

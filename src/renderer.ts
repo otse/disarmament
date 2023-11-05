@@ -1,12 +1,9 @@
 import glob from "./glob.js";
 import app from "./app.js";
-import player from "./player.js";
-import props from "./props.js";
-import sketchup from "./sketchup.js";
 import easings from "./easings.js";
 import pts from "./pts.js";
-import hunt from "./hunt.js";
 
+/// the shader of shit
 const fragmentPost = `
 varying vec2 vUv;
 uniform float glitch; 
@@ -15,8 +12,8 @@ uniform float saturation;
 uniform sampler2D tDiffuse;
 float factor = 200.0;
 
-#define TONE_MAPPING 
-#include <tonemapping_pars_fragment>
+//#define TONE_MAPPING 
+//#include <tonemapping_pars_fragment>
 
 vec4 LinearToGamma( in vec4 value, in float gammaFactor ) {
 	return vec4( pow( value.rgb, vec3( 1.0 / gammaFactor ) ), value.a );
@@ -68,24 +65,30 @@ namespace renderer {
 
 	const render_target_factor = 1;
 
-	export var scene, camera, renderer_, ambiance, clock;
+	export var scene, camera, renderer, ambiance, clock;
 
 	export var dt = 0;
 
 	export var propsGroup;
 
-	export var scene2, camera2, target, post, quad, plane, glitch, hdr
+	export var scene2, camera2, target, post, quad, quad2, plane, glitch, hdr
 
-	export var sun, sunOffset = [1.0, 10, -1.0]
+	export var xrpostcamera
+
+	export var tarrt = null
+
+	export var currt
+
+	export var sun, sunOffset = [0, 10, 0] // sunOffset = [1.0, 10, -1.0]
 
 	// reduce
-	export var enable_post = true;
-	export var animate_post = true;
+	export var enable_post = false;
+	export var animate_post = false;
 	export var ren_stats = false;
 
 
 	export function boot() {
-		window['renderer'] = renderer;
+		window['renderer'] = this;
 
 		console.log('renderer boot');
 
@@ -124,17 +127,27 @@ namespace renderer {
 				saturation: { value: 1.0 },
 				bounce: { value: 0.0 },
 				compression: { value: 1 },
-				toneMappingExposure: { value: 1.0 }
+				toneMappingExposure2: { value: 1.0 }
 			},
 			vertexShader: vertexScreen,
 			fragmentShader: fragmentPost,
 			depthWrite: false
 		});
+
 		glitch = 0;
 		plane = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
 		quad = new THREE.Mesh(plane, post);
 		quad.matrixAutoUpdate = false;
-		scene2.add(quad);
+		//scene2.add(quad);
+
+		const _geometry = new THREE.BufferGeometry();
+		_geometry.setAttribute('position',
+			new THREE.Float32BufferAttribute([- 1, 3, 0, - 1, - 1, 0, 3, - 1, 0], 3));
+		_geometry.setAttribute('uv',
+			new THREE.Float32BufferAttribute([0, 2, 0, 0, 2, 0], 2));
+
+		quad2 = new THREE.Mesh(_geometry, post);
+		scene2.add(quad2);
 
 		glitch = 0;
 		hdr = 0;
@@ -149,12 +162,19 @@ namespace renderer {
 		camera.position.z = 5;
 
 		const dpi = window.devicePixelRatio;
-		renderer_ = new THREE.WebGLRenderer({ antialias: false });
-		renderer_.setPixelRatio(dpi);
-		renderer_.setSize(window.innerWidth, window.innerHeight);
-		renderer_.shadowMap.enabled = true;
-		renderer_.shadowMap.type = THREE.BasicShadowMap;
-		renderer_.setClearColor(0xffffff, 0.0);
+		renderer = new THREE.WebGLRenderer({ antialias: false });
+		renderer.xr.enabled = true;
+		renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		renderer.toneMappingExposure = 2.5;
+		renderer.setPixelRatio(dpi);
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMap.type = THREE.BasicShadowMap;
+		renderer.setClearColor(0xffffff, 0.0);
+
+		currt = renderer.getRenderTarget();
+		console.log('currt', currt);
+
 		//renderer_.toneMapping = THREE.ReinhardToneMapping;
 
 		const percent = 2 / 100;
@@ -168,9 +188,8 @@ namespace renderer {
 		sun.shadow.bias = 0.0005;
 		sun.shadow.camera.near = 0.5;
 		sun.shadow.camera.far = 500;
-		sun.shadow.camera.left = sun.shadow.camera.bottom = -10;
-		sun.shadow.camera.right = sun.shadow.camera.top = 10;
-		const extend = 1000;
+		sun.shadow.camera.left = sun.shadow.camera.bottom = -15;
+		sun.shadow.camera.right = sun.shadow.camera.top = 15;
 		sun.position.fromArray(sunOffset);
 		sun.castShadow = true;
 		scene.add(sun);
@@ -180,36 +199,38 @@ namespace renderer {
 
 		const hunt_main = document.querySelector('hunt-main')!;
 
-		hunt_main.appendChild(renderer_.domElement);
+		hunt_main.appendChild(renderer.domElement);
 		// test
 
 
-		window.addEventListener('resize', onWindowResize);
+		window.addEventListener('resize', resize);
 	}
 
 	function redo() {
 		const wh = pts.make(window.innerWidth, window.innerHeight);
-		const half = pts.divide(wh, render_target_factor);
+		const rescale = pts.divide(wh, render_target_factor);
 
-		target.setSize(half[0], half[1]);
+		target.setSize(rescale[0], rescale[1]);
 
 		quad.geometry = new THREE.PlaneGeometry(wh[0], wh[1]);
 
 		camera2 = new THREE.OrthographicCamera(
 			wh[0] / - 2, wh[0] / 2, wh[1] / 2, wh[1] / - 2, -100, 100);
 		camera2.updateProjectionMatrix();
+
+		camera2 = new THREE.OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
 	}
 
-	function onWindowResize() {
+	export function resize() {
 
 		redo();
 
-		renderer_.setSize(window.innerWidth, window.innerHeight);
+		renderer.setSize(window.innerWidth, window.innerHeight);
 
-		camera.aspect = window.innerWidth / window.innerHeight;
-		camera.updateProjectionMatrix();
+		//camera.aspect = window.innerWidth / window.innerHeight;
+		//camera.updateProjectionMatrix();
 
-		render();
+		//render();
 	}
 
 	var prevTime = 0, time = 0, frames = 0
@@ -268,39 +289,31 @@ namespace renderer {
 			}
 		}
 
-		const pulse_cycle = 3;
+		if (enable_post) {
+			const pulse_cycle = 3;
 
-		glitch += dt / (pulse_cycle / 2);
-		hdr += dt / 1.0;
+			glitch += dt / (pulse_cycle / 2);
+			hdr += dt / 1.0;
 
-		if (glitch >= 2)
-			glitch -= 2;
+			if (glitch >= 2)
+				glitch -= 2;
 
-		if (hdr >= 1)
-			hdr -= 1;
+			if (hdr >= 1)
+				hdr -= 1;
 
-		if (animate_post) {
-			let itch = easings.easeOutBounce(glitch <= 1 ? glitch : 2 - glitch);
-			post.uniforms.glitch.value = itch;
-			post.uniforms.saturation.value = 1 + itch;
-			//let ease = easings.easeOutBounce(bounce);
-			//post.uniforms.bounce.value = ease;
+			if (animate_post) {
+				let itch = easings.easeOutBounce(glitch <= 1 ? glitch : 2 - glitch);
+				post.uniforms.glitch.value = itch;
+				post.uniforms.saturation.value = 1 + itch;
+				//let ease = easings.easeOutBounce(bounce);
+				//post.uniforms.bounce.value = ease;
+			}
+			else {
+				post.uniforms.glitch.value = 1;
+				post.uniforms.saturation.value = 2.0;
+			}
+			post.uniforms.toneMappingExposure2.value = 3.0;
 		}
-		else {
-			post.uniforms.glitch.value = 1;
-			post.uniforms.saturation.value = 2.0;
-		}
-		post.uniforms.toneMappingExposure.value = 1.5;
-
-		let position = plane.getAttribute('position');
-		plane.getAttribute('position').needsUpdate = true;
-		plane.needsUpdate = true;
-		//console.log(position);
-
-		position.array[0] = window.innerWidth - 1000;
-		position.array[1] = window.innerWidth - 1000;
-		position.array[2] = window.innerWidth - 1000;
-		position.needsUpdate = true;
 
 		//camera.zoom = 0.5 + ease / 2;
 		camera.updateProjectionMatrix();
@@ -308,24 +321,37 @@ namespace renderer {
 		//console.log('clock', clock.getElapsedTime());
 
 		if (enable_post) {
-			renderer_.shadowMap.enabled = true;
+			renderer.shadowMap.enabled = true;
 
-			renderer_.setRenderTarget(target);
-			renderer_.clear();
-			renderer_.render(scene, camera);
+			renderer.setRenderTarget(target);
+			renderer.clear();
+			renderer.render(scene, camera);
 
-			renderer_.shadowMap.enabled = false;
+			renderer.shadowMap.enabled = false;
 
-			renderer_.setRenderTarget(null);
-			renderer_.clear();
-			renderer_.render(scene2, camera2);
+			const xrEnabled = renderer.xr.enabled;
+
+			//renderer.xr.enabled = false;
+			renderer.setRenderTarget(tarrt);
+			renderer.clear();
+			renderer.render(scene2, camera2);
+			//renderer.xr.enabled = xrEnabled;
+
+			renderer.setRenderTarget(null);
 		}
 		else {
-			renderer_.shadowMap.enabled = true;
+			//renderer.shadowMap.enabled = false;
 
-			renderer_.setRenderTarget(null);
-			renderer_.clear();
-			renderer_.render(scene, camera);
+			//let rt = renderer.getRenderTarget();
+			//console.log('currt vs rt', currt, rt);
+
+			//if (renderer.xr.getBaseLayer()) {
+			//	renderer.setRenderTargetFramebuffer(tarrt, renderer.xr.getBaseLayer().framebuffer);
+			//}
+			//renderer.setRenderTarget(tarrt);
+			//renderer.setRenderTarget(null);
+			//renderer.clear();
+			renderer.render(scene, camera);
 		}
 	}
 }

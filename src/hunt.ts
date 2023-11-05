@@ -8,6 +8,7 @@ import points from "./pts.js";
 import renderer from "./renderer.js";
 import sketchup from "./sketchup.js";
 import viewport from "./viewport.js";
+import vr from "./vr.js";
 
 glob.developer = true;
 
@@ -43,6 +44,7 @@ namespace hunt {
 		physics.boot();
 		props.boot();
 		renderer.boot();
+		vr.boot();
 		sketchup.boot();
 		audio.boot();
 
@@ -53,7 +55,6 @@ namespace hunt {
 	}
 
 	export function loop(delta: number) {
-
 		dt = delta;
 
 		glob.w = app.proompt('w');
@@ -71,8 +72,9 @@ namespace hunt {
 		physics.loop(hunt.timeStep);
 		props.loop();
 		sketchup.loop();
+		vr.loop();
+		//if (!glob.xr)
 		renderer.render();
-
 	}
 }
 

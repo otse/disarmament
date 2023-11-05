@@ -1,6 +1,8 @@
+import glob from "./glob.js";
 import hooks from "./hooks.js";
 import points from "./pts.js";
 import hunt from "./hunt.js";
+import vr from "./vr.js";
 var app;
 (function (app) {
     let KEY;
@@ -39,6 +41,7 @@ var app;
     }
     app.proompt = proompt;
     function boot(version) {
+        VRButton = glob.VRButton;
         console.log('app boot');
         hooks.call('AppBoot', null);
         hunt.boot();
@@ -103,7 +106,8 @@ var app;
             document.onwheel = onwheel;
         }
         window.onerror = onerror;
-        loop(0);
+        vr.start();
+        //loop();
     }
     app.boot = boot;
     function post_keys() {
@@ -123,8 +127,10 @@ var app;
     }
     app.delta = 0;
     app.last = 0;
-    function loop(timestamp) {
-        requestAnimationFrame(loop);
+    function loop() {
+        //console.log(' app loop ');
+        //if (!glob.xr)
+        //	af = requestAnimationFrame(loop);
         const now = (performance || Date).now();
         app.delta = (now - app.last) / 1000;
         app.last = now;

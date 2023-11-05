@@ -6,5 +6,6 @@ declare type vec4 = [number, number, number, number];
 declare var THREE: any;
 declare var CANNON: any;
 
-declare var collada_loader: any;
-declare var pointer_lock_controls: any;
+declare var ColladaLoader: any;
+declare var PointerLockControls: any;
+declare var VRButton: any;

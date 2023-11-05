@@ -11,7 +11,8 @@ var physics;
         compactdiscs: { mass: 0.7, material: 'cardboard' },
         matress: { mass: 1.0, material: 'cardboard' },
         barrel: { mass: 1.0, material: 'metal' },
-        none: { mass: 0.0, material: 'cardboard' }
+        solid: { mass: 0.0, material: 'cardboard' },
+        none: { mass: 0.5, material: 'cardboard' }
     };
     physics.wireframe_helpers = false;
     physics.materials = {};
@@ -126,6 +127,7 @@ var physics;
             this.prop = prop;
             bodies.push(this);
             prop.fbody = this;
+            prop.correction_for_physics();
         }
         loop() {
         }
@@ -139,7 +141,12 @@ var physics;
             size.divideScalar(2);
             const halfExtents = new CANNON.Vec3(size.x, size.y, size.z);
             const boxShape = new CANNON.Box(halfExtents);
-            const kind = kinds_of_props[this.prop.parameters.preset || 'none'] || kinds_of_props['none'];
+            // rewrite this eventually
+            let kind = kinds_of_props[this.prop.preset];
+            if (prop.kind == 'wall' || prop.kind == 'solid')
+                kind = kinds_of_props['solid'];
+            if (!kind)
+                kind = kinds_of_props['none'];
             const weight = kind.weight || 1;
             const mass = kind.mass;
             let material;
@@ -264,7 +271,7 @@ var physics;
                 [-0.5 * size.z, 0, 0],
                 [0.5 * size.z, 0, 0]
             ];
-            const n = parseInt(this.prop.parameters.preset) - 1;
+            const n = parseInt(this.prop.preset) - 1;
             const offset = pivots[n];
             const hinge = hinges[n];
             //console.log('door size', n, size);

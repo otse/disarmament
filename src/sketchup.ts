@@ -1,4 +1,5 @@
 import app from "./app.js";
+import glob from "./glob.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
 
@@ -9,18 +10,28 @@ namespace sketchup {
 		'brick1': ['./assets/textures/brick1', true, true],
 		'metal1': ['./assets/textures/metal1', true, true, true],
 		'metal2': ['./assets/textures/metal2', true, false, false],
+		'metal3': ['./assets/textures/metal3', false, false, false, true],
+		'rust1': ['./assets/textures/rust1', false, false, false],
 		'twotonewall': ['./assets/textures/twotonewall', true, true],
 		'scrappyfloor': ['./assets/textures/scrappyfloor', false, false],
 		'rustydoorframe': ['./assets/textures/rustydoorframe', false, false],
 	}
+
+	const stickers = ['rust1']
 
 	const library = {}
 
 	const activeMaterials: any[] = []
 
 	export function loop() {
-		if (app.proompt('r') == 1) {
-			reload_textures();
+		if (glob.developer) {
+			if (app.proompt('r') == 1) {
+				reload_textures();
+			}
+			if (app.proompt('m') == 1) {
+				minecraftMode = !minecraftMode;
+				massCubify();
+			}
 		}
 	}
 
@@ -40,9 +51,21 @@ namespace sketchup {
 		//map.minFilter = map.magFilter = THREE.NearestFilter;
 	}
 
+	let minecraftMode = false;
+
+	function massCubify() {
+		console.log('masscubify');
+		for (const material of activeMaterials) {
+
+			material.map.minFilter = material.map.magFilter =
+				minecraftMode ? THREE.NearestFilter : THREE.LinearFilter;
+			material.map.needsUpdate = true;
+		}
+	}
+
 	export function boot() {
 		const textureLoader = new THREE.TextureLoader();
-		const maxAnisotropy = renderer.renderer_.capabilities.getMaxAnisotropy();
+		const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
 		for (let name in paths) {
 			const tuple = paths[name];
 			const map = textureLoader.load(`${tuple[0]}.png`);
@@ -51,12 +74,39 @@ namespace sketchup {
 				map: map,
 				flatShading: true
 			});
+			material.onBeforeCompile = (shader) => {
+				console.log('onbeforecompile');
+				shader.defines = { GORE: '', AL_GORE: '' };
+				shader.fragmentShader = shader.fragmentShader.replace(
+					`#include <tonemapping_fragment>`,
+					`
+					float saturation = 2.5;
+					float factor = 200.0;
+					vec3 diffuse = gl_FragColor.rgb;
+					#ifdef AL_GORE
+					vec3 lumaWeights = vec3(.25,.50,.25);
+					vec3 grey = vec3(dot(lumaWeights, diffuse.rgb));
+					diffuse = vec3(grey + saturation * (diffuse.rgb - grey));
+					#endif
+					#ifdef GORE
+					diffuse *= factor;
+					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
+					diffuse /= factor;
+					gl_FragColor.rgb = diffuse.rgb;
+					#endif
+					
+					#include <tonemapping_fragment>`
+				);
+			}
+			material.customProgramCacheKey = function () {
+				return 'clucked';
+			}
 			material.specular.set(0.04, 0.04, 0.04);
-			material.shininess = 100;
+			material.shininess = 40;
 
 			if (tuple[1]) {
 				const map = textureLoader.load(`${tuple[0]}_normal.png`);
-				material.normalMap = map;
+				//material.normalMap = map;
 			}
 			if (tuple[2]) {
 				console.log('attach a specular to', tuple[0]);
@@ -69,6 +119,17 @@ namespace sketchup {
 			//	const map = textureLoader.load(`${tuple[0]}_aomap.png`);
 			//	material.aoMap = map;
 			//}
+			//if (tuple[4]) {
+			//	const map = textureLoader.load(`${tuple[0]}_alpha.png`);
+			//	material.alphaMap = map;
+			//}
+			if (tuple[4]) {
+				console.log('material', name, 'is transparent');
+
+				material.transparent = true;
+				//material.side = THREE.DoubleSided; 
+				material.alphaTest = 0.9;
+			}
 			map.wrapS = map.wrapT = THREE.RepeatWrapping;
 			cubify(material.map);
 			//material.map.minFilter = material.map.magFilter = THREE.NearestFilter;
@@ -83,7 +144,7 @@ namespace sketchup {
 		const loadingManager = new THREE.LoadingManager(function () {
 		});
 
-		const loader = new collada_loader(loadingManager);
+		const loader = new glob.ColladaLoader(loadingManager);
 
 		loader.load('./assets/metal_place.dae', function (collada) {
 
@@ -95,9 +156,13 @@ namespace sketchup {
 			// myScene.scale.set(1, 1, 1);
 
 			function fix_sticker(material) {
+				console.log('fix sticker', material);
+
 				material.transparent = true;
 				material.polygonOffset = true;
-				material.polygonOffsetFactor = -4;
+				material.polygonOffsetFactor = -1;
+				material.polygonOffsetUnits = 1;
+				material.needsUpdate = true;
 			}
 
 			function drain(object, index) {
@@ -105,7 +170,8 @@ namespace sketchup {
 				const prefab = library[old.name];
 				if (!prefab)
 					return;
-				const dupe = prefab.clone();
+				const dupe = prefab;//.clone();
+				dupe.name = old.name;
 				activeMaterials.push(dupe);
 				// dupe.color.set('red'); // debug
 				if (old.map) {
@@ -134,7 +200,9 @@ namespace sketchup {
 				else
 					object.material[index] = dupe;
 				if (old.name.includes('sticker'))
-					fix_sticker(old);
+					fix_sticker(dupe);
+				if (stickers.includes(old.name))
+					fix_sticker(dupe);
 			}
 
 			const propss: props.prop[] = [];

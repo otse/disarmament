@@ -1,1 +1,6 @@
 https://stackoverflow.com/questions/45932526/how-to-make-typescript-output-valid-es6-module-import-statements
+
+the following link is a working vr post
+https://raw.githack.com/CodyJasonBennett/three.js/test/xr-bloom/examples/webgl_postprocessing_unreal_bloom.html
+
+https://rawcdn.githack.com/CodyJasonBennett/three.js/a7bd357c92e707262febe33e12d49b324e6c2cb8/examples/webxr_vr_postprocessing.html

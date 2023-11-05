@@ -16,8 +16,9 @@
 		var CANNON;
 		var THREE;
 		var collada_loader;
-		var first_person_controls;
-		var pointer_lock_controls;
+		var FirstPersonControls;
+		var PointerLockControls;
+		var VRButton;
 	</script>
 
 	<script type="importmap">
@@ -35,12 +36,14 @@
 		import * as three from 'three';
 		import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 		import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+		import { VRButton } from 'three/addons/webxr/VRButton.js';
 		import { default as backwards } from "./js/app.js";
 		app = backwards;
 		CANNON = cannon;
 		THREE = three;
-		collada_loader = ColladaLoader;
-		pointer_lock_controls = PointerLockControls;
+		glob.ColladaLoader = ColladaLoader;
+		glob.PointerLockControls = PointerLockControls;
+		glob.VRButton = VRButton;
 	</script>
 
 	<script>

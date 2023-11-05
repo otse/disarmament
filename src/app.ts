@@ -2,6 +2,7 @@ import glob from "./glob.js";
 import hooks from "./hooks.js";
 import points from "./pts.js";
 import hunt from "./hunt.js";
+import vr from "./vr.js";
 
 namespace app {
 	export enum KEY {
@@ -19,7 +20,7 @@ namespace app {
 	export var wheel = 0
 
 	export function onkeys(event) {
-		const key = event.key.toLowerCase();		
+		const key = event.key.toLowerCase();
 		if ('keydown' == event.type)
 			keys[key] = keys[key]
 				? KEY.REPEAT : KEY.PRESSED;
@@ -34,6 +35,9 @@ namespace app {
 	}
 
 	export function boot(version: string) {
+
+		VRButton = glob.VRButton;
+
 		console.log('app boot');
 		hooks.call('AppBoot', null);
 		hunt.boot();
@@ -43,17 +47,21 @@ namespace app {
 			pos[0] = e.clientX;
 			pos[1] = e.clientY;
 		}
+
 		function onmousedown(e) {
 			mb[e.button] = 1;
 			if (e.button == 1)
 				return false;
 		}
+
 		function onmouseup(e) {
 			mb[e.button] = MB.UP;
 		}
+
 		function onwheel(e) {
 			wheel = e.deltaY < 0 ? 1 : -1;
 		}
+
 		let touchStart: vec2 = [0, 0];
 		function ontouchstart(e) {
 			//message("ontouchstart");
@@ -62,6 +70,7 @@ namespace app {
 			pos[1] = e.pageY;
 			mb[2] = MB.UP;
 		}
+
 		function ontouchmove(e) {
 			pos[0] = e.pageX;
 			pos[1] = e.pageY;
@@ -70,6 +79,7 @@ namespace app {
 			e.preventDefault();
 			return false;
 		}
+
 		function ontouchend(e) {
 			const touchEnd: vec2 = [e.pageX, e.pageY];
 			mb[0] = MB.UP;
@@ -101,8 +111,11 @@ namespace app {
 			document.onwheel = onwheel;
 		}
 		window.onerror = onerror;
-		loop(0);
+
+		vr.start();
+		//loop();
 	}
+
 	function post_keys() {
 		for (let i in keys) {
 			if (keys[i] == KEY.PRESSED)
@@ -111,6 +124,7 @@ namespace app {
 				keys[i] = KEY.UNPRESSED;
 		}
 	}
+
 	function post_mouse_buttons() {
 		for (let b of [0, 1, 2])
 			if (mb[b] == MB.DOWN)
@@ -121,8 +135,11 @@ namespace app {
 
 	export var delta = 0
 	export var last = 0
-	export function loop(timestamp) {
-		requestAnimationFrame(loop);
+	export var af
+	export function loop() {
+		//console.log(' app loop ');
+		//if (!glob.xr)
+		//	af = requestAnimationFrame(loop);
 		const now = (performance || Date).now();
 		delta = (now - last) / 1000;
 		last = now;
@@ -131,10 +148,12 @@ namespace app {
 		post_keys();
 		post_mouse_buttons();
 	}
+
 	export function fluke_set_innerhtml(selector, html) {
 		let element = document.querySelectorAll(selector)[0];
 		element.innerHTML = html;
 	}
+
 	export function fluke_set_style(selector, style, property) {
 		let element = document.querySelectorAll(selector)[0];
 		element.style[style] = property;

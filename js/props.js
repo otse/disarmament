@@ -10,23 +10,29 @@ var props;
         const [kind, preset] = object.name.split('_');
         switch (kind) {
             case 'prop':
-                console.log('new prop', kind, preset);
-                prop = new pbox(object, { preset: preset });
+            case 'box':
+                console.log('new pbox', kind, preset);
+                prop = new pbox(object, {});
                 break;
             case 'light':
-                prop = new plight(object, { preset: preset });
+                prop = new plight(object, {});
                 break;
             case 'wall':
             case 'solid':
-                prop = new pbox(object, {});
+                prop = new pwallorsolid(object, {});
                 break;
             case 'door':
-                prop = new pdoor(object, { preset: preset });
+                prop = new pdoor(object, {});
+                break;
+            case 'fan':
+                prop = new pfan(object, {});
                 break;
             default:
         }
-        if (prop)
+        if (prop) {
             prop.kind = kind;
+            prop.preset = preset;
+        }
         return prop;
     }
     props_1.factory = factory;
@@ -43,9 +49,11 @@ var props;
         // set it apart
         prop.group = new THREE.Group();
         prop.object.matrixWorld.decompose(prop.group.position, prop.group.quaternion, prop.group.scale);
-        //console.log('take collada prop', prop.object.name, prop.object.quaternion);
         prop.object.position.set(0, 0, 0);
         prop.object.rotation.set(0, 0, 0);
+        prop.object.quaternion.identity();
+        prop.object.updateMatrix();
+        prop.object.updateMatrixWorld();
         prop.group.add(prop.object);
         prop.group.updateMatrix();
         prop.group.updateMatrixWorld();
@@ -57,10 +65,11 @@ var props;
     }
     props_1.take_collada_prop = take_collada_prop;
     props_1.props = [];
-    ;
     class prop {
         object;
         parameters;
+        type;
+        preset;
         kind;
         oldRotation;
         group;
@@ -71,13 +80,14 @@ var props;
             this.object = object;
             this.parameters = parameters;
             props_1.props.push(this);
+            this.type = 'ordinary prop';
         }
         complete() {
             take_collada_prop(this);
             this.measure();
-            this.setup();
+            this.finish();
         }
-        setup() {
+        finish() {
         }
         loop() {
         }
@@ -86,8 +96,11 @@ var props;
         measure() {
             this.aabb = new THREE.Box3();
             this.aabb.setFromObject(this.group, true);
-            //this.aabb.applyMatrix4( this.object.parent.matrixWorld );
-            //console.log('box measures', this.aabb);
+            const size = new THREE.Vector3();
+            this.aabb.getSize(size);
+            size.multiplyScalar(hunt.inchMeter);
+        }
+        correction_for_physics() {
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
             size.multiplyScalar(hunt.inchMeter);
@@ -96,14 +109,27 @@ var props;
         }
     }
     props_1.prop = prop;
-    class pbox extends prop {
+    class pwallorsolid extends prop {
         constructor(object, parameters) {
             super(object, parameters);
+            this.type = 'pwallorsolid';
         }
-        setup() {
+        finish() {
             new physics.fbox(this);
             if (this.object.name == 'wall')
                 this.object.visible = false;
+        }
+        loop() {
+        }
+    }
+    props_1.pwallorsolid = pwallorsolid;
+    class pbox extends prop {
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'pbox';
+        }
+        finish() {
+            new physics.fbox(this);
         }
         loop() {
             this.group.position.copy(this.fbody.body.position);
@@ -112,11 +138,40 @@ var props;
         }
     }
     props_1.pbox = pbox;
+    class pfan extends prop {
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'pfan';
+        }
+        finish() {
+            this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
+            //this.group.rotation.z += 0.02;
+            const size = new THREE.Vector3();
+            const center = new THREE.Vector3();
+            this.aabb.getSize(size);
+            this.aabb.getCenter(center);
+            const temp = new THREE.Vector3(size.x, size.z, size.y);
+            temp.multiplyScalar(hunt.inchMeter);
+            size.divideScalar(2);
+            size.z = -size.z;
+            this.object.position.sub(temp.divideScalar(2));
+            this.group.position.add(size);
+            //size.divideScalar(2);
+            //this.object.position.sub(size);
+            //this.object.position.add(size);
+        }
+        loop() {
+            this.group.rotation.z += 0.005;
+            this.group.updateMatrix();
+        }
+    }
+    props_1.pfan = pfan;
     class pdoor extends prop {
         constructor(object, parameters) {
             super(object, parameters);
+            this.type = 'pdoor';
         }
-        setup() {
+        finish() {
             new physics.fdoor(this);
             //this.object.add(new THREE.AxesHelper(20));
             //this.group.add(new THREE.AxesHelper(20));
@@ -133,18 +188,19 @@ var props;
         sconce1: { hide: true, color: 'white', intensity: 0.1, distance: 2.0, decay: 0.1 },
         openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
         skylightstart: { hide: true, color: 'white', intensity: 0.1, distance: 4.0, decay: 0.01 },
-        mtfanambient: { hide: true, color: 'white', intensity: 0.1, distance: 4.0, decay: 0.01 },
+        mtfanambient: { hide: true, color: 'white', intensity: 0.04, distance: 4.0, decay: 0.01 },
         skirt: { hide: true, color: 'green', intensity: 0.15, distance: 1.0, decay: 0.7 },
-        alert: { hide: true, color: 'red', intensity: 0.1, distance: 2.0, decay: 0.6 },
+        alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
         none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
     };
     class plight extends prop {
         constructor(object, parameters) {
             super(object, parameters);
+            this.type = 'plight';
         }
-        setup() {
+        finish() {
             //this.object.visible = false;
-            const preset = light_presets[this.parameters.preset || 'none'];
+            const preset = light_presets[this.preset || 'none'];
             this.object.visible = !preset.hide;
             const size = new THREE.Vector3();
             const center = new THREE.Vector3();
