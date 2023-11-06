@@ -11,9 +11,9 @@ namespace sketchup {
 		'ebony': ['./assets/textures/black', 10, false, false],
 		'crete1': ['./assets/textures/crete1', 30, false, false],
 		'brick1': ['./assets/textures/brick1', 30, true, true],
-		'metal1': ['./assets/textures/metal1', 60, true, true, true],
+		'metal1': ['./assets/textures/metal1', 90, true, true, true],
 		'metal2': ['./assets/textures/metal2', 30, true, false, false],
-		'metal3': ['./assets/textures/metal3', 30, false, false, false],
+		'metal3': ['./assets/textures/metal3', 30, false, false, true],
 		'rust1': ['./assets/textures/rust1', 30, false, false, false],
 		'twotonewall': ['./assets/textures/twotonewall', 30, true, true],
 		'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
@@ -79,16 +79,16 @@ namespace sketchup {
 			});
 			material.onBeforeCompile = (shader) => {
 				console.log('onbeforecompile');
-				shader.defines = { xPRESAT: '', GORE: '', xAL_GORE: '', GEORGE: '' };
+				shader.defines = { PRESAT: '', REDUCE: '', DESAT: '', GEORGE: '' };
 				shader.fragmentShader = shader.fragmentShader.replace(
 					`#include <lights_phong_fragment>`,
 					`
 					#include <lights_phong_fragment>
 					#ifdef PRESAT
-					float predesat = 2.0;
+					float presat = 2.0;
 					vec3 dif = material.diffuseColor.rgb;
 					vec3 gray = vec3(dot(vec3(.25,.50,.25), dif.rgb));
-					dif = vec3(gray + predesat * (dif.rgb - gray));
+					dif = vec3(gray + presat * (dif.rgb - gray));
 					material.diffuseColor.rgb = dif.rgb;
 					#endif
 					`
@@ -104,26 +104,26 @@ namespace sketchup {
 
 					vec3 grey;
 					float desat = 0.5;
-					float factor = 150.0;
+					float reduce = 150.0;
 					float resat = 2.0;
-					float factor2 = 100.0;
+					float george = 100.0;
 					//vec3 diffuse = material.diffuseColor.rgb;
 					vec3 diffuse = gl_FragColor.rgb;
-					#ifdef AL_GORE
+					#ifdef DESAT
 					grey = vec3(dot(lumaWeights, diffuse.rgb));
 					diffuse = vec3(grey + desat * (diffuse.rgb - grey));
 					#endif
-					#ifdef GORE
-					diffuse *= factor;
+					#ifdef REDUCE
+					diffuse *= reduce;
 					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
-					diffuse /= factor;
+					diffuse /= reduce;
 					#endif
 					#ifdef GEORGE
 					grey = vec3(dot(lumaWeights, diffuse.rgb));
 					diffuse = vec3(grey + resat * (diffuse.rgb - grey));
-					diffuse *= factor2;
+					diffuse *= george;
 					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
-					diffuse /= factor2;
+					diffuse /= george;
 					#endif
 
 					// when at before lighting pass
@@ -142,8 +142,8 @@ namespace sketchup {
 
 			if (tuple[2]) {
 				const map = textureLoader.load(`${tuple[0]}_normal.png`);
-				//material.normalMap = map;
-				material.normalScale.set(1, -1);
+				material.normalMap = map;
+				material.normalScale.set(0.5, -0.5);
 			}
 			if (tuple[3]) {
 				const map = textureLoader.load(`${tuple[0]}_specular.png`);
