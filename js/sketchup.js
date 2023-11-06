@@ -5,15 +5,15 @@ import renderer from "./renderer.js";
 var sketchup;
 (function (sketchup) {
     const paths = {
-        'crete1': ['./assets/textures/crete1', false, false],
-        'brick1': ['./assets/textures/brick1', true, true],
-        'metal1': ['./assets/textures/metal1', true, true, true],
-        'metal2': ['./assets/textures/metal2', true, false, false],
-        'metal3': ['./assets/textures/metal3', false, false, false, true],
-        'rust1': ['./assets/textures/rust1', false, false, false],
-        'twotonewall': ['./assets/textures/twotonewall', true, true],
-        'scrappyfloor': ['./assets/textures/scrappyfloor', true, false],
-        'rustydoorframe': ['./assets/textures/rustydoorframe', false, false],
+        'crete1': ['./assets/textures/crete1', 30, false, false],
+        'brick1': ['./assets/textures/brick1', 30, true, true],
+        'metal1': ['./assets/textures/metal1', 60, true, true, true],
+        'metal2': ['./assets/textures/metal2', 30, true, false, false],
+        'metal3': ['./assets/textures/metal3', 30, false, false, false],
+        'rust1': ['./assets/textures/rust1', 30, false, false, false],
+        'twotonewall': ['./assets/textures/twotonewall', 30, true, true],
+        'scrappyfloor': ['./assets/textures/scrappyfloor', 30, true, false],
+        'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
     };
     const stickers = ['rust1'];
     const library = {};
@@ -90,7 +90,7 @@ var sketchup;
 					float saturation = 0.5;
 					float factor = 150.0;
 					float saturation2 = 2.0;
-					float factor2 = 200.0;
+					float factor2 = 100.0;
 					//vec3 diffuse = material.diffuseColor.rgb;
 					vec3 diffuse = gl_FragColor.rgb;
 					#ifdef AL_GORE
@@ -121,22 +121,22 @@ var sketchup;
                 return 'clucked';
             };
             material.specular.set(0.09, 0.09, 0.09);
-            material.shininess = 30;
-            if (tuple[1]) {
+            material.shininess = tuple[1];
+            if (tuple[2]) {
                 const map = textureLoader.load(`${tuple[0]}_normal.png`);
                 //material.normalMap = map;
                 material.normalScale.set(1, -1);
             }
-            if (tuple[2]) {
+            if (tuple[3]) {
                 const map = textureLoader.load(`${tuple[0]}_specular.png`);
                 //material.emissive.set(0.01, 0, 0);
                 material.specularMap = map;
             }
-            //if (tuple[3]) {
+            //if (tuple[4]) {
             //	const map = textureLoader.load(`${tuple[0]}_aomap.png`);
             //	material.aoMap = map;
             //}
-            //if (tuple[4]) {
+            //if (tuple[5]) {
             //	const map = textureLoader.load(`${tuple[0]}_alpha.png`);
             //	material.alphaMap = map;
             //}
