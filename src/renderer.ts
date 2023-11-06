@@ -162,10 +162,10 @@ namespace renderer {
 		camera.position.z = 5;
 
 		const dpi = window.devicePixelRatio;
-		renderer = new THREE.WebGLRenderer({ antialias: false });
+		renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.xr.enabled = true;
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		renderer.toneMappingExposure = 2.5;
+		renderer.toneMappingExposure = 1.5;
 		renderer.setPixelRatio(dpi);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
@@ -227,8 +227,8 @@ namespace renderer {
 
 		renderer.setSize(window.innerWidth, window.innerHeight);
 
-		//camera.aspect = window.innerWidth / window.innerHeight;
-		//camera.updateProjectionMatrix();
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
 
 		//render();
 	}

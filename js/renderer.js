@@ -122,10 +122,10 @@ var renderer;
         renderer_1.scene.add(helper);
         renderer_1.camera.position.z = 5;
         const dpi = window.devicePixelRatio;
-        renderer_1.renderer = new THREE.WebGLRenderer({ antialias: false });
+        renderer_1.renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer_1.renderer.xr.enabled = true;
         renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer_1.renderer.toneMappingExposure = 2.5;
+        renderer_1.renderer.toneMappingExposure = 1.5;
         renderer_1.renderer.setPixelRatio(dpi);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
         renderer_1.renderer.shadowMap.enabled = true;
@@ -169,8 +169,8 @@ var renderer;
     function resize() {
         redo();
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
-        //camera.aspect = window.innerWidth / window.innerHeight;
-        //camera.updateProjectionMatrix();
+        renderer_1.camera.aspect = window.innerWidth / window.innerHeight;
+        renderer_1.camera.updateProjectionMatrix();
         //render();
     }
     renderer_1.resize = resize;

@@ -187,9 +187,9 @@ var props;
         sconce: { hide: false, color: 'white', intensity: 0.1, distance: 1, offset: [0, 0, -5] },
         sconce1: { hide: true, color: 'white', intensity: 0.1, distance: 2.0, decay: 0.1 },
         openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
-        skylightstart: { hide: true, color: 'white', intensity: 0.1, distance: 4.0, decay: 0.01 },
-        mtfanambient: { hide: true, color: 'white', intensity: 0.04, distance: 4.0, decay: 0.01 },
-        skirt: { hide: true, color: 'green', intensity: 0.15, distance: 1.0, decay: 0.7 },
+        skylightstart: { hide: true, color: 'white', intensity: 0.3, distance: 4.0, decay: 0.5 },
+        mtfanambient: { hide: true, color: 'white', intensity: 0.1, distance: 4.0, decay: 0.2 },
+        skirt: { hide: true, color: 'green', intensity: 0.2, distance: 0.8, decay: 1.0 },
         alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
         none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
     };

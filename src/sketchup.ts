@@ -13,7 +13,7 @@ namespace sketchup {
 		'metal3': ['./assets/textures/metal3', false, false, false, true],
 		'rust1': ['./assets/textures/rust1', false, false, false],
 		'twotonewall': ['./assets/textures/twotonewall', true, true],
-		'scrappyfloor': ['./assets/textures/scrappyfloor', false, false],
+		'scrappyfloor': ['./assets/textures/scrappyfloor', true, false],
 		'rustydoorframe': ['./assets/textures/rustydoorframe', false, false],
 	}
 
@@ -76,41 +76,72 @@ namespace sketchup {
 			});
 			material.onBeforeCompile = (shader) => {
 				console.log('onbeforecompile');
-				shader.defines = { GORE: '', AL_GORE: '' };
+				shader.defines = { GORE: '', AL_GORE: '', GEORGE: '' };
+				/*shader.fragmentShader = shader.fragmentShader.replace(
+					`#include <lights_phong_fragment>`,
+					`
+					#include <lights_phong_fragment>
+					float sat = 0.3;
+					vec3 dif = material.diffuseColor.rgb;
+					vec3 gray = vec3(dot(vec3(.25,.50,.25), dif.rgb));
+					dif = vec3(gray + sat * (dif.rgb - gray));
+					material.diffuseColor.rgb = dif.rgb;
+					`
+				);*/
 				shader.fragmentShader = shader.fragmentShader.replace(
+					// #include <lights_phong_fragment>
+					// #include <tonemapping_fragment>
+
 					`#include <tonemapping_fragment>`,
 					`
-					float saturation = 2.5;
-					float factor = 200.0;
+					#include <tonemapping_fragment>
+
+					vec3 lumaWeights = vec3(.25,.50,.25);
+
+					vec3 grey;
+					float saturation = 0.5;
+					float factor = 150.0;
+					float saturation2 = 2.0;
+					float factor2 = 200.0;
+					//vec3 diffuse = material.diffuseColor.rgb;
 					vec3 diffuse = gl_FragColor.rgb;
 					#ifdef AL_GORE
-					vec3 lumaWeights = vec3(.25,.50,.25);
-					vec3 grey = vec3(dot(lumaWeights, diffuse.rgb));
+					grey = vec3(dot(lumaWeights, diffuse.rgb));
 					diffuse = vec3(grey + saturation * (diffuse.rgb - grey));
 					#endif
 					#ifdef GORE
 					diffuse *= factor;
 					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
 					diffuse /= factor;
-					gl_FragColor.rgb = diffuse.rgb;
 					#endif
-					
-					#include <tonemapping_fragment>`
+					#ifdef GEORGE
+					grey = vec3(dot(lumaWeights, diffuse.rgb));
+					diffuse = vec3(grey + saturation2 * (diffuse.rgb - grey));
+					diffuse *= factor2;
+					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
+					diffuse /= factor2;
+					#endif
+
+					// when at before lighting pass
+					//material.diffuseColor.rgb = diffuse.rgb;
+
+					// when at tone mapping pass
+					gl_FragColor.rgb = diffuse.rgb;
+					`
 				);
 			}
 			material.customProgramCacheKey = function () {
 				return 'clucked';
 			}
-			material.specular.set(0.04, 0.04, 0.04);
-			material.shininess = 40;
+			material.specular.set(0.09, 0.09, 0.09);
+			material.shininess = 30;
 
 			if (tuple[1]) {
 				const map = textureLoader.load(`${tuple[0]}_normal.png`);
 				//material.normalMap = map;
+				material.normalScale.set(1, -1);
 			}
 			if (tuple[2]) {
-				console.log('attach a specular to', tuple[0]);
-
 				const map = textureLoader.load(`${tuple[0]}_specular.png`);
 				//material.emissive.set(0.01, 0, 0);
 				material.specularMap = map;
