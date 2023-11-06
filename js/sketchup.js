@@ -5,6 +5,7 @@ import renderer from "./renderer.js";
 var sketchup;
 (function (sketchup) {
     const paths = {
+        'ebony': ['./assets/textures/black', 10, false, false],
         'crete1': ['./assets/textures/crete1', 30, false, false],
         'brick1': ['./assets/textures/brick1', 30, true, true],
         'metal1': ['./assets/textures/metal1', 60, true, true, true],
@@ -12,7 +13,7 @@ var sketchup;
         'metal3': ['./assets/textures/metal3', 30, false, false, false],
         'rust1': ['./assets/textures/rust1', 30, false, false, false],
         'twotonewall': ['./assets/textures/twotonewall', 30, true, true],
-        'scrappyfloor': ['./assets/textures/scrappyfloor', 30, true, false],
+        'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
         'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
     };
     const stickers = ['rust1'];
@@ -66,18 +67,17 @@ var sketchup;
             });
             material.onBeforeCompile = (shader) => {
                 console.log('onbeforecompile');
-                shader.defines = { GORE: '', AL_GORE: '', GEORGE: '' };
-                /*shader.fragmentShader = shader.fragmentShader.replace(
-                    `#include <lights_phong_fragment>`,
-                    `
-                    #include <lights_phong_fragment>
-                    float sat = 0.3;
-                    vec3 dif = material.diffuseColor.rgb;
-                    vec3 gray = vec3(dot(vec3(.25,.50,.25), dif.rgb));
-                    dif = vec3(gray + sat * (dif.rgb - gray));
-                    material.diffuseColor.rgb = dif.rgb;
-                    `
-                );*/
+                shader.defines = { xPRESAT: '', GORE: '', xAL_GORE: '', GEORGE: '' };
+                shader.fragmentShader = shader.fragmentShader.replace(`#include <lights_phong_fragment>`, `
+					#include <lights_phong_fragment>
+					#ifdef PRESAT
+					float predesat = 2.0;
+					vec3 dif = material.diffuseColor.rgb;
+					vec3 gray = vec3(dot(vec3(.25,.50,.25), dif.rgb));
+					dif = vec3(gray + predesat * (dif.rgb - gray));
+					material.diffuseColor.rgb = dif.rgb;
+					#endif
+					`);
                 shader.fragmentShader = shader.fragmentShader.replace(
                 // #include <lights_phong_fragment>
                 // #include <tonemapping_fragment>
@@ -87,15 +87,15 @@ var sketchup;
 					vec3 lumaWeights = vec3(.25,.50,.25);
 
 					vec3 grey;
-					float saturation = 0.5;
+					float desat = 0.5;
 					float factor = 150.0;
-					float saturation2 = 2.0;
+					float resat = 2.0;
 					float factor2 = 100.0;
 					//vec3 diffuse = material.diffuseColor.rgb;
 					vec3 diffuse = gl_FragColor.rgb;
 					#ifdef AL_GORE
 					grey = vec3(dot(lumaWeights, diffuse.rgb));
-					diffuse = vec3(grey + saturation * (diffuse.rgb - grey));
+					diffuse = vec3(grey + desat * (diffuse.rgb - grey));
 					#endif
 					#ifdef GORE
 					diffuse *= factor;
@@ -104,7 +104,7 @@ var sketchup;
 					#endif
 					#ifdef GEORGE
 					grey = vec3(dot(lumaWeights, diffuse.rgb));
-					diffuse = vec3(grey + saturation2 * (diffuse.rgb - grey));
+					diffuse = vec3(grey + resat * (diffuse.rgb - grey));
 					diffuse *= factor2;
 					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
 					diffuse /= factor2;
