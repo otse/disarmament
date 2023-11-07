@@ -1,5 +1,6 @@
 import app from "./app.js";
 import glob from "./glob.js";
+import hooks from "./hooks.js";
 import renderer from "./renderer.js";
 var vr;
 (function (vr) {
@@ -14,14 +15,15 @@ var vr;
         let button = glob.VRButton.createButton(renderer.renderer);
         console.log(' button ', button);
         document.body.appendChild(button);
-        renderer.renderer.xr.addEventListener('sessionend', () => {
-            console.log(' hunt : glob xr false ');
-            glob.xr = false;
-        });
         renderer.renderer.xr.addEventListener('sessionstart', () => {
-            console.error(' hunt : glob xr true ');
+            console.warn(' glob xr true ');
             glob.xr = true;
-            baseReferenceSpace = renderer.renderer.xr.getReferenceSpace();
+            hooks.call('xrStart', 1);
+        });
+        renderer.renderer.xr.addEventListener('sessionend', () => {
+            console.warn(' glob xr false ');
+            glob.xr = false;
+            hooks.call('xrEnd', 1);
         });
         function onSelectStart() {
             this.userData.isSelecting = true;

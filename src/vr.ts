@@ -1,5 +1,6 @@
 import app from "./app.js";
 import glob from "./glob.js";
+import hooks from "./hooks.js";
 import renderer from "./renderer.js";
 
 namespace vr {
@@ -22,16 +23,17 @@ namespace vr {
 
 		document.body.appendChild(button);
 
-		renderer.renderer.xr.addEventListener('sessionend', () => {
-			console.log(' hunt : glob xr false ');
-			glob.xr = false;
+		renderer.renderer.xr.addEventListener('sessionstart', () => {
+			console.warn(' glob xr true ');
+			glob.xr = true;
+			hooks.call('xrStart', 1);
 		});
 
-		renderer.renderer.xr.addEventListener('sessionstart', () => {
-			console.error(' hunt : glob xr true ');
-			glob.xr = true;
-			baseReferenceSpace = renderer.renderer.xr.getReferenceSpace()
-		})
+		renderer.renderer.xr.addEventListener('sessionend', () => {
+			console.warn(' glob xr false ');
+			glob.xr = false;
+			hooks.call('xrEnd', 1);
+		});
 
 		function onSelectStart() {
 

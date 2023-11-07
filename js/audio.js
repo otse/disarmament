@@ -1,3 +1,4 @@
+import hooks from "./hooks.js";
 import hunt from "./hunt.js";
 import renderer from "./renderer.js";
 var audio;
@@ -38,6 +39,13 @@ var audio;
         './assets/sound/metal/metal_solid_impact_soft2.wav',
         './assets/sound/metal/metal_solid_impact_soft3.wav',
     ];
+    audio.environment = [
+        './assets/sound/env/gorge.mp3',
+        './assets/sound/env/env_wind.mp3',
+    ];
+    audio.other = [
+        './assets/sound/other/whoosh.wav',
+    ];
     audio.buffers = {};
     function gesture() {
         if (gestured)
@@ -58,25 +66,29 @@ var audio;
         renderer.camera.add(listener);
         console.log('audio load');
         let loads = [];
-        loads = loads.concat(audio.cardboard, audio.plastic, audio.metal);
+        loads = loads.concat(audio.other, audio.cardboard, audio.plastic, audio.metal, audio.environment);
         const loader = new THREE.AudioLoader();
         for (let path of loads) {
-            let filename = path.replace(/^.*[\\/]/, '');
-            filename = filename.split('.')[0];
+            let basename = path.replace(/^.*[\\/]/, '');
+            basename = basename.split('.')[0];
             loader.load(path, function (buffer) {
-                audio.buffers[filename] = buffer;
+                audio.buffers[basename] = buffer;
+            }, function () { }, function () {
+                console.warn(' hunt audio cannot load ', basename);
             });
         }
+        setTimeout(() => hooks.call('audioGestured', 1), 500);
     }
     audio.load = load;
-    function playOnce(id, volume = 1) {
+    function playOnce(id, volume = 1, loop = false) {
         const buffer = audio.buffers[id];
-        if (!buffer)
+        if (!buffer) {
+            console.warn(' sound doesnt exist ', id);
             return;
+        }
         let positional = new THREE.PositionalAudio(listener);
         positional.setBuffer(buffer);
-        positional.setLoop(false);
-        volume = hunt.clamp(volume, 0, 0.2);
+        positional.setLoop(loop);
         positional.setVolume(volume);
         positional.play();
         return positional;

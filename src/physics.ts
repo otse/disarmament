@@ -217,15 +217,11 @@ namespace physics {
 				const velocity = e.contact.getImpactVelocityAlongNormal();
 				if (velocity < 0.3)
 					return;
-				let clamp;
-				clamp = hunt.clamp(mass * velocity, 0.1, 3);
-				//clamp = day.clamp(clamp, 0.1, 1);
-				clamp = hunt.clamp(velocity, 0.1, 1.0);
-
-				//console.log('velocity, clamp', velocity, clamp);
+				let volume;
+				volume = hunt.clamp(mass * velocity, 0.1, 3);
+				volume = hunt.clamp(velocity, 0.1, 1.0);
 
 				let sample = '';
-				//console.log(velocity);
 				
 				const impacts = props.impact_sounds[kind.material];
 				if (!impacts)
@@ -236,7 +232,8 @@ namespace physics {
 				else {
 					sample = hunt.sample(impacts.hard);
 				}
-				let sound = audio.playOnce(sample, clamp);
+				volume = hunt.clamp(volume, 0, 0.2);
+				let sound = audio.playOnce(sample, volume);
 				if (sound) {
 					prop.group.add(sound);
 					sound.onEnded = () => {

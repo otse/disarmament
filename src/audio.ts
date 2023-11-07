@@ -1,3 +1,4 @@
+import hooks from "./hooks.js";
 import hunt from "./hunt.js";
 import renderer from "./renderer.js";
 
@@ -23,7 +24,7 @@ namespace audio {
 		'./assets/sound/cardboard/cardboard_box_impact_soft6.wav',
 		'./assets/sound/cardboard/cardboard_box_impact_soft7.wav'
 	]
-	
+
 	export const plastic = [
 		'./assets/sound/plastic/plastic_box_impact_hard1.wav',
 		'./assets/sound/plastic/plastic_box_impact_hard2.wav',
@@ -44,6 +45,15 @@ namespace audio {
 		'./assets/sound/metal/metal_solid_impact_soft3.wav',
 	]
 
+	export const environment = [
+		'./assets/sound/env/gorge.mp3',
+		'./assets/sound/env/env_wind.mp3',
+	];
+
+	export const other = [
+		'./assets/sound/other/whoosh.wav',
+	];
+
 	export var buffers: any = {
 	}
 
@@ -55,7 +65,7 @@ namespace audio {
 	}
 
 	export function boot() {
-		
+
 		hunt.hunt_instructions.addEventListener('click', function () {
 			console.log('create gesture');
 			gesture();
@@ -69,28 +79,36 @@ namespace audio {
 		console.log('audio load');
 
 		let loads: string[] = [];
-		loads = loads.concat(cardboard, plastic, metal);
+		loads = loads.concat(other, cardboard, plastic, metal, environment);
 
 		const loader = new THREE.AudioLoader();
 		for (let path of loads) {
-			let filename = path.replace(/^.*[\\/]/, '');
-			filename = filename.split('.')[0];
-			loader.load(path, function (buffer) {
-				buffers[filename] = buffer;
-			});
+			let basename = path.replace(/^.*[\\/]/, '');
+			basename = basename.split('.')[0];
+			loader.load(path,
+				function (buffer) {
+					buffers[basename] = buffer;
+				},
+				function () { },
+				function () {
+					console.warn(' hunt audio cannot load ', basename);
+				});
 		}
+		
+		setTimeout(() => hooks.call('audioGestured', 1), 500);
 	}
 
-	export function playOnce(id: string, volume: number = 1) {
+	export function playOnce(id: string, volume: number = 1, loop = false) {
 		const buffer = buffers[id];
-		if (!buffer )
+		if (!buffer) {
+			console.warn(' sound doesnt exist ', id);
 			return;
+		}
 
 		let positional = new THREE.PositionalAudio(listener);
 		positional.setBuffer(buffer);
-		
-		positional.setLoop(false);
-		volume = hunt.clamp(volume, 0, 0.2);
+
+		positional.setLoop(loop);
 		positional.setVolume(volume);
 		positional.play();
 

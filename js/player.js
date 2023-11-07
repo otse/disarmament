@@ -1,17 +1,20 @@
 import app from "./app.js";
 import glob from "./glob.js";
+import hooks from "./hooks.js";
 import hunt from "./hunt.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
 //import plc from "./plc.js";
 // https://github.com/mrdoob/three.js/blob/master/examples/jsm/controls/PointerLockControls.js
 class player {
+    active = true;
     controls;
     can_jump;
     cannon_body;
     constructor() {
         this.setup();
         this.make_physics();
+        hooks.register('xrStart', () => { this.retreat(); return false; });
     }
     setup() {
         this.controls = new glob.PointerLockControls(renderer.camera, renderer.renderer.domElement);
@@ -33,6 +36,13 @@ class player {
             hunt.hunt_instructions.style.display = '';
         });
         renderer.scene.add(this.controls.getObject());
+    }
+    retreat() {
+        console.warn(' player retreat ');
+        renderer.scene.remove(this.controls.getObject());
+        this.controls.disconnect();
+        this.controls.getObject().remove();
+        this.active = false;
     }
     make_physics() {
         // Create a sphere
@@ -72,6 +82,10 @@ class player {
     loop(delta) {
         if (this.controls.enabled === false)
             return;
+        if (!this.active)
+            return;
+        if (glob.xhr)
+            return;
         if (app.proompt('v') == 1) {
             this.noclip = !this.noclip;
             //this.cannonBody.collisionResponse = this.noclip ? true : 0;
@@ -103,11 +117,10 @@ class player {
         }
     }
     physics_move(delta) {
-        const $ = this;
         let x = 0, z = 0;
-        if (glob.space_bar && $.can_jump) {
-            $.body_velocity.y = 10;
-            $.can_jump = false;
+        if (glob.space_bar && this.can_jump) {
+            this.body_velocity.y = 10;
+            this.can_jump = false;
         }
         if (glob.w && !glob.s)
             z = -1;
@@ -121,7 +134,7 @@ class player {
             z *= 1.5;
             x *= 1.5;
         }
-        const camera = $.controls.getObject();
+        const camera = this.controls.getObject();
         const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
         // set our pitch to 0 which is forward 
         // else our forward speed is 0 when looking down or up
@@ -132,11 +145,11 @@ class player {
             let velocity = new THREE.Vector3(x, 0, z);
             let quat = new THREE.Quaternion().setFromEuler(euler);
             velocity.applyQuaternion(quat);
-            $.body_velocity.x += velocity.x;
-            $.body_velocity.z += velocity.z;
+            this.body_velocity.x += velocity.x;
+            this.body_velocity.z += velocity.z;
         }
-        $.controls.getObject().position.copy($.cannon_body.position);
-        $.controls.getObject().position.add(new THREE.Vector3(0, 1.2, 0));
+        this.controls.getObject().position.copy(this.cannon_body.position);
+        this.controls.getObject().position.add(new THREE.Vector3(0, 1.2, 0));
     }
 }
 export default player;

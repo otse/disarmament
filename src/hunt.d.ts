@@ -10,5 +10,6 @@ declare var ColladaLoader: any
 declare var PointerLockControls: any
 declare var VRButton: any
 
+
 // plug
 declare var XRRigidTransform

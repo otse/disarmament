@@ -1,8 +1,11 @@
+import audio from "./audio.js";
+import glob from "./glob.js";
+import hooks from "./hooks.js";
 import hunt from "./hunt.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
 var props;
-(function (props_1) {
+(function (props) {
     function factory(object) {
         let prop;
         if (!object.name)
@@ -11,8 +14,12 @@ var props;
         switch (kind) {
             case 'prop':
             case 'box':
-                console.log('new pbox', kind, preset);
+                console.log(' new pbox ', kind, preset);
                 prop = new pbox(object, {});
+                break;
+            case 'env':
+            case 'sound':
+                prop = new psound(object, {});
                 break;
             case 'light':
                 prop = new plight(object, {});
@@ -35,15 +42,15 @@ var props;
         }
         return prop;
     }
-    props_1.factory = factory;
+    props.factory = factory;
     function boot() {
     }
-    props_1.boot = boot;
+    props.boot = boot;
     function loop() {
-        for (let prop of props_1.props)
+        for (let prop of props.all)
             prop.loop();
     }
-    props_1.loop = loop;
+    props.loop = loop;
     function take_collada_prop(prop) {
         // the prop is sitting in a rotated, scaled scene graph
         // set it apart
@@ -63,14 +70,19 @@ var props;
         }
         prop.object.traverse(traversal);
     }
-    props_1.take_collada_prop = take_collada_prop;
-    props_1.props = [];
+    props.take_collada_prop = take_collada_prop;
+    props.all = [];
+    props.walls = [];
+    props.sounds = [];
+    props.boxes = [];
+    props.lights = [];
     class prop {
         object;
         parameters;
+        array = [];
         type;
-        preset;
         kind;
+        preset;
         oldRotation;
         group;
         master;
@@ -79,26 +91,32 @@ var props;
         constructor(object, parameters) {
             this.object = object;
             this.parameters = parameters;
-            props_1.props.push(this);
             this.type = 'ordinary prop';
+            props.all.push(this);
         }
         complete() {
+            this.array.push(this);
             take_collada_prop(this);
             this.measure();
-            this.finish();
+            this._finish();
         }
-        finish() {
+        _finish() {
+        }
+        _lod() {
+        }
+        _loop() {
         }
         loop() {
+            this._loop();
         }
-        void() {
+        lod() {
+            props.all.splice(props.all.indexOf(this), 1);
+            this.array.splice(this.array.indexOf(this), 1);
+            this._lod();
         }
         measure() {
             this.aabb = new THREE.Box3();
             this.aabb.setFromObject(this.group, true);
-            const size = new THREE.Vector3();
-            this.aabb.getSize(size);
-            size.multiplyScalar(hunt.inchMeter);
         }
         correction_for_physics() {
             const size = new THREE.Vector3();
@@ -108,42 +126,88 @@ var props;
             this.object.position.set(-size.x / 2, -size.y / 2, size.z / 2);
         }
     }
-    props_1.prop = prop;
+    props.prop = prop;
     class pwallorsolid extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pwallorsolid';
+            this.array = props.walls;
         }
-        finish() {
+        _finish() {
             new physics.fbox(this);
             if (this.object.name == 'wall')
                 this.object.visible = false;
         }
-        loop() {
+        _loop() {
         }
     }
-    props_1.pwallorsolid = pwallorsolid;
+    props.pwallorsolid = pwallorsolid;
     class pbox extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pbox';
+            this.array = props.boxes;
         }
-        finish() {
+        _finish() {
             new physics.fbox(this);
         }
-        loop() {
+        _loop() {
             this.group.position.copy(this.fbody.body.position);
             this.group.quaternion.copy(this.fbody.body.quaternion);
             this.fbody.loop();
         }
+        _lod() {
+        }
     }
-    props_1.pbox = pbox;
+    props.pbox = pbox;
+    const sound_presets = {
+        wind: { name: 'gorge', volume: .5, loop: true, distance: 4 },
+    };
+    class psound extends prop {
+        sound;
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'psound';
+            this.array = props.sounds;
+            hooks.register('audioGestured', (x) => {
+                console.warn('late playing');
+                if (this.kind == 'env')
+                    this._play();
+                return false;
+            });
+        }
+        _finish() {
+            console.error(' snd ');
+            this.object.visible = false;
+            this._play();
+        }
+        _loop() {
+        }
+        _play() {
+            const preset = sound_presets[this.preset];
+            if (!preset)
+                return;
+            this.sound = audio.playOnce(preset.name, preset.volume, preset.loop);
+            if (this.sound) {
+                const panner = this.sound.getOutput();
+                panner.distanceModel = 'exponential';
+                panner.rolloffFactor = 4;
+                //panner.panningModel = 'HRTF';
+                this.sound?.setRefDistance(preset.distance);
+                this.group.add(this.sound);
+                const helper = new glob.PositionalAudioHelper(this.sound);
+                this.group.add(helper);
+                helper.update();
+            }
+        }
+    }
+    props.psound = psound;
     class pfan extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pfan';
         }
-        finish() {
+        _finish() {
             this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
             //this.group.rotation.z += 0.02;
             const size = new THREE.Vector3();
@@ -160,29 +224,29 @@ var props;
             //this.object.position.sub(size);
             //this.object.position.add(size);
         }
-        loop() {
+        _loop() {
             this.group.rotation.z += 0.005;
             this.group.updateMatrix();
         }
     }
-    props_1.pfan = pfan;
+    props.pfan = pfan;
     class pdoor extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pdoor';
         }
-        finish() {
+        _finish() {
             new physics.fdoor(this);
             //this.object.add(new THREE.AxesHelper(20));
             //this.group.add(new THREE.AxesHelper(20));
         }
-        loop() {
+        _loop() {
             this.group.position.copy(this.fbody.body.position);
             this.group.quaternion.copy(this.fbody.body.quaternion);
             this.fbody.loop();
         }
     }
-    props_1.pdoor = pdoor;
+    props.pdoor = pdoor;
     const light_presets = {
         sconce: { hide: false, color: 'white', intensity: 0.1, distance: 1, offset: [0, 0, -5] },
         sconce1: { hide: true, color: 'white', intensity: 0.1, distance: 2.0, decay: 0.1 },
@@ -197,8 +261,9 @@ var props;
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'plight';
+            this.array = props.lights;
         }
-        finish() {
+        _finish() {
             //this.object.visible = false;
             const preset = light_presets[this.preset || 'none'];
             this.object.visible = !preset.hide;
@@ -214,11 +279,11 @@ var props;
             //this.group.add(new THREE.AxesHelper(10));
             this.group.add(light);
         }
-        loop() {
+        _loop() {
         }
     }
-    props_1.plight = plight;
-    props_1.impact_sounds = {
+    props.plight = plight;
+    props.impact_sounds = {
         'cardboard': {
             soft: [
                 'cardboard_box_impact_soft1',

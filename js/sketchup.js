@@ -8,7 +8,8 @@ var sketchup;
         'ebony': ['./assets/textures/black', 10, false, false],
         'crete1': ['./assets/textures/crete1', 30, false, false],
         'brick1': ['./assets/textures/brick1', 30, true, true],
-        'metal1': ['./assets/textures/metal1', 90, true, true, true],
+        'bulkhead1': ['./assets/textures/bulkhead1', 90, true, true, true],
+        'floor1': ['./assets/textures/floor1', 1, true],
         'metal2': ['./assets/textures/metal2', 30, true, false, false],
         'metal3': ['./assets/textures/metal3', 30, false, false, true],
         'rust1': ['./assets/textures/rust1', 30, false, false, false],
@@ -39,6 +40,16 @@ var sketchup;
             material.map = loader.load(`${tuple[0]}.png`);
             material.map.wrapS = old.wrapS;
             material.map.wrapT = old.wrapT;
+            if (tuple[2]) {
+                material.normalMap = loader.load(`${tuple[0]}_normal.png`);
+                material.normalMap.wrapS = old.wrapS;
+                material.normalMap.wrapT = old.wrapT;
+            }
+            if (tuple[3]) {
+                material.specularMap = loader.load(`${tuple[0]}_specular.png`);
+                material.specularMap.wrapS = old.wrapS;
+                material.specularMap.wrapT = old.wrapT;
+            }
             cubify(material.map);
         }
     }
@@ -67,7 +78,7 @@ var sketchup;
             });
             material.onBeforeCompile = (shader) => {
                 console.log('onbeforecompile');
-                shader.defines = { PRESAT: '', REDUCE: '', DESAT: '', GEORGE: '' };
+                shader.defines = { PRESAT: '', PREDUCE: '', DESAT: '', POSTDUCE: '' };
                 shader.fragmentShader = shader.fragmentShader.replace(`#include <lights_phong_fragment>`, `
 					#include <lights_phong_fragment>
 					#ifdef PRESAT
@@ -97,12 +108,12 @@ var sketchup;
 					grey = vec3(dot(lumaWeights, diffuse.rgb));
 					diffuse = vec3(grey + desat * (diffuse.rgb - grey));
 					#endif
-					#ifdef REDUCE
+					#ifdef PREDUCE
 					diffuse *= reduce;
 					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
 					diffuse /= reduce;
 					#endif
-					#ifdef GEORGE
+					#ifdef POSTDUCE
 					grey = vec3(dot(lumaWeights, diffuse.rgb));
 					diffuse = vec3(grey + resat * (diffuse.rgb - grey));
 					diffuse *= george;
@@ -121,7 +132,7 @@ var sketchup;
                 return 'clucked';
             };
             material.specular.set(0.09, 0.09, 0.09);
-            material.shininess = tuple[1];
+            material.shininess = tuple[1] || 30;
             if (tuple[2]) {
                 const map = textureLoader.load(`${tuple[0]}_normal.png`);
                 material.normalMap = map;

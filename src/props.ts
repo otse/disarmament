@@ -1,3 +1,6 @@
+import audio from "./audio.js";
+import glob from "./glob.js";
+import hooks from "./hooks.js";
 import hunt from "./hunt.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
@@ -12,8 +15,12 @@ namespace props {
 		switch (kind) {
 			case 'prop':
 			case 'box':
-				console.log('new pbox', kind, preset);
+				console.log(' new pbox ', kind, preset);
 				prop = new pbox(object, {});
+				break;
+			case 'env':
+			case 'sound':
+				prop = new psound(object, {});
 				break;
 			case 'light':
 				prop = new plight(object, {});
@@ -42,7 +49,7 @@ namespace props {
 	}
 
 	export function loop() {
-		for (let prop of props)
+		for (let prop of all)
 			prop.loop();
 	}
 
@@ -74,40 +81,49 @@ namespace props {
 		prop.object.traverse(traversal);
 	}
 
-	export var props: prop[] = []
+	export var all: prop[] = []
+	export var walls: psound[] = []
+	export var sounds: psound[] = []
+	export var boxes: psound[] = []
+	export var lights: plight[] = []
 
-	export class prop {
+	export abstract class prop {
+		array: prop[] = []
 		type
-		preset
 		kind
+		preset
 		oldRotation
 		group
 		master
 		fbody: physics.fbody
 		aabb
 		constructor(public readonly object, public readonly parameters) {
-			props.push(this);
 			this.type = 'ordinary prop';
+			all.push(this);
 		}
 		complete() {
+			this.array.push(this);
 			take_collada_prop(this);
 			this.measure();
-			this.finish();
+			this._finish();
 		}
-		finish() { // override
+		protected _finish() { // override
 		}
-		loop() { // override
+		protected _lod() { // override
 		}
-		void() {
-
+		protected _loop() { // override
 		}
-		measure() {
+		loop() {
+			this._loop();
+		}
+		lod() {
+			all.splice(all.indexOf(this), 1);
+			this.array.splice(this.array.indexOf(this), 1);
+			this._lod();
+		}
+		protected measure() {
 			this.aabb = new THREE.Box3();
 			this.aabb.setFromObject(this.group, true);
-
-			const size = new THREE.Vector3();
-			this.aabb.getSize(size);
-			size.multiplyScalar(hunt.inchMeter);
 		}
 		correction_for_physics() {
 			const size = new THREE.Vector3();
@@ -122,13 +138,14 @@ namespace props {
 		constructor(object, parameters) {
 			super(object, parameters);
 			this.type = 'pwallorsolid';
+			this.array = walls;
 		}
-		override finish() {
+		override _finish() {
 			new physics.fbox(this);
 			if (this.object.name == 'wall')
 				this.object.visible = false;
 		}
-		override loop() {
+		override _loop() {
 		}
 	}
 
@@ -136,14 +153,62 @@ namespace props {
 		constructor(object, parameters) {
 			super(object, parameters);
 			this.type = 'pbox';
+			this.array = boxes;
 		}
-		override finish() {
+		override _finish() {
 			new physics.fbox(this);
 		}
-		override loop() {
+		override _loop() {
 			this.group.position.copy(this.fbody.body.position);
 			this.group.quaternion.copy(this.fbody.body.quaternion);
 			this.fbody.loop();
+		}
+		override _lod() {
+		}
+	}
+
+	const sound_presets = {
+		wind: { name: 'gorge', volume: .5, loop: true, distance: 4 },
+	}
+
+	export class psound extends prop {
+		sound
+		constructor(object, parameters) {
+			super(object, parameters);
+			this.type = 'psound';
+			this.array = sounds;
+			hooks.register('audioGestured', (x) => {
+				console.warn('late playing');
+
+				if (this.kind == 'env')
+					this._play();
+				return false;
+			});
+		}
+		override _finish() {
+			console.error(' snd ');
+			this.object.visible = false;
+			this._play();
+		}
+		override _loop() {
+		}
+		_play() {
+			const preset = sound_presets[this.preset];
+			if (!preset)
+				return;
+			this.sound = audio.playOnce(preset.name, preset.volume, preset.loop);
+			if (this.sound) {
+				const panner = this.sound.getOutput();
+				panner.distanceModel = 'exponential';
+				panner.rolloffFactor = 4;
+				//panner.panningModel = 'HRTF';
+				this.sound?.setRefDistance(preset.distance);
+				this.group.add(this.sound);
+
+				const helper = new glob.PositionalAudioHelper( this.sound );
+				this.group.add( helper );
+				helper.update();
+			}
 		}
 	}
 
@@ -152,7 +217,7 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pfan';
 		}
-		override finish() {
+		override _finish() {
 			this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
 			//this.group.rotation.z += 0.02;
 
@@ -169,7 +234,7 @@ namespace props {
 
 			this.object.position.sub(temp.divideScalar(2));
 			this.group.position.add(size);
-			
+
 			//size.divideScalar(2);
 
 			//this.object.position.sub(size);
@@ -177,7 +242,7 @@ namespace props {
 			//this.object.position.add(size);
 
 		}
-		override loop() {
+		override _loop() {
 			this.group.rotation.z += 0.005;
 			this.group.updateMatrix();
 
@@ -189,12 +254,12 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pdoor';
 		}
-		override finish() {
+		override _finish() {
 			new physics.fdoor(this);
 			//this.object.add(new THREE.AxesHelper(20));
 			//this.group.add(new THREE.AxesHelper(20));
 		}
-		override loop() {
+		override _loop() {
 			this.group.position.copy(this.fbody.body.position);
 			this.group.quaternion.copy(this.fbody.body.quaternion);
 			this.fbody.loop();
@@ -216,8 +281,9 @@ namespace props {
 		constructor(object, parameters) {
 			super(object, parameters);
 			this.type = 'plight';
+			this.array = lights;
 		}
-		override finish() {
+		override _finish() {
 			//this.object.visible = false;
 			const preset = light_presets[this.preset || 'none'];
 			this.object.visible = !preset.hide;
@@ -239,7 +305,7 @@ namespace props {
 			//this.group.add(new THREE.AxesHelper(10));
 			this.group.add(light);
 		}
-		override loop() {
+		override _loop() {
 		}
 	}
 
