@@ -1,8 +1,7 @@
-import glob from "./glob.js";
-import hooks from "./hooks.js";
-import points from "./pts.js";
+import hooks from "./lib/hooks.js";
+import points from "./lib/pts.js";
 import hunt from "./hunt.js";
-import vr from "./vr.js";
+import vr from "./vr/vr.js";
 var app;
 (function (app) {
     let KEY;
@@ -41,7 +40,7 @@ var app;
     }
     app.proompt = proompt;
     function boot(version) {
-        VRButton = glob.VRButton;
+        VRButton = VRButton;
         console.log('app boot');
         hooks.call('AppBoot', null);
         hunt.boot();

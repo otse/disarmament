@@ -1,14 +1,14 @@
 import app from "./app.js";
 import audio from "./audio.js";
-import glob from "./glob.js";
+import glob from "./lib/glob.js";
 import physics from "./physics.js";
 import player from "./player.js";
 import props from "./props.js";
-import points from "./pts.js";
+import points from "./lib/pts.js";
 import renderer from "./renderer.js";
 import sketchup from "./sketchup.js";
 import viewport from "./viewport.js";
-import vr from "./vr.js";
+import vr from "./vr/vr.js";
 
 glob.developer = true;
 
@@ -17,7 +17,7 @@ namespace hunt {
 	export const inchMeter = (1 / 0.0254)
 	export const timeStep = (1 / 60)
 
-	export var hunt_main, hunt_instructions
+	export var main, locker
 	export var dt = 0
 
 	export var gviewport: viewport
@@ -36,8 +36,8 @@ namespace hunt {
 
 		gviewport = new viewport;
 
-		hunt_instructions = document.querySelector('hunt-instructions')! as HTMLElement;
-		hunt_main = document.querySelector('hunt-main');
+		locker = document.querySelector('hunt-instructions')! as HTMLElement;
+		main = document.querySelector('hunt-main');
 
 		points.add([0, 0], [1, 1]);
 
@@ -51,7 +51,6 @@ namespace hunt {
 		gplayer = new player();
 
 		// new physics.simple_box();
-
 	}
 
 	export function loop(delta: number) {

@@ -1,10 +1,14 @@
-import hooks from "./hooks.js";
+import hooks from "./lib/hooks.js";
 import hunt from "./hunt.js";
 import renderer from "./renderer.js";
+class asd {
+    bluh;
+}
 var audio;
 (function (audio) {
     var listener;
     let gestured = false;
+    audio.loaded = false;
     audio.cardboard = [
         './assets/sound/cardboard/cardboard_box_impact_hard1.wav',
         './assets/sound/cardboard/cardboard_box_impact_hard2.wav',
@@ -47,20 +51,19 @@ var audio;
         './assets/sound/other/whoosh.wav',
     ];
     audio.buffers = {};
+    function boot() {
+        hunt.locker.addEventListener('click', function () {
+            console.log('create gesture');
+            gesture();
+        });
+    }
+    audio.boot = boot;
     function gesture() {
         if (gestured)
             return;
         load();
         gestured = true;
     }
-    audio.gesture = gesture;
-    function boot() {
-        hunt.hunt_instructions.addEventListener('click', function () {
-            console.log('create gesture');
-            gesture();
-        });
-    }
-    audio.boot = boot;
     function load() {
         listener = new THREE.AudioListener();
         renderer.camera.add(listener);
@@ -77,9 +80,9 @@ var audio;
                 console.warn(' hunt audio cannot load ', basename);
             });
         }
+        audio.loaded = true;
         setTimeout(() => hooks.call('audioGestured', 1), 500);
     }
-    audio.load = load;
     function playOnce(id, volume = 1, loop = false) {
         const buffer = audio.buffers[id];
         if (!buffer) {

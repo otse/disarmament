@@ -1,6 +1,5 @@
 import audio from "./audio.js";
-import glob from "./glob.js";
-import hooks from "./hooks.js";
+import hooks from "./lib/hooks.js";
 import hunt from "./hunt.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
@@ -177,25 +176,26 @@ var props;
             });
         }
         _finish() {
-            console.error(' snd ');
             this.object.visible = false;
             this._play();
         }
         _loop() {
         }
         _play() {
+            if (!audio.loaded)
+                return;
             const preset = sound_presets[this.preset];
             if (!preset)
                 return;
             this.sound = audio.playOnce(preset.name, preset.volume, preset.loop);
             if (this.sound) {
+                this.group.add(this.sound);
                 const panner = this.sound.getOutput();
                 panner.distanceModel = 'exponential';
                 panner.rolloffFactor = 4;
-                //panner.panningModel = 'HRTF';
+                panner.panningModel = 'HRTF';
                 this.sound?.setRefDistance(preset.distance);
-                this.group.add(this.sound);
-                const helper = new glob.PositionalAudioHelper(this.sound);
+                const helper = new PositionalAudioHelper(this.sound);
                 this.group.add(helper);
                 helper.update();
             }

@@ -1,12 +1,13 @@
 import app from "./app.js";
-import glob from "./glob.js";
-import hooks from "./hooks.js";
+import glob from "./lib/glob.js";
+import hooks from "./lib/hooks.js";
 import hunt from "./hunt.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
 //import plc from "./plc.js";
 // https://github.com/mrdoob/three.js/blob/master/examples/jsm/controls/PointerLockControls.js
 class player {
+    camera;
     active = true;
     controls;
     can_jump;
@@ -14,34 +15,22 @@ class player {
     constructor() {
         this.setup();
         this.make_physics();
-        hooks.register('xrStart', () => { this.retreat(); return false; });
+        hooks.register('xrStart', () => this.retreat());
     }
     setup() {
-        this.controls = new glob.PointerLockControls(renderer.camera, renderer.renderer.domElement);
+        this.controls = new PointerLockControls(renderer.camera, renderer.renderer.domElement);
         this.controls.enabled = true;
-        this.controls.getObject().rotation.y = -Math.PI / 2;
-        this.controls.getObject().position.y = 1.5;
-        const controler = this.controls;
-        hunt.hunt_instructions.addEventListener('click', function () {
-            controler.lock();
+        this.camera = this.controls.getObject();
+        hunt.locker.addEventListener('click', () => {
+            hunt.locker.style.display = 'none';
+            this.controls.lock();
         });
-        this.controls.addEventListener('lock', function () {
-            console.log('lock');
-            hunt.hunt_instructions.style.display = 'none';
-            //blocker.style.display = 'none';
-        });
-        this.controls.addEventListener('unlock', function () {
-            console.log('unlock');
-            //blocker.style.display = 'block';
-            hunt.hunt_instructions.style.display = '';
-        });
-        renderer.scene.add(this.controls.getObject());
+        this.controls.addEventListener('lock', () => hunt.locker.style.display = 'none');
+        this.controls.addEventListener('unlock', () => hunt.locker.style.display = '');
     }
     retreat() {
         console.warn(' player retreat ');
-        renderer.scene.remove(this.controls.getObject());
         this.controls.disconnect();
-        this.controls.getObject().remove();
         this.active = false;
     }
     make_physics() {
@@ -109,7 +98,7 @@ class player {
         if (x || z) {
             z *= 0.02;
             x *= 0.02;
-            const camera = this.controls.getObject();
+            const camera = this.camera;
             const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
             const position = new THREE.Vector3();
             position.copy(camera.position).add(new THREE.Vector3(x, 0, z).applyQuaternion(new THREE.Quaternion().setFromEuler(euler)));
@@ -134,7 +123,7 @@ class player {
             z *= 1.5;
             x *= 1.5;
         }
-        const camera = this.controls.getObject();
+        const camera = this.camera;
         const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
         // set our pitch to 0 which is forward 
         // else our forward speed is 0 when looking down or up
@@ -148,8 +137,8 @@ class player {
             this.body_velocity.x += velocity.x;
             this.body_velocity.z += velocity.z;
         }
-        this.controls.getObject().position.copy(this.cannon_body.position);
-        this.controls.getObject().position.add(new THREE.Vector3(0, 1.2, 0));
+        this.camera.position.copy(this.cannon_body.position);
+        this.camera.position.add(new THREE.Vector3(0, 1.2, 0));
     }
 }
 export default player;

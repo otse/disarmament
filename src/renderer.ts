@@ -1,7 +1,7 @@
-import glob from "./glob.js";
+import glob from "./lib/glob.js";
 import app from "./app.js";
 import easings from "./easings.js";
-import pts from "./pts.js";
+import pts from "./lib/pts.js";
 
 /// the shader of shit
 const fragmentPost = `
@@ -155,6 +155,9 @@ namespace renderer {
 		redo();
 
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+		camera.rotation.y = -Math.PI / 2;
+		camera.position.y = 1.5;
 
 		const helper = new THREE.AxesHelper(1);
 		scene.add(helper);

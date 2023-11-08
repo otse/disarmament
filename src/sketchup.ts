@@ -1,5 +1,5 @@
 import app from "./app.js";
-import glob from "./glob.js";
+import glob from "./lib/glob.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
 
@@ -189,7 +189,7 @@ namespace sketchup {
 		const loadingManager = new THREE.LoadingManager(function () {
 		});
 
-		const loader = new glob.ColladaLoader(loadingManager);
+		const loader = new ColladaLoader(loadingManager);
 
 		loader.load('./assets/metal_place.dae', function (collada) {
 

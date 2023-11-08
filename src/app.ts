@@ -1,8 +1,8 @@
-import glob from "./glob.js";
-import hooks from "./hooks.js";
-import points from "./pts.js";
+import glob from "./lib/glob.js";
+import hooks from "./lib/hooks.js";
+import points from "./lib/pts.js";
 import hunt from "./hunt.js";
-import vr from "./vr.js";
+import vr from "./vr/vr.js";
 
 namespace app {
 	export enum KEY {
@@ -36,7 +36,7 @@ namespace app {
 
 	export function boot(version: string) {
 
-		VRButton = glob.VRButton;
+		VRButton = VRButton;
 
 		console.log('app boot');
 		hooks.call('AppBoot', null);

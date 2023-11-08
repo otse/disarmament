@@ -1,14 +1,14 @@
 import app from "./app.js";
 import audio from "./audio.js";
-import glob from "./glob.js";
+import glob from "./lib/glob.js";
 import physics from "./physics.js";
 import player from "./player.js";
 import props from "./props.js";
-import points from "./pts.js";
+import points from "./lib/pts.js";
 import renderer from "./renderer.js";
 import sketchup from "./sketchup.js";
 import viewport from "./viewport.js";
-import vr from "./vr.js";
+import vr from "./vr/vr.js";
 glob.developer = true;
 var hunt;
 (function (hunt) {
@@ -27,8 +27,8 @@ var hunt;
     function boot() {
         console.log('day setting up');
         hunt.gviewport = new viewport;
-        hunt.hunt_instructions = document.querySelector('hunt-instructions');
-        hunt.hunt_main = document.querySelector('hunt-main');
+        hunt.locker = document.querySelector('hunt-instructions');
+        hunt.main = document.querySelector('hunt-main');
         points.add([0, 0], [1, 1]);
         physics.boot();
         props.boot();

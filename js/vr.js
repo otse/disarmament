@@ -5,19 +5,20 @@ import renderer from "./renderer.js";
 var vr;
 (function (vr) {
     let baseReferenceSpace;
-    let controller1, controller2;
+    let controller2;
     let controllerGrip1, controllerGrip2;
     let INTERSECTION;
     let floor, marker;
     let tempMatrix;
     let raycaster;
     function boot() {
-        let button = glob.VRButton.createButton(renderer.renderer);
+        let button = VRButton.createButton(renderer.renderer);
         console.log(' button ', button);
         document.body.appendChild(button);
         renderer.renderer.xr.addEventListener('sessionstart', () => {
             console.warn(' glob xr true ');
             glob.xr = true;
+            baseReferenceSpace = renderer.renderer.xr.getReferenceSpace();
             hooks.call('xrStart', 1);
         });
         renderer.renderer.xr.addEventListener('sessionend', () => {
@@ -45,13 +46,13 @@ var vr;
         renderer.scene.add(floor);
         tempMatrix = new THREE.Matrix4();
         raycaster = new THREE.Raycaster();
-        controller1 = renderer.renderer.xr.getController(0);
-        controller1.addEventListener('selectstart', onSelectStart);
-        controller1.addEventListener('selectend', onSelectEnd);
-        controller1.addEventListener('connected', function (event) {
+        controller2 = renderer.renderer.xr.getController(1);
+        controller2.addEventListener('selectstart', onSelectStart);
+        controller2.addEventListener('selectend', onSelectEnd);
+        controller2.addEventListener('connected', function (event) {
             this.add(buildController(event.data));
         });
-        controller1.addEventListener('disconnected', function () {
+        controller2.addEventListener('disconnected', function () {
             this.remove(this.children[0]);
         });
         function buildController(data) {
@@ -69,7 +70,20 @@ var vr;
                     return new THREE.Mesh(geometry, material);
             }
         }
-        renderer.scene.add(controller1);
+        renderer.scene.add(controller2);
+        const controllerModelFactory = new XRControllerModelFactory();
+        const handModelFactory = new XRHandModelFactory();
+        // this creates a quest 2 controller with the tracking ring
+        // it can also make a black rift s controller
+        controllerGrip1 = renderer.renderer.xr.getControllerGrip(0);
+        controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
+        renderer.scene.add(controllerGrip1);
+        controllerGrip1.addEventListener("connected", (e) => {
+            console.warn(' hunt vr gamepad', e.data.gamepad);
+        });
+        let hand1 = renderer.renderer.xr.getHand(0);
+        hand1.add(handModelFactory.createHandModel(hand1));
+        renderer.scene.add(hand1);
     }
     vr.boot = boot;
     function start() {
@@ -80,9 +94,9 @@ var vr;
         app.loop();
     }
     function loop() {
-        if (controller1.userData.isSelecting === true) {
-            tempMatrix.identity().extractRotation(controller1.matrixWorld);
-            raycaster.ray.origin.setFromMatrixPosition(controller1.matrixWorld);
+        if (controller2.userData.isSelecting === true) {
+            tempMatrix.identity().extractRotation(controller2.matrixWorld);
+            raycaster.ray.origin.setFromMatrixPosition(controller2.matrixWorld);
             raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
             const intersects = raycaster.intersectObjects([floor]); // renderer.scene.children, true
             if (intersects.length > 0) {

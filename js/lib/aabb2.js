@@ -1,4 +1,4 @@
-import pts from "./lib/pts.js";
+import pts from "./pts.js";
 // https://www.khanacademy.org/computer-programming/swept-aabb-test/4966664161263616
 // https://jsfiddle.net/Hatchet/ccjrg9b0/
 var TEST;

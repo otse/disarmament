@@ -1,12 +1,19 @@
-import hooks from "./hooks.js";
+import hooks from "./lib/hooks.js";
 import hunt from "./hunt.js";
 import renderer from "./renderer.js";
+
+class asd {
+	readonly bluh
+}
+
 
 namespace audio {
 
 	var listener
 
 	let gestured = false
+
+	export var loaded = false
 
 	export const cardboard = [
 		'./assets/sound/cardboard/cardboard_box_impact_hard1.wav',
@@ -57,22 +64,22 @@ namespace audio {
 	export var buffers: any = {
 	}
 
-	export function gesture() {
+	export function boot() {
+
+		hunt.locker.addEventListener('click', function () {
+			console.log('create gesture');
+			gesture();
+		});
+	}
+
+	function gesture() {
 		if (gestured)
 			return;
 		load();
 		gestured = true;
 	}
 
-	export function boot() {
-
-		hunt.hunt_instructions.addEventListener('click', function () {
-			console.log('create gesture');
-			gesture();
-		});
-	}
-
-	export function load() {
+	function load() {
 		listener = new THREE.AudioListener();
 		renderer.camera.add(listener);
 
@@ -94,7 +101,7 @@ namespace audio {
 					console.warn(' hunt audio cannot load ', basename);
 				});
 		}
-		
+		loaded = true;
 		setTimeout(() => hooks.call('audioGestured', 1), 500);
 	}
 

@@ -4,17 +4,20 @@
 // it is useful to prevent circular dependencies
 // and or import hell
 
-type func = (any) => boolean
+
+module hooks {
+	export type func = (any) => void
+}
 
 export class hooks<T = never> {
-	static readonly hooks: { [name: string]: func[] }
-	list: func[] = []
-	static register(name: string, f: func) {
+	static readonly hooks: { [name: string]: hooks.func[] }
+	list: hooks.func[] = []
+	static register(name: string, f: hooks.func) {
 		if (!hooks[name])
 			hooks[name] = [];
 		hooks[name].push(f);
 	}
-	static unregister(name: string, f: func) {
+	static unregister(name: string, f: hooks.func) {
 		hooks[name] = hooks[name].filter(e => e != f);
 	}
 	static call(name: string, x: any) {
