@@ -186,7 +186,7 @@ var renderer;
                 renderer_1.animate_post = !renderer_1.animate_post;
             if (glob.h == 1) {
                 renderer_1.ren_stats = !renderer_1.ren_stats;
-                app.fluke_set_style('hunt-stats', 'visibility', renderer_1.ren_stats ? '' : 'hidden');
+                app.fluke_set_style('hunt-stats', 'visibility', renderer_1.ren_stats ? 'visible' : 'hidden');
             }
         }
     }

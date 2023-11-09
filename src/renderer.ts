@@ -86,7 +86,6 @@ namespace renderer {
 	export var animate_post = false;
 	export var ren_stats = false;
 
-
 	export function boot() {
 		window['renderer'] = this;
 
@@ -247,7 +246,7 @@ namespace renderer {
 				animate_post = !animate_post;
 			if (glob.h == 1) {
 				ren_stats = !ren_stats;
-				app.fluke_set_style('hunt-stats', 'visibility', ren_stats ? '' : 'hidden');
+				app.fluke_set_style('hunt-stats', 'visibility', ren_stats ? 'visible' : 'hidden');
 			}
 		}
 	}
@@ -273,17 +272,12 @@ namespace renderer {
 		// if your fps is very low, the game will appear to be in slow motion
 		const min_dt = 1.0 / 10.0;
 		dt = dt > min_dt ? min_dt : dt;
-
 		frames++;
 		time = (performance || Date).now();
-
 		if (time >= prevTime + 1000) {
-
 			fps = (frames * 1000) / (time - prevTime);
-
 			prevTime = time;
 			frames = 0;
-
 			if (ren_stats) {
 				app.fluke_set_innerhtml('hunt-stats', `
 					fps: ${fps.toFixed(1)}<br />

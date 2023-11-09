@@ -90,7 +90,7 @@ var app;
             //return false;
         }
         function onerror(message) {
-            document.querySelectorAll('.stats')[0].innerHTML = message;
+            document.querySelectorAll('hunt-stats')[0].innerHTML = message;
         }
         if (app.mobile) {
             document.ontouchstart = ontouchstart;

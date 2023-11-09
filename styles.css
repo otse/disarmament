@@ -21,6 +21,7 @@ hunt-instructions {
 hunt-stats {
   display: flex;
   position: absolute;
+  visibility: hidden;
   top: 0;
   right: 0;
   margin: 10px;

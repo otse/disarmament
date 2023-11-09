@@ -4,3 +4,9 @@ the following link is a working vr post
 https://raw.githack.com/CodyJasonBennett/three.js/test/xr-bloom/examples/webgl_postprocessing_unreal_bloom.html
 
 https://rawcdn.githack.com/CodyJasonBennett/three.js/a7bd357c92e707262febe33e12d49b324e6c2cb8/examples/webxr_vr_postprocessing.html
+
+put xr reference space to starting camera
+https://discourse.threejs.org/t/initial-webxr-position-same-as-camera-position/36682/11
+
+really useful thumstick movement in threejs
+https://unpkg.com/@depasquale/three-immersive-controls@0.0.15/examples/interactive-objects/index.html

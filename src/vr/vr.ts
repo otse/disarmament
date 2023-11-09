@@ -2,21 +2,26 @@ import app from "../app.js";
 import glob from "../lib/glob.js";
 import hooks from "../lib/hooks.js";
 import renderer from "../renderer.js";
-import controller from "./controller.js";
+import ctrlr from "./controller.js";
 
 namespace vr {
 	export let baseReferenceSpace
 
-	let rightController: controller;
+	let rightController: ctrlr;
+	let leftController: ctrlr;
 
 	let controllerGrip1, controllerGrip2;
+
+	export var position;
 
 	let INTERSECTION;
 	export let floor, marker;
 
 	export function boot() {
 
-		controller.boot();
+		ctrlr.boot();
+
+		position = new THREE.Vector3();
 
 		let button = VRButton.createButton(renderer.renderer);
 
@@ -71,7 +76,8 @@ namespace vr {
 		floor.visible = false;
 		renderer.scene.add(floor);
 
-		rightController = new controller(1);
+		leftController = new ctrlr(0);
+		rightController = new ctrlr(1);
 
 	}
 
@@ -84,6 +90,7 @@ namespace vr {
 	}
 
 	export function loop() {
+		leftController.loop();
 		rightController.loop();
 	}
 }

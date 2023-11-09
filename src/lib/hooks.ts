@@ -5,7 +5,7 @@
 // and or import hell
 
 
-module hooks {
+namespace hooks {
 	export type func = (any) => void
 }
 

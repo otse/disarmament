@@ -96,7 +96,7 @@ namespace app {
 		}
 
 		function onerror(message) {
-			document.querySelectorAll('.stats')[0].innerHTML = message;
+			document.querySelectorAll('hunt-stats')[0].innerHTML = message;
 		}
 		if (mobile) {
 			document.ontouchstart = ontouchstart;
