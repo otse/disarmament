@@ -219,9 +219,7 @@ namespace props {
 			this.type = 'pfan';
 		}
 		override _finish() {
-			this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
-			//this.group.rotation.z += 0.02;
-
+			//this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
 			const size = new THREE.Vector3();
 			const center = new THREE.Vector3();
 			this.aabb.getSize(size);
