@@ -21,10 +21,7 @@ class player {
         this.controls = new PointerLockControls(renderer.camera, renderer.renderer.domElement);
         this.controls.enabled = true;
         this.camera = this.controls.getObject();
-        hunt.locker.addEventListener('click', () => {
-            hunt.locker.style.display = 'none';
-            this.controls.lock();
-        });
+        hunt.locker.addEventListener('click', () => this.controls.lock());
         this.controls.addEventListener('lock', () => hunt.locker.style.display = 'none');
         this.controls.addEventListener('unlock', () => hunt.locker.style.display = '');
     }

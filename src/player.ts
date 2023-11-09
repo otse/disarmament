@@ -30,10 +30,8 @@ class player {
 
 		this.camera = this.controls.getObject();
 
-		hunt.locker.addEventListener('click', () => {
-			hunt.locker.style.display = 'none';
-			this.controls.lock();
-		}
+		hunt.locker.addEventListener('click', () =>
+			this.controls.lock()
 		);
 
 		this.controls.addEventListener('lock', () =>

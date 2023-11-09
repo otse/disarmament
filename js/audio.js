@@ -50,6 +50,9 @@ var audio;
     audio.other = [
         './assets/sound/other/whoosh.wav',
     ];
+    audio.footsteps = [
+        './assets/sound/other/whoosh.wav',
+    ];
     audio.buffers = {};
     function boot() {
         hunt.locker.addEventListener('click', function () {

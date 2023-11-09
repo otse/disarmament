@@ -61,6 +61,10 @@ namespace audio {
 		'./assets/sound/other/whoosh.wav',
 	];
 
+	export const footsteps = [
+		'./assets/sound/other/whoosh.wav',
+	];
+
 	export var buffers: any = {
 	}
 

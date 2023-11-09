@@ -92,30 +92,35 @@ export class ctrlr {
             vr.marker.position.copy(floorIntersect);
         vr.marker.visible = floorIntersect !== undefined;
     }
-    refSpaced;
+    thumstick_move() {
+        if (!this.xrinputsource)
+            return;
+        const axes = this.xrinputsource.data.gamepad.axes;
+        let thumbstick = pts.make(axes[2], axes[3]);
+        thumbstick = pts.inv(thumbstick);
+        thumbstick = pts.mult(thumbstick, .1);
+        const arraycamera = renderer.renderer.xr.getCamera();
+        // todo is there a shorter way to get xr yaw
+        const quaternion = new THREE.Quaternion();
+        quaternion.copy(arraycamera.quaternion);
+        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        euler.setFromQuaternion(quaternion);
+        euler.x = 0;
+        euler.z = 0;
+        quaternion.setFromEuler(euler);
+        const vector = new THREE.Vector3();
+        vector.set(thumbstick[0], 0, thumbstick[1]);
+        vector.applyQuaternion(quaternion);
+        vr.position.add(vector);
+        const offsetRotation = new THREE.Quaternion();
+        const transform = new XRRigidTransform(vr.position, offsetRotation);
+        const thumbstickSpace = vr.baseReferenceSpace.getOffsetReferenceSpace(transform);
+        renderer.renderer.xr.setReferenceSpace(thumbstickSpace);
+    }
     loop() {
         this.teleport();
-        if (this.xrinputsource && this.index == 0) {
-            const axes = this.xrinputsource.data.gamepad.axes;
-            let axe = pts.make(axes[2], axes[3]);
-            axe = pts.inv(axe);
-            axe = pts.mult(axe, .05);
-            //console.log(this.xrinputsource.data.gamepad.axes);
-            const xrcamera = renderer.renderer.xr.getCamera();
-            const quaternion = new THREE.Quaternion();
-            quaternion.copy(xrcamera.quaternion);
-            const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(quaternion);
-            euler.x = 0;
-            euler.z = 0;
-            quaternion.setFromEuler(euler);
-            const temp = new THREE.Vector3();
-            temp.set(axe[0], 0, axe[1]);
-            temp.applyQuaternion(quaternion);
-            vr.position.add(temp);
-            const offsetRotation = new THREE.Quaternion();
-            const transform = new XRRigidTransform(vr.position, offsetRotation);
-            const thumbstickSpace = vr.baseReferenceSpace.getOffsetReferenceSpace(transform);
-            renderer.renderer.xr.setReferenceSpace(thumbstickSpace);
+        if (this.index == 0) {
+            this.thumstick_move();
         }
         //console.log(this.grip.data.gamepad);
     }
