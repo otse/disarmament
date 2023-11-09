@@ -141,8 +141,7 @@ namespace sketchup {
 			}
 			if (tuple[3]) {
 				const map = textureLoader.load(`${tuple[0]}_specular.png`);
-				//material.emissive.set(0.01, 0, 0);
-				material.specularMap = map;
+				// material.specularMap = map;
 			}
 			//if (tuple[4]) {
 			//	const map = textureLoader.load(`${tuple[0]}_aomap.png`);

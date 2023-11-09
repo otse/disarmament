@@ -199,7 +199,7 @@ namespace props {
 			this.sound = audio.playOnce(preset.name, preset.volume, preset.loop);
 			if (this.sound) {
 				this.group.add(this.sound);
-				
+
 				const panner = this.sound.getOutput();
 				panner.distanceModel = 'exponential';
 				panner.rolloffFactor = 4;
@@ -230,8 +230,16 @@ namespace props {
 			const temp = new THREE.Vector3(size.x, size.z, size.y);
 			temp.multiplyScalar(hunt.inchMeter);
 
-			size.divideScalar(2);
-			size.z = -size.z;
+			if (this.preset == 'y') {
+				size.divideScalar(2);
+				size.z = -size.z;
+			}
+
+			if (this.preset == 'z') {
+				size.divideScalar(2);
+				//size.x = -size.x;
+
+			}
 
 			this.object.position.sub(temp.divideScalar(2));
 			this.group.position.add(size);
@@ -244,7 +252,10 @@ namespace props {
 
 		}
 		override _loop() {
-			this.group.rotation.z += 0.005;
+			if (this.preset == 'y')
+				this.group.rotation.z += 0.005;
+			if (this.preset == 'z')
+				this.group.rotation.y += 0.005;
 			this.group.updateMatrix();
 
 		}
@@ -275,6 +286,7 @@ namespace props {
 		mtfanambient: { hide: true, color: 'white', intensity: 0.15, distance: 5.0, decay: 0.1 },
 		skirt: { hide: true, color: 'green', intensity: 0.1, distance: 0.5, decay: 1.0 },
 		alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
+		sewerworld: { hide: true, color: 'red', intensity: 0.3, distance: 2.0, decay: 1.0 },
 		none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
 	}
 
