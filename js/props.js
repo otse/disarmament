@@ -23,6 +23,9 @@ var props;
             case 'light':
                 prop = new plight(object, {});
                 break;
+            case 'spotlight':
+                prop = new pspotlight(object, {});
+                break;
             case 'wall':
             case 'solid':
                 prop = new pwallorsolid(object, {});
@@ -292,6 +295,44 @@ var props;
         }
     }
     props.plight = plight;
+    const spotlight_presets = {
+        sewerworld: { hide: true, color: 'red', intensity: 0.6, distance: 20.0, decay: 1.0, shadow: true, target: [0, 1, 0] },
+    };
+    class pspotlight extends prop {
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'pspotlight';
+            this.array = props.lights;
+        }
+        _finish() {
+            //this.object.visible = false;
+            const preset = spotlight_presets[this.preset || 'none'];
+            this.object.visible = !preset.hide;
+            const size = new THREE.Vector3();
+            const center = new THREE.Vector3();
+            this.aabb.getSize(size);
+            this.aabb.getCenter(center);
+            size.multiplyScalar(hunt.inchMeter);
+            //console.log('light size, center', size, center);
+            let light = new THREE.SpotLight(preset.color, preset.intensity, preset.distance, preset.decay);
+            //light.angle = Math.PI / 2;
+            //light.penumbra = 0.5;
+            //light.decay = 0.1;
+            light.castShadow = preset.shadow;
+            //light.shadow.camera.near = 0.5;
+            //light.shadow.camera.far = 500;
+            //light.position.add(size.divideScalar(2.0));
+            //light.target.position.add(size.divideScalar(2.0));
+            light.target.position.add(new THREE.Vector3().fromArray(preset.target).multiplyScalar(10));
+            //this.group.add(new THREE.AxesHelper(10));
+            this.group.add(light);
+            this.group.add(light.target);
+            //this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
+        }
+        _loop() {
+        }
+    }
+    props.pspotlight = pspotlight;
     props.impact_sounds = {
         'cardboard': {
             soft: [

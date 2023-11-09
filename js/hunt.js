@@ -52,6 +52,9 @@ var hunt;
         glob.z = app.proompt('z');
         glob.v = app.proompt('v');
         glob.h = app.proompt('h');
+        if (app.proompt('f2')) {
+            hunt.locker.style.display = 'none';
+        }
         hunt.gplayer.loop(delta);
         physics.loop(hunt.timeStep);
         props.loop();

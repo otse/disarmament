@@ -67,6 +67,10 @@ namespace hunt {
 		glob.v = app.proompt('v');
 		glob.h = app.proompt('h');
 
+		if (app.proompt('f2')) {
+			hunt.locker.style.display = 'none';
+		}
+
 		gplayer.loop(delta);
 		physics.loop(hunt.timeStep);
 		props.loop();
