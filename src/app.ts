@@ -2,7 +2,6 @@ import glob from "./lib/glob.js";
 import hooks from "./lib/hooks.js";
 import points from "./lib/pts.js";
 import hunt from "./hunt.js";
-import vr from "./vr/vr.js";
 
 namespace app {
 	export enum KEY {
@@ -111,9 +110,7 @@ namespace app {
 			document.onwheel = onwheel;
 		}
 		window.onerror = onerror;
-
-		vr.start();
-		//loop();
+		loop();
 	}
 
 	function post_keys() {
@@ -137,9 +134,7 @@ namespace app {
 	export var last = 0
 	export var af
 	export function loop() {
-		//console.log(' app loop ');
-		//if (!glob.xr)
-		//	af = requestAnimationFrame(loop);
+		requestAnimationFrame(loop);
 		const now = (performance || Date).now();
 		delta = (now - last) / 1000;
 		last = now;

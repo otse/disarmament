@@ -3,6 +3,9 @@ import app from "./app.js";
 import easings from "./easings.js";
 import pts from "./lib/pts.js";
 
+// dither stolen from
+// https://github.com/hughsk/glsl-dither
+
 /// the shader of shit
 const fragmentPost = `
 varying vec2 vUv;
@@ -12,6 +15,10 @@ uniform float saturation;
 uniform sampler2D tDiffuse;
 float factor = 200.0;
 
+#define DITHERING true
+#include <common>
+#include <dithering_pars_fragment>
+
 //#define TONE_MAPPING 
 //#include <tonemapping_pars_fragment>
 
@@ -19,6 +26,43 @@ vec4 LinearToGamma( in vec4 value, in float gammaFactor ) {
 	return vec4( pow( value.rgb, vec3( 1.0 / gammaFactor ) ), value.a );
 }
 
+float luma(vec3 color) {
+	return dot(color, vec3(0.299, 0.587, 0.114));
+	//return dot(color, vec3(0.5, 0.5, 0.5));
+}
+
+float dither4x4(vec2 position, float brightness) {
+	int x = int(mod(position.x, 4.0));
+	int y = int(mod(position.y, 4.0));
+	int index = x + y * 4;
+	float limit = 0.0;
+
+	if (x < 8) {
+		if (index == 0) limit = 0.0625;
+		if (index == 1) limit = 0.5625;
+		if (index == 2) limit = 0.1875;
+		if (index == 3) limit = 0.6875;
+		if (index == 4) limit = 0.8125;
+		if (index == 5) limit = 0.3125;
+		if (index == 6) limit = 0.9375;
+		if (index == 7) limit = 0.4375;
+		if (index == 8) limit = 0.25;
+		if (index == 9) limit = 0.75;
+		if (index == 10) limit = 0.125;
+		if (index == 11) limit = 0.625;
+		if (index == 12) limit = 1.0;
+		if (index == 13) limit = 0.5;
+		if (index == 14) limit = 0.875;
+		if (index == 15) limit = 0.375;
+	}
+
+	return brightness < limit ? 0.0 : 1.0;
+}
+  
+vec3 dither4x4(vec2 position, vec3 color) {
+	return color * dither4x4(position, luma(color));
+}
+  
 void main() {
 	vec4 diffuse = texture2D( tDiffuse, vUv );
 
@@ -26,7 +70,8 @@ void main() {
 	factor -= glitch * 40.0;
 
 	// animate oversaturation
-	//saturation += glitch * 1.0;
+	//saturation = glitch * 1.0;
+	float animated_saturation = 1.0 + glitch * 1.0;
 
 	//factor = clamp(factor, 2.0, 256.0);
 
@@ -34,7 +79,7 @@ void main() {
 	vec3 grey = vec3(dot(lumaWeights, diffuse.rgb));
 	
 	/// saturate
-	diffuse = vec4(grey + saturation * (diffuse.rgb - grey), 1.0);
+	diffuse = vec4(grey + animated_saturation * (diffuse.rgb - grey), 1.0);
 
 	/// now colround
 	diffuse *= factor;
@@ -49,6 +94,10 @@ void main() {
 	// LinearToneMapping ReinhardToneMapping OptimizedCineonToneMapping ACESFilmicToneMapping
 	gl_FragColor.rgb = ACESFilmicToneMapping( gl_FragColor.rgb );
 	#include <colorspace_fragment>
+	//gl_FragCoord.xy = vUv.xy;
+	//gl_FragColor.rgb = dithering( gl_FragColor.rgb );
+
+	gl_FragColor.rgb = dither4x4(gl_FragCoord.xy, gl_FragColor.rgb);
 }`
 
 
@@ -71,19 +120,15 @@ namespace renderer {
 
 	export var propsGroup;
 
-	export var scene2, camera2, target, post, quad, quad2, plane, glitch, hdr
-
-	export var xrpostcamera
-
-	export var tarrt = null
+	export var scene2, camera2, target, postShader, quad, quad2, plane, glitch, hdr
 
 	export var currt
 
 	export var sun, sunOffset = [0, 10, 0] // sunOffset = [1.0, 10, -1.0]
 
 	// reduce
-	export var enable_post = false;
-	export var animate_post = false;
+	export var enable_post = true;
+	export var animate_post = true;
 	export var ren_stats = false;
 
 	export function boot() {
@@ -119,7 +164,7 @@ namespace renderer {
 			minFilter: THREE.NearestFilter,
 			magFilter: THREE.NearestFilter,
 		});
-		post = new THREE.ShaderMaterial({
+		postShader = new THREE.ShaderMaterial({
 			uniforms: {
 				tDiffuse: { value: target.texture },
 				glitch: { value: 0.0 },
@@ -128,6 +173,7 @@ namespace renderer {
 				compression: { value: 1 },
 				toneMappingExposure2: { value: 1.0 }
 			},
+			//dithering: true,
 			vertexShader: vertexScreen,
 			fragmentShader: fragmentPost,
 			depthWrite: false
@@ -135,7 +181,7 @@ namespace renderer {
 
 		glitch = 0;
 		plane = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
-		quad = new THREE.Mesh(plane, post);
+		quad = new THREE.Mesh(plane, postShader);
 		quad.matrixAutoUpdate = false;
 		//scene2.add(quad);
 
@@ -145,13 +191,13 @@ namespace renderer {
 		_geometry.setAttribute('uv',
 			new THREE.Float32BufferAttribute([0, 2, 0, 0, 2, 0], 2));
 
-		quad2 = new THREE.Mesh(_geometry, post);
+		quad2 = new THREE.Mesh(_geometry, postShader);
 		scene2.add(quad2);
 
 		glitch = 0;
 		hdr = 0;
 
-		redo();
+		resize_target_quad_and_camera();
 
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -167,7 +213,7 @@ namespace renderer {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.xr.enabled = true;
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		renderer.toneMappingExposure = 1.8;
+		renderer.toneMappingExposure = 6.0;
 		renderer.setPixelRatio(dpi);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
@@ -208,7 +254,7 @@ namespace renderer {
 		window.addEventListener('resize', resize);
 	}
 
-	function redo() {
+	function resize_target_quad_and_camera() {
 		const wh = pts.make(window.innerWidth, window.innerHeight);
 		const rescale = pts.divide(wh, render_target_factor);
 
@@ -225,7 +271,7 @@ namespace renderer {
 
 	export function resize() {
 
-		redo();
+		resize_target_quad_and_camera();
 
 		renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -300,16 +346,16 @@ namespace renderer {
 
 			if (animate_post) {
 				let itch = easings.easeOutBounce(glitch <= 1 ? glitch : 2 - glitch);
-				post.uniforms.glitch.value = itch;
-				post.uniforms.saturation.value = 1 + itch;
+				postShader.uniforms.glitch.value = itch;
+				postShader.uniforms.saturation.value = 1 + itch;
 				//let ease = easings.easeOutBounce(bounce);
 				//post.uniforms.bounce.value = ease;
 			}
 			else {
-				post.uniforms.glitch.value = 1;
-				post.uniforms.saturation.value = 2.0;
+				postShader.uniforms.glitch.value = 1;
+				postShader.uniforms.saturation.value = 2.0;
 			}
-			post.uniforms.toneMappingExposure2.value = 3.0;
+			postShader.uniforms.toneMappingExposure2.value = 3.0;
 		}
 
 		//camera.zoom = 0.5 + ease / 2;
@@ -326,17 +372,14 @@ namespace renderer {
 
 			renderer.shadowMap.enabled = false;
 
-			const xrEnabled = renderer.xr.enabled;
-
-			//renderer.xr.enabled = false;
-			renderer.setRenderTarget(tarrt);
+			renderer.setRenderTarget(null);
 			renderer.clear();
 			renderer.render(scene2, camera2);
-			//renderer.xr.enabled = xrEnabled;
 
 			renderer.setRenderTarget(null);
 		}
 		else {
+			renderer.shadowMap.enabled = true;
 			//renderer.shadowMap.enabled = false;
 
 			//let rt = renderer.getRenderTarget();

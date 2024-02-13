@@ -18,6 +18,8 @@ this viable underground has just become a sewer. a mockery of fate.
 but there were other such places, interconnected via ginormous tunnels well adapted to
 handle the deluge of shit. however the fate of these places is unknown.
 
+(this story is an excuse for rubbish boring level design)
+
 <=====
 story two
 
@@ -25,3 +27,10 @@ the year is 3000. the earth is polluted. temperature has risen, and rain is now 
 
 as a response humans went far underground counting on the natural filtration of dirt
 and special treatment plants to create a new place of life.
+
+<=====
+story there
+
+you're consigned to a degenerate sewer planet and you need to find scrap to repair a shuttle
+
+there is a vending machine serving wrack!

@@ -218,13 +218,11 @@ var props;
             this.aabb.getCenter(center);
             const temp = new THREE.Vector3(size.x, size.z, size.y);
             temp.multiplyScalar(hunt.inchMeter);
+            size.divideScalar(2);
+            size.z = -size.z;
             if (this.preset == 'y') {
-                size.divideScalar(2);
-                size.z = -size.z;
             }
             if (this.preset == 'z') {
-                size.divideScalar(2);
-                //size.x = -size.x;
             }
             this.object.position.sub(temp.divideScalar(2));
             this.group.position.add(size);
@@ -264,9 +262,9 @@ var props;
         openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
         skylightstart: { hide: true, color: 'white', intensity: 0.3, distance: 4.0, decay: 0.5 },
         mtfanambient: { hide: true, color: 'white', intensity: 0.15, distance: 5.0, decay: 0.1 },
-        skirt: { hide: true, color: 'green', intensity: 0.1, distance: 0.5, decay: 1.0 },
+        skirt: { hide: true, color: 'green', intensity: 0.2, distance: 3.0, decay: 1.0 },
         alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
-        sewerworld: { hide: true, color: 'red', intensity: 0.3, distance: 2.0, decay: 1.0 },
+        sewerworld: { hide: true, color: 'red', intensity: 0.1, distance: 2.0, decay: 0.1 },
         none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
     };
     class plight extends prop {
@@ -279,16 +277,13 @@ var props;
             //this.object.visible = false;
             const preset = light_presets[this.preset || 'none'];
             this.object.visible = !preset.hide;
-            const size = new THREE.Vector3();
             const center = new THREE.Vector3();
-            this.aabb.getSize(size);
             this.aabb.getCenter(center);
-            size.multiplyScalar(hunt.inchMeter);
-            //console.log('light size, center', size, center);
+            center.divideScalar(2.0);
             let light = new THREE.PointLight(preset.color, preset.intensity, preset.distance, preset.decay);
             light.position.fromArray(preset.offset || [0, 0, 0]);
-            light.position.add(size.divideScalar(2.0));
-            //this.group.add(new THREE.AxesHelper(10));
+            light.position.add(center);
+            //light.add(new THREE.AxesHelper(10));
             this.group.add(light);
         }
         _loop() {
@@ -296,7 +291,7 @@ var props;
     }
     props.plight = plight;
     const spotlight_presets = {
-        sewerworld: { hide: true, color: 'red', intensity: 0.6, distance: 20.0, decay: 1.0, shadow: true, target: [0, 1, 0] },
+        sewerworld: { hide: true, color: 'red', intensity: 0.5, distance: 10.0, decay: 1.0, shadow: true, target: [0, 1, 0] },
     };
     class pspotlight extends prop {
         constructor(object, parameters) {
@@ -305,7 +300,6 @@ var props;
             this.array = props.lights;
         }
         _finish() {
-            //this.object.visible = false;
             const preset = spotlight_presets[this.preset || 'none'];
             this.object.visible = !preset.hide;
             const size = new THREE.Vector3();
@@ -315,12 +309,12 @@ var props;
             size.multiplyScalar(hunt.inchMeter);
             //console.log('light size, center', size, center);
             let light = new THREE.SpotLight(preset.color, preset.intensity, preset.distance, preset.decay);
+            light.castShadow = preset.shadow;
+            light.shadow.camera.far = 1000;
             //light.angle = Math.PI / 2;
             //light.penumbra = 0.5;
             //light.decay = 0.1;
-            light.castShadow = preset.shadow;
             //light.shadow.camera.near = 0.5;
-            //light.shadow.camera.far = 500;
             //light.position.add(size.divideScalar(2.0));
             //light.target.position.add(size.divideScalar(2.0));
             light.target.position.add(new THREE.Vector3().fromArray(preset.target).multiplyScalar(10));

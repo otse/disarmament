@@ -1,7 +1,6 @@
 import hooks from "./lib/hooks.js";
 import points from "./lib/pts.js";
 import hunt from "./hunt.js";
-import vr from "./vr/vr.js";
 var app;
 (function (app) {
     let KEY;
@@ -105,8 +104,7 @@ var app;
             document.onwheel = onwheel;
         }
         window.onerror = onerror;
-        vr.start();
-        //loop();
+        loop();
     }
     app.boot = boot;
     function post_keys() {
@@ -127,9 +125,7 @@ var app;
     app.delta = 0;
     app.last = 0;
     function loop() {
-        //console.log(' app loop ');
-        //if (!glob.xr)
-        //	af = requestAnimationFrame(loop);
+        requestAnimationFrame(loop);
         const now = (performance || Date).now();
         app.delta = (now - app.last) / 1000;
         app.last = now;

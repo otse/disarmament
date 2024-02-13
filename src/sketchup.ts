@@ -11,12 +11,12 @@ namespace sketchup {
 		'ebony': ['./assets/textures/black', 10, false, false],
 		'crete1': ['./assets/textures/crete1', 30, false, false],
 		'brick1': ['./assets/textures/brick1', 30, true, true],
-		'bulkhead1': ['./assets/textures/bulkhead1', 90, true, true, true],
+		'bulkhead1': ['./assets/textures/bulkhead1', 30, true, true, true],
 		'floor1': ['./assets/textures/floor1', 1, true],
 		'metal2': ['./assets/textures/metal2', 30, true, false, false],
 		'metal3': ['./assets/textures/metal3', 30, false, false, true],
 		'rust1': ['./assets/textures/rust1', 30, false, false, false],
-		'twotonewall': ['./assets/textures/twotonewall', 30, true, true],
+		'twotonewall': ['./assets/textures/twotonewall', 20, true, true],
 		'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
 		'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
 	}
@@ -85,9 +85,10 @@ namespace sketchup {
 			const material = new THREE.MeshPhongMaterial({
 				name: name,
 				map: map,
-				flatShading: true
+				//flatShading: true,
+				//dithering: true,
 			});
-			material.onBeforeCompile = (shader) => {
+			/*material.onBeforeCompile = (shader) => {
 				console.log('onbeforecompile');
 				shader.defines = { AL_GORE: '', GORE: '', GEORGE: '' };
 				shader.fragmentShader = shader.fragmentShader.replace(
@@ -130,7 +131,7 @@ namespace sketchup {
 			}
 			material.customProgramCacheKey = function () {
 				return 'clucked';
-			}
+			}*/
 			material.specular.set(0.09, 0.09, 0.09);
 			material.shininess = tuple[1] || 30;
 

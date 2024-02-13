@@ -8,12 +8,12 @@ var sketchup;
         'ebony': ['./assets/textures/black', 10, false, false],
         'crete1': ['./assets/textures/crete1', 30, false, false],
         'brick1': ['./assets/textures/brick1', 30, true, true],
-        'bulkhead1': ['./assets/textures/bulkhead1', 90, true, true, true],
+        'bulkhead1': ['./assets/textures/bulkhead1', 30, true, true, true],
         'floor1': ['./assets/textures/floor1', 1, true],
         'metal2': ['./assets/textures/metal2', 30, true, false, false],
         'metal3': ['./assets/textures/metal3', 30, false, false, true],
         'rust1': ['./assets/textures/rust1', 30, false, false, false],
-        'twotonewall': ['./assets/textures/twotonewall', 30, true, true],
+        'twotonewall': ['./assets/textures/twotonewall', 20, true, true],
         'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
         'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
     };
@@ -74,49 +74,53 @@ var sketchup;
             const material = new THREE.MeshPhongMaterial({
                 name: name,
                 map: map,
-                flatShading: true
+                //flatShading: true,
+                //dithering: true,
             });
-            material.onBeforeCompile = (shader) => {
+            /*material.onBeforeCompile = (shader) => {
                 console.log('onbeforecompile');
                 shader.defines = { AL_GORE: '', GORE: '', GEORGE: '' };
-                shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
+                shader.fragmentShader = shader.fragmentShader.replace(
+                    `#include <tonemapping_fragment>`,
+                    `#include <tonemapping_fragment>
 
-					vec3 lumaWeights = vec3(.25,.50,.25);
+                    vec3 lumaWeights = vec3(.25,.50,.25);
 
-					vec3 grey;
-					float saturation = 0.5;
-					float factor = 150.0;
-					float saturation2 = 3.0;
-					float factor2 = 100.0;
-					//vec3 diffuse = material.diffuseColor.rgb;
-					vec3 diffuse = gl_FragColor.rgb;
-					#ifdef AL_GORE
-					grey = vec3(dot(lumaWeights, diffuse.rgb));
-					diffuse = vec3(grey + saturation * (diffuse.rgb - grey));
-					#endif
-					#ifdef GORE
-					diffuse *= factor;
-					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
-					diffuse /= factor;
-					#endif
-					#ifdef GEORGE
-					grey = vec3(dot(lumaWeights, diffuse.rgb));
-					diffuse = vec3(grey + saturation2 * (diffuse.rgb - grey));
-					diffuse *= factor2;
-					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
-					diffuse /= factor2;
-					#endif
+                    vec3 grey;
+                    float saturation = 0.5;
+                    float factor = 150.0;
+                    float saturation2 = 3.0;
+                    float factor2 = 100.0;
+                    //vec3 diffuse = material.diffuseColor.rgb;
+                    vec3 diffuse = gl_FragColor.rgb;
+                    #ifdef AL_GORE
+                    grey = vec3(dot(lumaWeights, diffuse.rgb));
+                    diffuse = vec3(grey + saturation * (diffuse.rgb - grey));
+                    #endif
+                    #ifdef GORE
+                    diffuse *= factor;
+                    diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
+                    diffuse /= factor;
+                    #endif
+                    #ifdef GEORGE
+                    grey = vec3(dot(lumaWeights, diffuse.rgb));
+                    diffuse = vec3(grey + saturation2 * (diffuse.rgb - grey));
+                    diffuse *= factor2;
+                    diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
+                    diffuse /= factor2;
+                    #endif
 
-					// when at before lighting pass
-					//material.diffuseColor.rgb = diffuse.rgb;
+                    // when at before lighting pass
+                    //material.diffuseColor.rgb = diffuse.rgb;
 
-					// when at tone mapping pass
-					gl_FragColor.rgb = diffuse.rgb;
-					`);
-            };
+                    // when at tone mapping pass
+                    gl_FragColor.rgb = diffuse.rgb;
+                    `
+                );
+            }
             material.customProgramCacheKey = function () {
                 return 'clucked';
-            };
+            }*/
             material.specular.set(0.09, 0.09, 0.09);
             material.shininess = tuple[1] || 30;
             if (tuple[2]) {
