@@ -13,11 +13,10 @@ uniform float saturation;
 uniform sampler2D tDiffuse;
 float factor = 200.0;
 
-#define DITHERING true
 #include <common>
 #include <dithering_pars_fragment>
 
-//#define TONE_MAPPING 
+//#define TONE_MAPPING
 //#include <tonemapping_pars_fragment>
 
 vec4 LinearToGamma( in vec4 value, in float gammaFactor ) {
@@ -28,6 +27,82 @@ float luma(vec3 color) {
 	return dot(color, vec3(0.299, 0.587, 0.114));
 	//return dot(color, vec3(0.5, 0.5, 0.5));
 }
+
+float dither8x8(vec2 position, float brightness) {
+	int x = int(mod(position.x, 8.0));
+	int y = int(mod(position.y, 8.0));
+	int index = x + y * 8;
+	float limit = 0.0;
+  
+	if (x < 8) {
+	  if (index == 0) limit = 0.015625;
+	  if (index == 1) limit = 0.515625;
+	  if (index == 2) limit = 0.140625;
+	  if (index == 3) limit = 0.640625;
+	  if (index == 4) limit = 0.046875;
+	  if (index == 5) limit = 0.546875;
+	  if (index == 6) limit = 0.171875;
+	  if (index == 7) limit = 0.671875;
+	  if (index == 8) limit = 0.765625;
+	  if (index == 9) limit = 0.265625;
+	  if (index == 10) limit = 0.890625;
+	  if (index == 11) limit = 0.390625;
+	  if (index == 12) limit = 0.796875;
+	  if (index == 13) limit = 0.296875;
+	  if (index == 14) limit = 0.921875;
+	  if (index == 15) limit = 0.421875;
+	  if (index == 16) limit = 0.203125;
+	  if (index == 17) limit = 0.703125;
+	  if (index == 18) limit = 0.078125;
+	  if (index == 19) limit = 0.578125;
+	  if (index == 20) limit = 0.234375;
+	  if (index == 21) limit = 0.734375;
+	  if (index == 22) limit = 0.109375;
+	  if (index == 23) limit = 0.609375;
+	  if (index == 24) limit = 0.953125;
+	  if (index == 25) limit = 0.453125;
+	  if (index == 26) limit = 0.828125;
+	  if (index == 27) limit = 0.328125;
+	  if (index == 28) limit = 0.984375;
+	  if (index == 29) limit = 0.484375;
+	  if (index == 30) limit = 0.859375;
+	  if (index == 31) limit = 0.359375;
+	  if (index == 32) limit = 0.0625;
+	  if (index == 33) limit = 0.5625;
+	  if (index == 34) limit = 0.1875;
+	  if (index == 35) limit = 0.6875;
+	  if (index == 36) limit = 0.03125;
+	  if (index == 37) limit = 0.53125;
+	  if (index == 38) limit = 0.15625;
+	  if (index == 39) limit = 0.65625;
+	  if (index == 40) limit = 0.8125;
+	  if (index == 41) limit = 0.3125;
+	  if (index == 42) limit = 0.9375;
+	  if (index == 43) limit = 0.4375;
+	  if (index == 44) limit = 0.78125;
+	  if (index == 45) limit = 0.28125;
+	  if (index == 46) limit = 0.90625;
+	  if (index == 47) limit = 0.40625;
+	  if (index == 48) limit = 0.25;
+	  if (index == 49) limit = 0.75;
+	  if (index == 50) limit = 0.125;
+	  if (index == 51) limit = 0.625;
+	  if (index == 52) limit = 0.21875;
+	  if (index == 53) limit = 0.71875;
+	  if (index == 54) limit = 0.09375;
+	  if (index == 55) limit = 0.59375;
+	  if (index == 56) limit = 1.0;
+	  if (index == 57) limit = 0.5;
+	  if (index == 58) limit = 0.875;
+	  if (index == 59) limit = 0.375;
+	  if (index == 60) limit = 0.96875;
+	  if (index == 61) limit = 0.46875;
+	  if (index == 62) limit = 0.84375;
+	  if (index == 63) limit = 0.34375;
+	}
+  
+	return brightness < limit ? 0.0 : 1.0;
+  }
 
 float dither4x4(vec2 position, float brightness) {
 	int x = int(mod(position.x, 4.0));
@@ -60,6 +135,10 @@ float dither4x4(vec2 position, float brightness) {
 vec3 dither4x4(vec2 position, vec3 color) {
 	return color * dither4x4(position, luma(color));
 }
+
+vec3 dither8x8(vec2 position, vec3 color) {
+	return color * dither8x8(position, luma(color));
+  }
   
 void main() {
 	vec4 diffuse = texture2D( tDiffuse, vUv );
@@ -107,7 +186,8 @@ void main() {
 var renderer;
 (function (renderer_1) {
     // set up three.js here
-    const render_target_factor = 1;
+    const offscreen_target_factor = 5;
+    const post_processing_factor = 1;
     renderer_1.dt = 0;
     renderer_1.sunOffset = [0, 10, 0]; // sunOffset = [1.0, 10, -1.0]
     // reduce
@@ -164,7 +244,6 @@ var renderer;
         renderer_1.scene2.add(renderer_1.quad2);
         renderer_1.glitch = 0;
         renderer_1.hdr = 0;
-        resize_target_quad_and_camera();
         renderer_1.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         renderer_1.camera.rotation.y = -Math.PI / 2;
         renderer_1.camera.position.y = 1.5;
@@ -181,6 +260,7 @@ var renderer;
         renderer_1.renderer.shadowMap.enabled = true;
         renderer_1.renderer.shadowMap.type = THREE.BasicShadowMap;
         renderer_1.renderer.setClearColor(0xffffff, 0.0);
+        resize();
         renderer_1.currt = renderer_1.renderer.getRenderTarget();
         console.log('currt', renderer_1.currt);
         //renderer_.toneMapping = THREE.ReinhardToneMapping;
@@ -209,16 +289,21 @@ var renderer;
     renderer_1.boot = boot;
     function resize_target_quad_and_camera() {
         const wh = pts.make(window.innerWidth, window.innerHeight);
-        const rescale = pts.divide(wh, render_target_factor);
+        const rescale = pts.divide(wh, offscreen_target_factor);
         renderer_1.target.setSize(rescale[0], rescale[1]);
-        renderer_1.quad.geometry = new THREE.PlaneGeometry(wh[0], wh[1]);
-        renderer_1.camera2 = new THREE.OrthographicCamera(wh[0] / -2, wh[0] / 2, wh[1] / 2, wh[1] / -2, -100, 100);
-        renderer_1.camera2.updateProjectionMatrix();
+        renderer_1.quad.geometry = new THREE.PlaneGeometry(rescale[0], rescale[1]);
         renderer_1.camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     }
     function resize() {
         resize_target_quad_and_camera();
-        renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
+        const wh = pts.make(window.innerWidth, window.innerHeight);
+        const rescale = pts.divide(wh, post_processing_factor);
+        renderer_1.renderer.setSize(rescale[0], rescale[1]);
+        //renderer.setDrawingBufferSize(rescale[0], rescale[1]);
+        //document.querySelector()
+        const canvas = renderer_1.renderer.domElement;
+        canvas.style.width = wh[0] + 'px';
+        canvas.style.height = wh[1] + 'px';
         renderer_1.camera.aspect = window.innerWidth / window.innerHeight;
         renderer_1.camera.updateProjectionMatrix();
         //render();
@@ -264,7 +349,8 @@ var renderer;
             if (renderer_1.ren_stats) {
                 app.fluke_set_innerhtml('hunt-stats', `
 					fps: ${renderer_1.fps.toFixed(1)}<br />
-					render target scale: ${(1 / render_target_factor).toFixed(1)}
+					offscreen_target_factor: ${(1 / offscreen_target_factor).toFixed(1)}<br />
+					post_processing_factor: ${(1 / post_processing_factor).toFixed(1)}
 			`);
             }
         }
@@ -301,7 +387,6 @@ var renderer;
             renderer_1.renderer.setRenderTarget(null);
             renderer_1.renderer.clear();
             renderer_1.renderer.render(renderer_1.scene2, renderer_1.camera2);
-            renderer_1.renderer.setRenderTarget(null);
         }
         else {
             renderer_1.renderer.shadowMap.enabled = true;
