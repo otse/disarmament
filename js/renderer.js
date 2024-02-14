@@ -349,8 +349,8 @@ var renderer;
             if (renderer_1.ren_stats) {
                 app.fluke_set_innerhtml('hunt-stats', `
 					fps: ${renderer_1.fps.toFixed(1)}<br />
-					offscreen_target_factor: ${(1 / offscreen_target_factor).toFixed(1)}<br />
-					post_processing_factor: ${(1 / post_processing_factor).toFixed(1)}
+					offscreen_target_factor: ${(1 / offscreen_target_factor).toFixed(2)}<br />
+					post_processing_factor: ${(1 / post_processing_factor).toFixed(2)}
 			`);
             }
         }

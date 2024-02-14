@@ -283,7 +283,7 @@ namespace props {
 		openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
 		skylightstart: { hide: true, color: 'white', intensity: 0.3, distance: 4.0, decay: 0.5 },
 		mtfanambient: { hide: true, color: 'white', intensity: 0.15, distance: 5.0, decay: 0.1 },
-		skirt: { hide: true, color: 'green', intensity: 0.2, distance: 3.0, decay: 1.0 },
+		skirt: { hide: true, color: 'green', intensity: 0.1, distance: 3.0, decay: 1.5, shadow: true },
 		alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
 		sewerworld: { hide: true, color: 'red', intensity: 0.1, distance: 2.0, decay: 0.1 },
 		none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
@@ -309,6 +309,7 @@ namespace props {
 				preset.intensity,
 				preset.distance,
 				preset.decay);
+			//light.castShadow = preset.shadow;
 			light.position.fromArray(preset.offset || [0, 0, 0])
 			light.position.add(center);
 			//light.add(new THREE.AxesHelper(10));
