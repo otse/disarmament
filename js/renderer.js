@@ -8,6 +8,7 @@ import pts from "./lib/pts.js";
 const fragmentPost = `
 varying vec2 vUv;
 uniform float glitch; 
+uniform bool dither; 
 uniform int compression;
 uniform float saturation;
 uniform sampler2D tDiffuse;
@@ -174,7 +175,8 @@ void main() {
 	//gl_FragCoord.xy = vUv.xy;
 	//gl_FragColor.rgb = dithering( gl_FragColor.rgb );
 
-	gl_FragColor.rgb = dither4x4(gl_FragCoord.xy, gl_FragColor.rgb);
+	if (dither)
+	gl_FragColor.rgb = dither8x8(gl_FragCoord.xy, gl_FragColor.rgb);
 }`;
 const vertexScreen = `
 varying vec2 vUv;
@@ -192,7 +194,8 @@ var renderer;
     renderer_1.sunOffset = [0, 10, 0]; // sunOffset = [1.0, 10, -1.0]
     // reduce
     renderer_1.enable_post = true;
-    renderer_1.animate_post = true;
+    renderer_1.animate_bounce_hdr = false;
+    renderer_1.dither = true;
     renderer_1.ren_stats = false;
     function boot() {
         window['renderer'] = this;
@@ -222,6 +225,7 @@ var renderer;
             uniforms: {
                 tDiffuse: { value: renderer_1.target.texture },
                 glitch: { value: 0.0 },
+                dither: { value: true },
                 saturation: { value: 1.0 },
                 bounce: { value: 0.0 },
                 compression: { value: 1 },
@@ -234,9 +238,6 @@ var renderer;
         });
         renderer_1.glitch = 0;
         renderer_1.plane = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
-        renderer_1.quad = new THREE.Mesh(renderer_1.plane, renderer_1.postShader);
-        renderer_1.quad.matrixAutoUpdate = false;
-        //scene2.add(quad);
         const _geometry = new THREE.BufferGeometry();
         _geometry.setAttribute('position', new THREE.Float32BufferAttribute([-1, 3, 0, -1, -1, 0, 3, -1, 0], 3));
         _geometry.setAttribute('uv', new THREE.Float32BufferAttribute([0, 2, 0, 0, 2, 0], 2));
@@ -287,24 +288,22 @@ var renderer;
         window.addEventListener('resize', resize);
     }
     renderer_1.boot = boot;
-    function resize_target_quad_and_camera() {
-        const wh = pts.make(window.innerWidth, window.innerHeight);
-        const rescale = pts.divide(wh, offscreen_target_factor);
-        renderer_1.target.setSize(rescale[0], rescale[1]);
-        renderer_1.quad.geometry = new THREE.PlaneGeometry(rescale[0], rescale[1]);
-        renderer_1.camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    }
     function resize() {
-        resize_target_quad_and_camera();
-        const wh = pts.make(window.innerWidth, window.innerHeight);
-        const rescale = pts.divide(wh, post_processing_factor);
-        renderer_1.renderer.setSize(rescale[0], rescale[1]);
-        //renderer.setDrawingBufferSize(rescale[0], rescale[1]);
-        //document.querySelector()
+        let wh = pts.make(window.innerWidth, window.innerHeight);
+        let offscreen = pts.divide(wh, offscreen_target_factor);
+        offscreen = pts.floor(offscreen);
+        renderer_1.target.setSize(offscreen[0], offscreen[1]);
+        renderer_1.camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const nearest = 8;
+        wh[0] = wh[0] - wh[0] % nearest;
+        wh[1] = wh[1] - wh[1] % nearest;
+        let screen = pts.divide(wh, post_processing_factor);
+        screen = pts.floor(screen);
+        renderer_1.renderer.setSize(screen[0], screen[1]);
         const canvas = renderer_1.renderer.domElement;
-        canvas.style.width = wh[0] + 'px';
-        canvas.style.height = wh[1] + 'px';
-        renderer_1.camera.aspect = window.innerWidth / window.innerHeight;
+        canvas.style.width = screen[0] + 'px';
+        canvas.style.height = screen[1] + 'px';
+        renderer_1.camera.aspect = screen[0] / screen[1];
         renderer_1.camera.updateProjectionMatrix();
         //render();
     }
@@ -316,7 +315,9 @@ var renderer;
             if (glob.z == 1)
                 renderer_1.enable_post = !renderer_1.enable_post;
             if (glob.x == 1)
-                renderer_1.animate_post = !renderer_1.animate_post;
+                renderer_1.animate_bounce_hdr = !renderer_1.animate_bounce_hdr;
+            if (glob.c == 1)
+                renderer_1.dither = !renderer_1.dither;
             if (glob.h == 1) {
                 renderer_1.ren_stats = !renderer_1.ren_stats;
                 app.fluke_set_style('hunt-stats', 'visibility', renderer_1.ren_stats ? 'visible' : 'hidden');
@@ -362,7 +363,8 @@ var renderer;
                 renderer_1.glitch -= 2;
             if (renderer_1.hdr >= 1)
                 renderer_1.hdr -= 1;
-            if (renderer_1.animate_post) {
+            renderer_1.postShader.uniforms.dither.value = renderer_1.dither;
+            if (renderer_1.animate_bounce_hdr) {
                 let itch = easings.easeOutBounce(renderer_1.glitch <= 1 ? renderer_1.glitch : 2 - renderer_1.glitch);
                 renderer_1.postShader.uniforms.glitch.value = itch;
                 renderer_1.postShader.uniforms.saturation.value = 1 + itch;

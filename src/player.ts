@@ -153,8 +153,8 @@ class player {
 		if (glob.d && !glob.a)
 			x = 1;
 		if (glob.shift) {
-			z *= 1.5;
-			x *= 1.5;
+			z *= 2.0;
+			x *= 2.0;
 		}
 		const camera = this.camera;
 		const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
@@ -166,6 +166,9 @@ class player {
 		if (x || z) {
 			z *= 0.04;
 			x *= 0.04;
+
+			z *= 165 * delta;
+			x *= 165 * delta;
 
 			let velocity = new THREE.Vector3(x, 0, z);
 			let quat = new THREE.Quaternion().setFromEuler(euler);

@@ -10,6 +10,7 @@ import pts from "./lib/pts.js";
 const fragmentPost = `
 varying vec2 vUv;
 uniform float glitch; 
+uniform bool dither; 
 uniform int compression;
 uniform float saturation;
 uniform sampler2D tDiffuse;
@@ -176,7 +177,8 @@ void main() {
 	//gl_FragCoord.xy = vUv.xy;
 	//gl_FragColor.rgb = dithering( gl_FragColor.rgb );
 
-	gl_FragColor.rgb = dither4x4(gl_FragCoord.xy, gl_FragColor.rgb);
+	if (dither)
+	gl_FragColor.rgb = dither8x8(gl_FragCoord.xy, gl_FragColor.rgb);
 }`
 
 
@@ -201,7 +203,7 @@ namespace renderer {
 
 	export var propsGroup;
 
-	export var scene2, camera2, target, postShader, quad, quad2, plane, glitch, hdr
+	export var scene2, camera2, target, postShader, quad2, plane, glitch, hdr
 
 	export var currt
 
@@ -209,7 +211,8 @@ namespace renderer {
 
 	// reduce
 	export var enable_post = true;
-	export var animate_post = true;
+	export var animate_bounce_hdr = false;
+	export var dither = true;
 	export var ren_stats = false;
 
 	export function boot() {
@@ -249,6 +252,7 @@ namespace renderer {
 			uniforms: {
 				tDiffuse: { value: target.texture },
 				glitch: { value: 0.0 },
+				dither: { value: true },
 				saturation: { value: 1.0 },
 				bounce: { value: 0.0 },
 				compression: { value: 1 },
@@ -262,9 +266,6 @@ namespace renderer {
 
 		glitch = 0;
 		plane = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
-		quad = new THREE.Mesh(plane, postShader);
-		quad.matrixAutoUpdate = false;
-		//scene2.add(quad);
 
 		const _geometry = new THREE.BufferGeometry();
 		_geometry.setAttribute('position',
@@ -335,32 +336,30 @@ namespace renderer {
 		window.addEventListener('resize', resize);
 	}
 
-	function resize_target_quad_and_camera() {
-		const wh = pts.make(window.innerWidth, window.innerHeight);
-		const rescale = pts.divide(wh, offscreen_target_factor);
+	export function resize() {
+		let wh = pts.make(window.innerWidth, window.innerHeight);
 
-		target.setSize(rescale[0], rescale[1]);
+		let offscreen = pts.divide(wh, offscreen_target_factor);
+		offscreen = pts.floor(offscreen);
 
-		quad.geometry = new THREE.PlaneGeometry(rescale[0], rescale[1]);
+		target.setSize(offscreen[0], offscreen[1]);
 
 		camera2 = new THREE.OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
-	}
 
-	export function resize() {
-		resize_target_quad_and_camera();
+		const nearest = 8;
+		wh[0] = wh[0] - wh[0] % nearest;
+		wh[1] = wh[1] - wh[1] % nearest;
 
-		const wh = pts.make(window.innerWidth, window.innerHeight);
-		const rescale = pts.divide(wh, post_processing_factor);
+		let screen = pts.divide(wh, post_processing_factor);
+		screen = pts.floor(screen);
+		
+		renderer.setSize(screen[0], screen[1]);
 
-		renderer.setSize(rescale[0], rescale[1]);
-
-		//renderer.setDrawingBufferSize(rescale[0], rescale[1]);
-		//document.querySelector()
 		const canvas = renderer.domElement;
-		canvas.style.width = wh[0] + 'px';
-		canvas.style.height = wh[1] + 'px';
+		canvas.style.width = screen[0] + 'px';
+		canvas.style.height = screen[1] + 'px';
 
-		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.aspect = screen[0] / screen[1];
 		camera.updateProjectionMatrix();
 
 		//render();
@@ -374,7 +373,9 @@ namespace renderer {
 			if (glob.z == 1)
 				enable_post = !enable_post;
 			if (glob.x == 1)
-				animate_post = !animate_post;
+				animate_bounce_hdr = !animate_bounce_hdr;
+			if (glob.c == 1)
+				dither = !dither;
 			if (glob.h == 1) {
 				ren_stats = !ren_stats;
 				app.fluke_set_style('hunt-stats', 'visibility', ren_stats ? 'visible' : 'hidden');
@@ -430,7 +431,9 @@ namespace renderer {
 			if (hdr >= 1)
 				hdr -= 1;
 
-			if (animate_post) {
+			postShader.uniforms.dither.value = dither;
+
+			if (animate_bounce_hdr) {
 				let itch = easings.easeOutBounce(glitch <= 1 ? glitch : 2 - glitch);
 				postShader.uniforms.glitch.value = itch;
 				postShader.uniforms.saturation.value = 1 + itch;

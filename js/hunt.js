@@ -48,6 +48,7 @@ var hunt;
         glob.space_bar = app.proompt(' ');
         glob.x = app.proompt('x');
         glob.z = app.proompt('z');
+        glob.c = app.proompt('c');
         glob.v = app.proompt('v');
         glob.h = app.proompt('h');
         if (app.proompt('f2')) {
