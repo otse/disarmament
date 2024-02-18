@@ -176,7 +176,7 @@ void main() {
 	//gl_FragColor.rgb = dithering( gl_FragColor.rgb );
 
 	if (dither)
-	gl_FragColor.rgb = dither8x8(gl_FragCoord.xy, gl_FragColor.rgb);
+	gl_FragColor.rgb = dither4x4(gl_FragCoord.xy, gl_FragColor.rgb);
 }`;
 const vertexScreen = `
 varying vec2 vUv;
@@ -188,13 +188,13 @@ void main() {
 var renderer;
 (function (renderer_1) {
     // set up three.js here
-    const offscreen_target_factor = 5;
+    const offscreen_target_factor = 4;
     const post_processing_factor = 1;
     renderer_1.dt = 0;
     renderer_1.sunOffset = [0, 10, 0]; // sunOffset = [1.0, 10, -1.0]
     // reduce
     renderer_1.enable_post = true;
-    renderer_1.animate_bounce_hdr = false;
+    renderer_1.animate_bounce_hdr = true;
     renderer_1.dither = true;
     renderer_1.ren_stats = false;
     function boot() {
@@ -255,7 +255,7 @@ var renderer;
         renderer_1.renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer_1.renderer.xr.enabled = true;
         renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer_1.renderer.toneMappingExposure = 6.0;
+        renderer_1.renderer.toneMappingExposure = 5.0;
         renderer_1.renderer.setPixelRatio(dpi);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
         renderer_1.renderer.shadowMap.enabled = true;
@@ -290,22 +290,22 @@ var renderer;
     renderer_1.boot = boot;
     function resize() {
         let wh = pts.make(window.innerWidth, window.innerHeight);
+        const nearest = 8;
+        //wh[0] = wh[0] - wh[0] % nearest;
+        //wh[1] = wh[1] - wh[1] % nearest;
         let offscreen = pts.divide(wh, offscreen_target_factor);
         offscreen = pts.floor(offscreen);
         renderer_1.target.setSize(offscreen[0], offscreen[1]);
         renderer_1.camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-        const nearest = 8;
-        wh[0] = wh[0] - wh[0] % nearest;
-        wh[1] = wh[1] - wh[1] % nearest;
         let screen = pts.divide(wh, post_processing_factor);
         screen = pts.floor(screen);
+        console.log('screen, offscreen', screen, offscreen);
         renderer_1.renderer.setSize(screen[0], screen[1]);
         const canvas = renderer_1.renderer.domElement;
         canvas.style.width = screen[0] + 'px';
         canvas.style.height = screen[1] + 'px';
         renderer_1.camera.aspect = screen[0] / screen[1];
         renderer_1.camera.updateProjectionMatrix();
-        //render();
     }
     renderer_1.resize = resize;
     var prevTime = 0, time = 0, frames = 0;
@@ -316,8 +316,13 @@ var renderer;
                 renderer_1.enable_post = !renderer_1.enable_post;
             if (glob.x == 1)
                 renderer_1.animate_bounce_hdr = !renderer_1.animate_bounce_hdr;
-            if (glob.c == 1)
+            if (glob.c == 1) {
                 renderer_1.dither = !renderer_1.dither;
+                if (renderer_1.dither)
+                    renderer_1.renderer.toneMappingExposure = 5.5;
+                else
+                    renderer_1.renderer.toneMappingExposure = 2.5;
+            }
             if (glob.h == 1) {
                 renderer_1.ren_stats = !renderer_1.ren_stats;
                 app.fluke_set_style('hunt-stats', 'visibility', renderer_1.ren_stats ? 'visible' : 'hidden');
@@ -356,7 +361,7 @@ var renderer;
             }
         }
         if (renderer_1.enable_post) {
-            const pulse_cycle = 3;
+            const pulse_cycle = 5;
             renderer_1.glitch += renderer_1.dt / (pulse_cycle / 2);
             renderer_1.hdr += renderer_1.dt / 1.0;
             if (renderer_1.glitch >= 2)

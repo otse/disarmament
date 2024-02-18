@@ -163,7 +163,10 @@ var props;
     }
     props.pbox = pbox;
     const sound_presets = {
-        wind: { name: 'gorge', volume: .5, loop: true, distance: 4 },
+        wind: { name: 'gorge', volume: .2, loop: true, distance: 4 },
+        fan: { name: 'wall_ambient1', volume: .4, loop: true, distance: 3.5, delay: [0, 3] },
+        radio: { name: 'alien_cycletone', volume: .5, loop: true, distance: 3, delay: [0, 1] },
+        powernode: { name: 'alien_powernode', volume: .2, loop: true, distance: 3, delay: [0, 1] },
     };
     class psound extends prop {
         sound;
@@ -171,10 +174,19 @@ var props;
             super(object, parameters);
             this.type = 'psound';
             this.array = props.sounds;
-            hooks.register('audioGestured', (x) => {
-                console.warn('late playing');
+            const paly = () => {
                 if (this.kind == 'env')
                     this._play();
+            };
+            hooks.register('audioGestured', (x) => {
+                console.warn('late playing', this.preset);
+                const preset = sound_presets[this.preset];
+                if (!preset)
+                    return;
+                if (preset.delay)
+                    setTimeout(paly, preset.delay[0] + preset.delay[1] * Math.random() * 1000);
+                else
+                    paly();
                 return false;
             });
         }
@@ -265,6 +277,7 @@ var props;
         skirt: { hide: true, color: 'green', intensity: 0.1, distance: 3.0, decay: 1.5, shadow: true },
         alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
         sewerworld: { hide: true, color: 'red', intensity: 0.1, distance: 2.0, decay: 0.1 },
+        funnelsconce: { hide: true, color: 'white', intensity: 0.2, distance: 6.0, decay: 0.5 },
         none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
     };
     class plight extends prop {
@@ -292,7 +305,7 @@ var props;
     }
     props.plight = plight;
     const spotlight_presets = {
-        sewerworld: { hide: true, color: 'red', intensity: 0.5, distance: 10.0, decay: 1.0, shadow: true, target: [0, 1, 0] },
+        sewerworld: { hide: true, color: 'red', intensity: 1.0, distance: 10.0, decay: 1.0, shadow: true, target: [0, 1, 0] },
     };
     class pspotlight extends prop {
         constructor(object, parameters) {

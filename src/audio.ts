@@ -55,6 +55,12 @@ namespace audio {
 	export const environment = [
 		'./assets/sound/env/gorge.mp3',
 		'./assets/sound/env/env_wind.mp3',
+		'./assets/sound/env/wall_loop1.wav',
+		'./assets/sound/env/wall_ambient1.wav',
+		'./assets/sound/env/radio1.mp3',
+		'./assets/sound/env/alien_powernode.wav',
+		'./assets/sound/env/computalk2.wav',
+		'./assets/sound/env/alien_cycletone.wav',
 	];
 
 	export const other = [

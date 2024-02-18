@@ -178,7 +178,7 @@ void main() {
 	//gl_FragColor.rgb = dithering( gl_FragColor.rgb );
 
 	if (dither)
-	gl_FragColor.rgb = dither8x8(gl_FragCoord.xy, gl_FragColor.rgb);
+	gl_FragColor.rgb = dither4x4(gl_FragCoord.xy, gl_FragColor.rgb);
 }`
 
 
@@ -193,7 +193,7 @@ void main() {
 namespace renderer {
 	// set up three.js here
 
-	const offscreen_target_factor = 5;
+	const offscreen_target_factor = 4;
 
 	const post_processing_factor = 1;
 
@@ -211,7 +211,7 @@ namespace renderer {
 
 	// reduce
 	export var enable_post = true;
-	export var animate_bounce_hdr = false;
+	export var animate_bounce_hdr = true;
 	export var dither = true;
 	export var ren_stats = false;
 
@@ -293,7 +293,7 @@ namespace renderer {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.xr.enabled = true;
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		renderer.toneMappingExposure = 6.0;
+		renderer.toneMappingExposure = 5.0;
 		renderer.setPixelRatio(dpi);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
@@ -339,6 +339,10 @@ namespace renderer {
 	export function resize() {
 		let wh = pts.make(window.innerWidth, window.innerHeight);
 
+		const nearest = 8;
+		//wh[0] = wh[0] - wh[0] % nearest;
+		//wh[1] = wh[1] - wh[1] % nearest;
+
 		let offscreen = pts.divide(wh, offscreen_target_factor);
 		offscreen = pts.floor(offscreen);
 
@@ -346,13 +350,12 @@ namespace renderer {
 
 		camera2 = new THREE.OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
 
-		const nearest = 8;
-		wh[0] = wh[0] - wh[0] % nearest;
-		wh[1] = wh[1] - wh[1] % nearest;
-
 		let screen = pts.divide(wh, post_processing_factor);
 		screen = pts.floor(screen);
-		
+
+		console.log('screen, offscreen', screen, offscreen);
+
+
 		renderer.setSize(screen[0], screen[1]);
 
 		const canvas = renderer.domElement;
@@ -361,8 +364,6 @@ namespace renderer {
 
 		camera.aspect = screen[0] / screen[1];
 		camera.updateProjectionMatrix();
-
-		//render();
 	}
 
 	var prevTime = 0, time = 0, frames = 0
@@ -374,8 +375,14 @@ namespace renderer {
 				enable_post = !enable_post;
 			if (glob.x == 1)
 				animate_bounce_hdr = !animate_bounce_hdr;
-			if (glob.c == 1)
+			if (glob.c == 1) {
 				dither = !dither;
+				if (dither)
+					renderer.toneMappingExposure = 5.5;
+				else
+					renderer.toneMappingExposure = 2.5;
+
+			}
 			if (glob.h == 1) {
 				ren_stats = !ren_stats;
 				app.fluke_set_style('hunt-stats', 'visibility', ren_stats ? 'visible' : 'hidden');
@@ -420,7 +427,7 @@ namespace renderer {
 		}
 
 		if (enable_post) {
-			const pulse_cycle = 3;
+			const pulse_cycle = 5;
 
 			glitch += dt / (pulse_cycle / 2);
 			hdr += dt / 1.0;
