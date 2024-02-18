@@ -171,10 +171,10 @@ namespace props {
 	}
 
 	const sound_presets = {
-		wind: { name: 'gorge', volume: .2, loop: true, distance: 4 },
-		fan: { name: 'wall_ambient1', volume: .4, loop: true, distance: 3.5, delay: [0, 3] },
-		radio: { name: 'alien_cycletone', volume: .5, loop: true, distance: 3, delay: [0, 1] },
-		powernode: { name: 'alien_powernode', volume: .2, loop: true, distance: 3, delay: [0, 1] },
+		skylight: { name: 'alien_powernode', volume: .3, loop: true, distance: 4 },
+		fan: { name: 'skylift_move', volume: .25, loop: true, distance: 3.0, delay: [0, 3] },
+		radio: { name: 'alien_cycletone', volume: .4, loop: true, distance: 3, delay: [0, 1] },
+		funnel: { name: 'ambience6', volume: .4, loop: true, distance: 4, delay: [0, 1] },
 	}
 
 	export class psound extends prop {
@@ -293,12 +293,12 @@ namespace props {
 		sconce: { hide: false, color: 'white', intensity: 0.1, distance: 1, offset: [0, 0, -5] },
 		sconce1: { hide: true, color: 'white', intensity: 0.1, distance: 2.0, decay: 0.1 },
 		openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
-		skylightstart: { hide: true, color: 'white', intensity: 0.3, distance: 4.0, decay: 0.5 },
+		skylightstart: { hide: true, color: 'white', intensity: 0.3, distance: 3.5, decay: 0.5 },
 		mtfanambient: { hide: true, color: 'white', intensity: 0.15, distance: 5.0, decay: 0.1 },
 		skirt: { hide: true, color: 'green', intensity: 0.1, distance: 3.0, decay: 1.5, shadow: true },
 		alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
 		sewerworld: { hide: true, color: 'red', intensity: 0.1, distance: 2.0, decay: 0.1 },
-		funnelsconce: { hide: true, color: 'white', intensity: 0.2, distance: 6.0, decay: 0.5 },
+		funnelsconce: { hide: true, color: 'cyan', intensity: 0.2, distance: 6.0, decay: 0.3 },
 		none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
 	}
 
@@ -361,7 +361,7 @@ namespace props {
 			light.castShadow = preset.shadow;
 			light.shadow.camera.far = 1000;
 			//light.angle = Math.PI / 2;
-			//light.penumbra = 0.5;
+			light.penumbra = 0.5;
 			//light.decay = 0.1;
 			//light.shadow.camera.near = 0.5;
 			//light.position.add(size.divideScalar(2.0));

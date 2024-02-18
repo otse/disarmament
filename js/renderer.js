@@ -188,7 +188,7 @@ void main() {
 var renderer;
 (function (renderer_1) {
     // set up three.js here
-    const offscreen_target_factor = 4;
+    const offscreen_target_factor = 3;
     const post_processing_factor = 1;
     renderer_1.dt = 0;
     renderer_1.sunOffset = [0, 10, 0]; // sunOffset = [1.0, 10, -1.0]
@@ -361,7 +361,7 @@ var renderer;
             }
         }
         if (renderer_1.enable_post) {
-            const pulse_cycle = 5;
+            const pulse_cycle = 3;
             renderer_1.glitch += renderer_1.dt / (pulse_cycle / 2);
             renderer_1.hdr += renderer_1.dt / 1.0;
             if (renderer_1.glitch >= 2)

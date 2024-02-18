@@ -60,7 +60,10 @@ namespace audio {
 		'./assets/sound/env/radio1.mp3',
 		'./assets/sound/env/alien_powernode.wav',
 		'./assets/sound/env/computalk2.wav',
+		'./assets/sound/env/skylift_move.wav',
+		'./assets/sound/env/tram_move.wav',
 		'./assets/sound/env/alien_cycletone.wav',
+		'./assets/sound/env/ambience6.wav',
 	];
 
 	export const other = [

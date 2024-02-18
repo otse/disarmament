@@ -193,7 +193,7 @@ void main() {
 namespace renderer {
 	// set up three.js here
 
-	const offscreen_target_factor = 4;
+	const offscreen_target_factor = 3;
 
 	const post_processing_factor = 1;
 
@@ -427,7 +427,7 @@ namespace renderer {
 		}
 
 		if (enable_post) {
-			const pulse_cycle = 5;
+			const pulse_cycle = 3;
 
 			glitch += dt / (pulse_cycle / 2);
 			hdr += dt / 1.0;
