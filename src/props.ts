@@ -206,7 +206,7 @@ namespace props {
 		override _loop() {
 		}
 		_play() {
-			if (!audio.loaded)
+			if (!audio.allDone)
 				return;
 			const preset = sound_presets[this.preset];
 			if (!preset)
@@ -331,7 +331,7 @@ namespace props {
 			//light.castShadow = preset.shadow;
 			//light.position.fromArray(preset.offset || [0, 0, 0]);
 			light.position.add(center);
-			light.add(new THREE.AxesHelper(10));
+			// light.add(new THREE.AxesHelper(10));
 			this.group.add(light);
 		}
 		override _loop() {

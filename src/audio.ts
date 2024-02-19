@@ -13,7 +13,7 @@ namespace audio {
 
 	let gestured = false
 
-	export var loaded = false
+	export var allDone = false
 
 	export const cardboard = [
 		'./assets/sound/cardboard/cardboard_box_impact_hard1.wav',
@@ -92,6 +92,8 @@ namespace audio {
 		gestured = true;
 	}
 
+	let queue = 0;
+	let loaded = 0;
 	function load() {
 		listener = new THREE.AudioListener();
 		renderer.camera.add(listener);
@@ -100,6 +102,7 @@ namespace audio {
 
 		let loads: string[] = [];
 		loads = loads.concat(other, cardboard, plastic, metal, environment);
+		queue = loads.length;
 
 		const loader = new THREE.AudioLoader();
 		for (let path of loads) {
@@ -108,14 +111,20 @@ namespace audio {
 			loader.load(path,
 				function (buffer) {
 					buffers[basename] = buffer;
+					loaded++;
+					if (loaded == queue) {
+						console.log( ' done loading audios ', loaded);
+						hooks.call('audioGestured', 1);
+					}
+
 				},
 				function () { },
 				function () {
 					console.warn(' hunt audio cannot load ', basename);
 				});
 		}
-		loaded = true;
-		setTimeout(() => hooks.call('audioGestured', 1), 2000);
+		allDone = true;
+		//setTimeout(() => hooks.call('audioGestured', 1), 2000);
 	}
 
 	export function playOnce(id: string, volume: number = 1, loop = false) {

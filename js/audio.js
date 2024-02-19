@@ -8,7 +8,7 @@ var audio;
 (function (audio) {
     var listener;
     let gestured = false;
-    audio.loaded = false;
+    audio.allDone = false;
     audio.cardboard = [
         './assets/sound/cardboard/cardboard_box_impact_hard1.wav',
         './assets/sound/cardboard/cardboard_box_impact_hard2.wav',
@@ -76,24 +76,32 @@ var audio;
         load();
         gestured = true;
     }
+    let queue = 0;
+    let loaded = 0;
     function load() {
         listener = new THREE.AudioListener();
         renderer.camera.add(listener);
         console.log('audio load');
         let loads = [];
         loads = loads.concat(audio.other, audio.cardboard, audio.plastic, audio.metal, audio.environment);
+        queue = loads.length;
         const loader = new THREE.AudioLoader();
         for (let path of loads) {
             let basename = path.replace(/^.*[\\/]/, '');
             basename = basename.split('.')[0];
             loader.load(path, function (buffer) {
                 audio.buffers[basename] = buffer;
+                loaded++;
+                if (loaded == queue) {
+                    console.log(' done loading audios ', loaded);
+                    hooks.call('audioGestured', 1);
+                }
             }, function () { }, function () {
                 console.warn(' hunt audio cannot load ', basename);
             });
         }
-        audio.loaded = true;
-        setTimeout(() => hooks.call('audioGestured', 1), 2000);
+        audio.allDone = true;
+        //setTimeout(() => hooks.call('audioGestured', 1), 2000);
     }
     function playOnce(id, volume = 1, loop = false) {
         const buffer = audio.buffers[id];

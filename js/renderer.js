@@ -194,7 +194,7 @@ var renderer;
     renderer_1.sunOffset = [0, 10, 0]; // sunOffset = [1.0, 10, -1.0]
     // reduce
     renderer_1.enable_post = true;
-    renderer_1.animate_bounce_hdr = true;
+    renderer_1.animate_bounce_hdr = false;
     renderer_1.dither = true;
     renderer_1.ren_stats = false;
     function boot() {
