@@ -115,7 +115,7 @@ namespace audio {
 				});
 		}
 		loaded = true;
-		setTimeout(() => hooks.call('audioGestured', 1), 500);
+		setTimeout(() => hooks.call('audioGestured', 1), 2000);
 	}
 
 	export function playOnce(id: string, volume: number = 1, loop = false) {

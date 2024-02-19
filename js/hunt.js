@@ -12,7 +12,7 @@ glob.developer = true;
 var hunt;
 (function (hunt) {
     hunt.inch = 0.0254;
-    hunt.inchMeter = (1 / 0.0254);
+    hunt.inchMeter = (1 / 0.0254); // 39.3700787
     hunt.timeStep = (1 / 60);
     hunt.dt = 0;
     function sample(a) {

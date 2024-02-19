@@ -93,7 +93,7 @@ var audio;
             });
         }
         audio.loaded = true;
-        setTimeout(() => hooks.call('audioGestured', 1), 500);
+        setTimeout(() => hooks.call('audioGestured', 1), 2000);
     }
     function playOnce(id, volume = 1, loop = false) {
         const buffer = audio.buffers[id];

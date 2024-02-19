@@ -14,7 +14,7 @@ namespace sketchup {
 		'bulkhead1': ['./assets/textures/bulkhead1', 30, true, true, true],
 		'floor1': ['./assets/textures/floor1', 1, true],
 		'metal2': ['./assets/textures/metal2', 30, true, false, false],
-		'metal2b': ['./assets/textures/metal2b', 10, true, false, false],
+		'metal2b': ['./assets/textures/metal2b', 5, false, false, false],
 		'metal3': ['./assets/textures/metal3', 30, false, false, true],
 		'rust1': ['./assets/textures/rust1', 30, false, false, false],
 		'twotonewall': ['./assets/textures/twotonewall', 20, true, true],

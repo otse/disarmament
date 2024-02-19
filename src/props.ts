@@ -74,14 +74,14 @@ namespace props {
 
 		prop.group.add(prop.object);
 		prop.group.updateMatrix();
-		prop.group.updateMatrixWorld();
+		prop.group.updateMatrixWorld(true);
 
 		renderer.propsGroup.add(prop.group);
 
 		function traversal(object) {
 			object.geometry?.computeBoundingBox();
 		}
-		prop.object.traverse(traversal);
+		prop.group.traverse(traversal);
 	}
 
 	export var all: prop[] = []
@@ -126,7 +126,7 @@ namespace props {
 		}
 		protected measure() {
 			this.aabb = new THREE.Box3();
-			this.aabb.setFromObject(this.group, true);
+			this.aabb.setFromObject(this.object);
 		}
 		correction_for_physics() {
 			const size = new THREE.Vector3();
@@ -172,7 +172,7 @@ namespace props {
 
 	const sound_presets = {
 		skylight: { name: 'alien_powernode', volume: .3, loop: true, distance: 4 },
-		fan: { name: 'skylift_move', volume: .25, loop: true, distance: 3.0, delay: [0, 3] },
+		fan: { name: 'tram_move', volume: .05, loop: true, distance: 3.0, delay: [0, 3] },
 		radio: { name: 'alien_cycletone', volume: .4, loop: true, distance: 3, delay: [0, 1] },
 		funnel: { name: 'ambience6', volume: .4, loop: true, distance: 4, delay: [0, 1] },
 	}
@@ -298,7 +298,7 @@ namespace props {
 		skirt: { hide: true, color: 'green', intensity: 0.1, distance: 3.0, decay: 1.5, shadow: true },
 		alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
 		sewerworld: { hide: true, color: 'red', intensity: 0.1, distance: 2.0, decay: 0.1 },
-		funnelsconce: { hide: true, color: 'cyan', intensity: 0.2, distance: 6.0, decay: 0.3 },
+		funnell: { hide: false, color: 'cyan', intensity: 0.2, distance: 6.5, decay: 0.2 },
 		none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
 	}
 
@@ -311,11 +311,17 @@ namespace props {
 		override _finish() {
 			//this.object.visible = false;
 			const preset = light_presets[this.preset || 'none'];
+			if (!preset) {
+				console.log(' critical preset doesnt exist ', this.preset);
+				return;
+			}
+
 			this.object.visible = !preset.hide;
 
-			const center = new THREE.Vector3();
-			this.aabb.getCenter(center);
+			let center = new THREE.Vector3();
+			this.aabb.getSize(center);
 			center.divideScalar(2.0);
+			center.multiplyScalar(hunt.inchMeter);
 
 			let light = new THREE.PointLight(
 				preset.color,
@@ -323,9 +329,9 @@ namespace props {
 				preset.distance,
 				preset.decay);
 			//light.castShadow = preset.shadow;
-			light.position.fromArray(preset.offset || [0, 0, 0])
+			//light.position.fromArray(preset.offset || [0, 0, 0]);
 			light.position.add(center);
-			//light.add(new THREE.AxesHelper(10));
+			light.add(new THREE.AxesHelper(10));
 			this.group.add(light);
 		}
 		override _loop() {

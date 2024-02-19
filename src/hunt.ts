@@ -13,7 +13,7 @@ glob.developer = true;
 
 namespace hunt {
 	export const inch = 0.0254
-	export const inchMeter = (1 / 0.0254)
+	export const inchMeter = (1 / 0.0254) // 39.3700787
 	export const timeStep = (1 / 60)
 
 	export var main, locker
