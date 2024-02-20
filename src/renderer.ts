@@ -207,7 +207,7 @@ namespace renderer {
 
 	export var currt
 
-	export var sun, sunOffset = [0, 10, 0] // sunOffset = [1.0, 10, -1.0]
+	export var sun, sunOffset = [0, 10, -0] // sunOffset = [1.0, 10, -1.0]
 
 	// reduce
 	export var enable_post = true;
@@ -311,7 +311,8 @@ namespace renderer {
 		ambiance = new THREE.AmbientLight(0xffffff, percent);
 		scene.add(ambiance);
 
-		sun = new THREE.DirectionalLight(0xd6b49b, 0.7);
+		sun = new THREE.DirectionalLight(0xd0d69b, 0.7);
+		//sun.castShadow = true;
 		sun.shadow.mapSize.width = 2048;
 		sun.shadow.mapSize.height = 2048;
 		sun.shadow.radius = 2;
@@ -321,8 +322,7 @@ namespace renderer {
 		sun.shadow.camera.left = sun.shadow.camera.bottom = -15;
 		sun.shadow.camera.right = sun.shadow.camera.top = 15;
 		sun.position.fromArray(sunOffset);
-		sun.castShadow = true;
-		scene.add(sun);
+		//scene.add(sun);
 		scene.add(sun.target);
 
 		// scene.add(new THREE.CameraHelper(sun.shadow.camera));

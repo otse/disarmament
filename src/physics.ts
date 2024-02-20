@@ -16,7 +16,7 @@ namespace physics {
 		none: { mass: 0.5, material: 'cardboard' }
 	}
 
-	export const wireframe_helpers = false;
+	export const wireframe_helpers = false; // broken
 
 	export var materials: any = {}
 
@@ -165,9 +165,18 @@ namespace physics {
 		}
 		loop() { // override
 		}
+		lod() {
+			//world.removeBody(this.body);
+			this._lod();
+		}
+		_lod() { // override
+		}
 	}
 
 	export class fbox extends fbody {
+		override _lod() {
+			world.removeBody(this.body);
+		}
 		constructor(prop) {
 			super(prop);
 
@@ -289,6 +298,13 @@ namespace physics {
 
 	export class fdoor extends fbody {
 		constraint
+		hingedBody
+		staticBody
+		override _lod() {
+			world.removeConstraint(this.constraint);
+			world.removeBody(this.hingedBody);
+			world.removeBody(this.staticBody);
+		}
 		constructor(prop: props.prop) {
 			super(prop);
 
@@ -346,6 +362,8 @@ namespace physics {
 
 			this.constraint = constraint;
 			this.body = hingedBody;
+			this.hingedBody = hingedBody;
+			this.staticBody = staticBody;
 
 			this.add_helper_aabb();
 		}

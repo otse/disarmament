@@ -191,7 +191,7 @@ var renderer;
     const offscreen_target_factor = 3;
     const post_processing_factor = 1;
     renderer_1.dt = 0;
-    renderer_1.sunOffset = [0, 10, 0]; // sunOffset = [1.0, 10, -1.0]
+    renderer_1.sunOffset = [0, 10, -0]; // sunOffset = [1.0, 10, -1.0]
     // reduce
     renderer_1.enable_post = true;
     renderer_1.animate_bounce_hdr = false;
@@ -268,7 +268,8 @@ var renderer;
         const percent = 2 / 100;
         renderer_1.ambiance = new THREE.AmbientLight(0xffffff, percent);
         renderer_1.scene.add(renderer_1.ambiance);
-        renderer_1.sun = new THREE.DirectionalLight(0xd6b49b, 0.7);
+        renderer_1.sun = new THREE.DirectionalLight(0xd0d69b, 0.7);
+        //sun.castShadow = true;
         renderer_1.sun.shadow.mapSize.width = 2048;
         renderer_1.sun.shadow.mapSize.height = 2048;
         renderer_1.sun.shadow.radius = 2;
@@ -278,8 +279,7 @@ var renderer;
         renderer_1.sun.shadow.camera.left = renderer_1.sun.shadow.camera.bottom = -15;
         renderer_1.sun.shadow.camera.right = renderer_1.sun.shadow.camera.top = 15;
         renderer_1.sun.position.fromArray(renderer_1.sunOffset);
-        renderer_1.sun.castShadow = true;
-        renderer_1.scene.add(renderer_1.sun);
+        //scene.add(sun);
         renderer_1.scene.add(renderer_1.sun.target);
         // scene.add(new THREE.CameraHelper(sun.shadow.camera));
         const hunt_main = document.querySelector('hunt-main');

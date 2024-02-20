@@ -14,7 +14,7 @@ var physics;
         solid: { mass: 0.0, material: 'cardboard' },
         none: { mass: 0.5, material: 'cardboard' }
     };
-    physics.wireframe_helpers = false;
+    physics.wireframe_helpers = false; // broken
     physics.materials = {};
     physics.walls = [], physics.balls = [], physics.ballMeshes = [], physics.boxes = [], physics.boxMeshes = [];
     function boot() {
@@ -131,9 +131,18 @@ var physics;
         }
         loop() {
         }
+        lod() {
+            //world.removeBody(this.body);
+            this._lod();
+        }
+        _lod() {
+        }
     }
     physics.fbody = fbody;
     class fbox extends fbody {
+        _lod() {
+            physics.world.removeBody(this.body);
+        }
         constructor(prop) {
             super(prop);
             const size = new THREE.Vector3();
@@ -236,6 +245,13 @@ var physics;
     const door_arbitrary_shrink = 0.95;
     class fdoor extends fbody {
         constraint;
+        hingedBody;
+        staticBody;
+        _lod() {
+            physics.world.removeConstraint(this.constraint);
+            physics.world.removeBody(this.hingedBody);
+            physics.world.removeBody(this.staticBody);
+        }
         constructor(prop) {
             super(prop);
             const size = new THREE.Vector3();
@@ -285,6 +301,8 @@ var physics;
             //console.log(constraint);
             this.constraint = constraint;
             this.body = hingedBody;
+            this.hingedBody = hingedBody;
+            this.staticBody = staticBody;
             this.add_helper_aabb();
         }
         AABBMesh;

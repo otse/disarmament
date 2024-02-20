@@ -52,39 +52,49 @@ namespace props {
 	}
 
 	export function loop() {
-		for (let prop of all)
+		for (let prop of collection)
 			prop.loop();
+	}
+
+	export function clear() {
+		const array = collection.slice(0);
+		for (let prop of array)
+			prop.lod();
+		collection = [];
 	}
 
 	export function take_collada_prop(prop: prop) {
 		// the prop is sitting in a rotated, scaled scene graph
 		// set it apart
-		prop.group = new THREE.Group();
+		const group = new THREE.Group();
+		const object = prop.object;
 
-		prop.object.matrixWorld.decompose(
-			prop.group.position,
-			prop.group.quaternion,
-			prop.group.scale);
+		object.matrixWorld.decompose(
+			group.position,
+			group.quaternion,
+			group.scale);
 
-		prop.object.position.set(0, 0, 0);
-		prop.object.rotation.set(0, 0, 0);
-		prop.object.quaternion.identity();
-		prop.object.updateMatrix();
-		prop.object.updateMatrixWorld();
+		object.position.set(0, 0, 0);
+		object.rotation.set(0, 0, 0);
+		object.quaternion.identity();
+		object.updateMatrix();
+		object.updateMatrixWorld();
 
-		prop.group.add(prop.object);
-		prop.group.updateMatrix();
-		prop.group.updateMatrixWorld(true);
+		group.add(object);
+		group.updateMatrix();
+		group.updateMatrixWorld(true);
 
-		renderer.propsGroup.add(prop.group);
+		renderer.propsGroup.add(group);
 
 		function traversal(object) {
 			object.geometry?.computeBoundingBox();
 		}
-		prop.group.traverse(traversal);
+		group.traverse(traversal);
+
+		prop.group = group;
 	}
 
-	export var all: prop[] = []
+	export var collection: prop[] = []
 	export var walls: psound[] = []
 	export var sounds: psound[] = []
 	export var boxes: psound[] = []
@@ -95,14 +105,13 @@ namespace props {
 		type
 		kind
 		preset
-		oldRotation
 		group
-		master
+		oldRotation
 		fbody: physics.fbody
 		aabb
 		constructor(public readonly object, public readonly parameters) {
 			this.type = 'ordinary prop';
-			all.push(this);
+			collection.push(this);
 		}
 		complete() {
 			this.array.push(this);
@@ -120,15 +129,21 @@ namespace props {
 			this._loop();
 		}
 		lod() {
-			all.splice(all.indexOf(this), 1);
+			// messy splices
+			collection.splice(collection.indexOf(this), 1);
 			this.array.splice(this.array.indexOf(this), 1);
+			//this.group.remove();
+			renderer.propsGroup.remove(this.group);
 			this._lod();
+			if (this.fbody)
+				this.fbody.lod();
 		}
 		protected measure() {
 			this.aabb = new THREE.Box3();
 			this.aabb.setFromObject(this.object);
 		}
 		correction_for_physics() {
+			// strange but very clear code
 			const size = new THREE.Vector3();
 			this.aabb.getSize(size);
 			size.multiplyScalar(hunt.inchMeter);
@@ -167,14 +182,15 @@ namespace props {
 			this.fbody.loop();
 		}
 		override _lod() {
+
 		}
 	}
 
-	const sound_presets = {
+	const presets_sounds = {
 		skylight: { name: 'alien_powernode', volume: .3, loop: true, distance: 4 },
 		fan: { name: 'tram_move', volume: .05, loop: true, distance: 3.0, delay: [0, 3] },
 		radio: { name: 'alien_cycletone', volume: .4, loop: true, distance: 3, delay: [0, 1] },
-		funnel: { name: 'ambience6', volume: .4, loop: true, distance: 4, delay: [0, 1] },
+		swedge: { name: 'ambience6', volume: .4, loop: true, distance: 4, delay: [0, 1] },
 	}
 
 	export class psound extends prop {
@@ -189,7 +205,7 @@ namespace props {
 			}
 			hooks.register('audioGestured', (x) => {
 				console.warn('late playing', this.preset);
-				const preset = sound_presets[this.preset];
+				const preset = presets_sounds[this.preset];
 				if (!preset)
 					return;
 				if (preset.delay)
@@ -208,7 +224,7 @@ namespace props {
 		_play() {
 			if (!audio.allDone)
 				return;
-			const preset = sound_presets[this.preset];
+			const preset = presets_sounds[this.preset];
 			if (!preset)
 				return;
 			this.sound = audio.playOnce(preset.name, preset.volume, preset.loop);
@@ -289,7 +305,7 @@ namespace props {
 		}
 	}
 
-	const light_presets = {
+	const presets_lights = {
 		sconce: { hide: false, color: 'white', intensity: 0.1, distance: 1, offset: [0, 0, -5] },
 		sconce1: { hide: true, color: 'white', intensity: 0.1, distance: 2.0, decay: 0.1 },
 		openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
@@ -298,7 +314,8 @@ namespace props {
 		skirt: { hide: true, color: 'green', intensity: 0.1, distance: 3.0, decay: 1.5, shadow: true },
 		alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
 		sewerworld: { hide: true, color: 'red', intensity: 0.1, distance: 2.0, decay: 0.1 },
-		funnell: { hide: false, color: 'cyan', intensity: 0.2, distance: 6.5, decay: 0.2 },
+		lwedge: { hide: true, color: 'cyan', intensity: 0.2, distance: 6.5, decay: 0.2, shadow: true },
+		lconnector: { hide: true, color: 'white', intensity: 0.2, distance: 5.0, decay: 0.2 },
 		none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
 	}
 
@@ -310,7 +327,7 @@ namespace props {
 		}
 		override _finish() {
 			//this.object.visible = false;
-			const preset = light_presets[this.preset || 'none'];
+			const preset = presets_lights[this.preset || 'none'];
 			if (!preset) {
 				console.log(' critical preset doesnt exist ', this.preset);
 				return;
@@ -328,7 +345,7 @@ namespace props {
 				preset.intensity,
 				preset.distance,
 				preset.decay);
-			//light.castShadow = preset.shadow;
+			light.castShadow = preset.shadow;
 			//light.position.fromArray(preset.offset || [0, 0, 0]);
 			light.position.add(center);
 			// light.add(new THREE.AxesHelper(10));
@@ -336,10 +353,13 @@ namespace props {
 		}
 		override _loop() {
 		}
+		override _lod() {
+		}
 	}
 
-	const spotlight_presets = {
+	const presets_spotlight = {
 		sewerworld: { hide: true, color: 'red', intensity: 1.0, distance: 10.0, decay: 1.0, shadow: true, target: [0, 1, 0] },
+		slskirt: { hide: true, color: '#d0d69b', intensity: 3.0, distance: 8.0, decay: 1.0, shadow: true, target: [0, 0, -1] },
 	}
 
 	export class pspotlight extends prop {
@@ -349,7 +369,7 @@ namespace props {
 			this.array = lights;
 		}
 		override _finish() {
-			const preset = spotlight_presets[this.preset || 'none'];
+			const preset = presets_spotlight[this.preset || 'none'];
 			this.object.visible = !preset.hide;
 
 			const size = new THREE.Vector3();
