@@ -129,12 +129,11 @@ namespace props {
 			this._loop();
 		}
 		lod() {
-			// messy splices
+			// messy splices(!)
 			collection.splice(collection.indexOf(this), 1);
 			this.array.splice(this.array.indexOf(this), 1);
-			//this.group.remove();
-			renderer.propsGroup.remove(this.group);
 			this._lod();
+			renderer.propsGroup.remove(this.group);
 			if (this.fbody)
 				this.fbody.lod();
 		}
@@ -182,7 +181,6 @@ namespace props {
 			this.fbody.loop();
 		}
 		override _lod() {
-
 		}
 	}
 
@@ -195,6 +193,11 @@ namespace props {
 
 	export class psound extends prop {
 		sound
+		override _lod() {
+			if (this.sound) {
+				this.sound.stop();
+			}
+		}
 		constructor(object, parameters) {
 			super(object, parameters);
 			this.type = 'psound';
@@ -229,17 +232,16 @@ namespace props {
 				return;
 			this.sound = audio.playOnce(preset.name, preset.volume, preset.loop);
 			if (this.sound) {
-				this.group.add(this.sound);
-
 				const panner = this.sound.getOutput();
 				panner.distanceModel = 'exponential';
 				panner.rolloffFactor = 4;
 				panner.panningModel = 'HRTF';
-				this.sound?.setRefDistance(preset.distance);
+				this.sound.setRefDistance(preset.distance);
 
 				const helper = new PositionalAudioHelper(this.sound);
-				this.group.add(helper);
 				helper.update();
+				this.group.add(helper);
+				this.group.add(this.sound);
 			}
 		}
 	}

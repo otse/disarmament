@@ -28,6 +28,7 @@ var sketchup;
             }
             if (app.proompt('t') == 1) {
                 props.clear();
+                renderer.scene.remove(levelGroup);
                 load_room();
             }
             if (app.proompt('m') == 1) {
@@ -166,6 +167,7 @@ var sketchup;
         if (definition.name.includes('sticker'))
             fix_sticker(definition);
     }
+    let levelGroup;
     function load_room() {
         const loadingManager = new THREE.LoadingManager(function () {
         });
@@ -197,6 +199,7 @@ var sketchup;
             for (let prop of queue)
                 prop.complete();
             const group = new THREE.Group();
+            levelGroup = group;
             group.add(scene);
             renderer.scene.add(group);
         });
