@@ -193,7 +193,7 @@ void main() {
 namespace renderer {
 	// set up three.js here
 
-	const offscreen_target_factor = 3;
+	const offscreen_target_factor = 5;
 
 	const post_processing_factor = 1;
 
@@ -212,7 +212,7 @@ namespace renderer {
 	// reduce
 	export var enable_post = true;
 	export var animate_bounce_hdr = false;
-	export var dither = true;
+	export var dither = false;
 	export var ren_stats = false;
 
 	export function boot() {
@@ -293,7 +293,7 @@ namespace renderer {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.xr.enabled = true;
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		renderer.toneMappingExposure = 5.0;
+		renderer.toneMappingExposure = 3.0;
 		renderer.setPixelRatio(dpi);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
@@ -339,9 +339,9 @@ namespace renderer {
 	export function resize() {
 		let wh = pts.make(window.innerWidth, window.innerHeight);
 
-		const nearest = 8;
-		//wh[0] = wh[0] - wh[0] % nearest;
-		//wh[1] = wh[1] - wh[1] % nearest;
+		const nearest = 16;
+		wh[0] = wh[0] - wh[0] % nearest;
+		wh[1] = wh[1] - wh[1] % nearest;
 
 		let offscreen = pts.divide(wh, offscreen_target_factor);
 		offscreen = pts.floor(offscreen);

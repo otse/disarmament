@@ -311,13 +311,14 @@ namespace props {
 		sconce: { hide: false, color: 'white', intensity: 0.1, distance: 1, offset: [0, 0, -5] },
 		sconce1: { hide: true, color: 'white', intensity: 0.1, distance: 2.0, decay: 0.1 },
 		openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
-		skylightstart: { hide: true, color: 'white', intensity: 0.3, distance: 3.5, decay: 0.5 },
+		skylightstart: { hide: true, color: 'white', intensity: 0.3, distance: 3.5, decay: 0.5, shadow: true },
 		mtfanambient: { hide: true, color: 'white', intensity: 0.15, distance: 5.0, decay: 0.1 },
-		skirt: { hide: true, color: 'green', intensity: 0.1, distance: 3.0, decay: 1.5, shadow: true },
+		skirt: { hide: true, color: '#668d66', intensity: 0.1, distance: 2.0, decay: 1.4, shadow: false },
 		alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
 		sewerworld: { hide: true, color: 'red', intensity: 0.1, distance: 2.0, decay: 0.1 },
 		lwedge: { hide: true, color: 'cyan', intensity: 0.2, distance: 6.5, decay: 0.2, shadow: true },
-		lconnector: { hide: true, color: 'white', intensity: 0.2, distance: 5.0, decay: 0.2 },
+		lmetro1: { hide: true, color: 'yellow', intensity: 0.1, distance: 5.0, decay: 0.8, shadow: true },
+		lconnector: { hide: true, color: 'white', intensity: 0.1, distance: 5.0, decay: 0.5, shadow: true },
 		none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
 	}
 
@@ -331,7 +332,7 @@ namespace props {
 			//this.object.visible = false;
 			const preset = presets_lights[this.preset || 'none'];
 			if (!preset) {
-				console.log(' critical preset doesnt exist ', this.preset);
+				console.log(' preset no def ', this.preset);
 				return;
 			}
 
@@ -359,7 +360,7 @@ namespace props {
 		}
 	}
 
-	const presets_spotlight = {
+	const presets_spotlights = {
 		sewerworld: { hide: true, color: 'red', intensity: 1.0, distance: 10.0, decay: 1.0, shadow: true, target: [0, 1, 0] },
 		slskirt: { hide: true, color: '#d0d69b', intensity: 3.0, distance: 8.0, decay: 1.0, shadow: true, target: [0, 0, -1] },
 	}
@@ -371,7 +372,12 @@ namespace props {
 			this.array = lights;
 		}
 		override _finish() {
-			const preset = presets_spotlight[this.preset || 'none'];
+			const preset = presets_spotlights[this.preset || 'none'];
+			if (!preset) {
+				console.warn(' preset no def ');
+				
+				return;
+			}
 			this.object.visible = !preset.hide;
 
 			const size = new THREE.Vector3();
