@@ -6,16 +6,16 @@ var sketchup;
 (function (sketchup) {
     const paths = {
         'ebony': ['./assets/textures/black', 10, false, false],
-        'crete1': ['./assets/textures/crete1', 30, false, false],
+        'crete1': ['./assets/textures/crete1', 15, false, false],
         'brick1': ['./assets/textures/brick1', 30, true, true],
         'bulkhead1': ['./assets/textures/bulkhead1', 30, true, true, true],
-        'floor1': ['./assets/textures/floor1', 15, true],
+        'floor1': ['./assets/textures/floor1', 5, true],
         'metrofloor1': ['./assets/textures/metrofloor1', 2, false],
         'metal2': ['./assets/textures/metal2', 30, true, false, false],
         'metal2b': ['./assets/textures/metal2b', 5, true, false, false],
         'metal3': ['./assets/textures/metal3', 30, false, false, true],
         'rust1': ['./assets/textures/rust1', 30, false, false, false],
-        'twotonewall': ['./assets/textures/twotonewall', 30, true, true],
+        'twotonewall': ['./assets/textures/twotonewall', 15, true, true],
         'twotonewallb': ['./assets/textures/twotonewallb', 15, true, false],
         'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
         'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
@@ -31,6 +31,7 @@ var sketchup;
             }
             if (app.proompt('t') == 1) {
                 props.clear();
+                props.boot();
                 renderer.scene.remove(levelGroup);
                 load_room();
             }
@@ -117,7 +118,7 @@ var sketchup;
             material.customProgramCacheKey = function () {
                 return 'clucked';
             }*/
-            material.specular.set(0.25, 0.25, 0.25);
+            material.specular.set(0.1, 0.1, 0.1);
             material.shininess = tuple[1] || 30;
             if (tuple[2]) {
                 const map = textureLoader.load(`${tuple[0]}_normal.png`);

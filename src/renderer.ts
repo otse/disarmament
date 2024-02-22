@@ -211,7 +211,7 @@ namespace renderer {
 
 	// reduce
 	export var enable_post = true;
-	export var animate_bounce_hdr = false;
+	export var animate_bounce_hdr = true;
 	export var dither = false;
 	export var ren_stats = false;
 
@@ -293,7 +293,7 @@ namespace renderer {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.xr.enabled = true;
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		renderer.toneMappingExposure = 3.0;
+		renderer.toneMappingExposure = 3.5;
 		renderer.setPixelRatio(dpi);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
@@ -380,7 +380,7 @@ namespace renderer {
 				if (dither)
 					renderer.toneMappingExposure = 5.5;
 				else
-					renderer.toneMappingExposure = 2.5;
+					renderer.toneMappingExposure = 3.5;
 
 			}
 			if (glob.h == 1) {
@@ -421,13 +421,15 @@ namespace renderer {
 				app.fluke_set_innerhtml('hunt-stats', `
 					fps: ${fps.toFixed(1)}<br />
 					offscreen_target_factor: ${(1 / offscreen_target_factor).toFixed(2)}<br />
-					post_processing_factor: ${(1 / post_processing_factor).toFixed(2)}
+					post_processing_factor: ${(1 / post_processing_factor).toFixed(2)}<br />
+					bounce hdr: ${(animate_bounce_hdr)}<br />
+					dither: ${(dither)}<br />
 			`);
 			}
 		}
 
 		if (enable_post) {
-			const pulse_cycle = 3;
+			const pulse_cycle = 4;
 
 			glitch += dt / (pulse_cycle / 2);
 			hdr += dt / 1.0;

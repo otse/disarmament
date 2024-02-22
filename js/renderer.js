@@ -194,7 +194,7 @@ var renderer;
     renderer_1.sunOffset = [0, 10, -0]; // sunOffset = [1.0, 10, -1.0]
     // reduce
     renderer_1.enable_post = true;
-    renderer_1.animate_bounce_hdr = false;
+    renderer_1.animate_bounce_hdr = true;
     renderer_1.dither = false;
     renderer_1.ren_stats = false;
     function boot() {
@@ -255,7 +255,7 @@ var renderer;
         renderer_1.renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer_1.renderer.xr.enabled = true;
         renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer_1.renderer.toneMappingExposure = 3.0;
+        renderer_1.renderer.toneMappingExposure = 3.5;
         renderer_1.renderer.setPixelRatio(dpi);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
         renderer_1.renderer.shadowMap.enabled = true;
@@ -321,7 +321,7 @@ var renderer;
                 if (renderer_1.dither)
                     renderer_1.renderer.toneMappingExposure = 5.5;
                 else
-                    renderer_1.renderer.toneMappingExposure = 2.5;
+                    renderer_1.renderer.toneMappingExposure = 3.5;
             }
             if (glob.h == 1) {
                 renderer_1.ren_stats = !renderer_1.ren_stats;
@@ -356,12 +356,14 @@ var renderer;
                 app.fluke_set_innerhtml('hunt-stats', `
 					fps: ${renderer_1.fps.toFixed(1)}<br />
 					offscreen_target_factor: ${(1 / offscreen_target_factor).toFixed(2)}<br />
-					post_processing_factor: ${(1 / post_processing_factor).toFixed(2)}
+					post_processing_factor: ${(1 / post_processing_factor).toFixed(2)}<br />
+					bounce hdr: ${(renderer_1.animate_bounce_hdr)}<br />
+					dither: ${(renderer_1.dither)}<br />
 			`);
             }
         }
         if (renderer_1.enable_post) {
-            const pulse_cycle = 3;
+            const pulse_cycle = 4;
             renderer_1.glitch += renderer_1.dt / (pulse_cycle / 2);
             renderer_1.hdr += renderer_1.dt / 1.0;
             if (renderer_1.glitch >= 2)

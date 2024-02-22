@@ -45,9 +45,6 @@ var props;
         return prop;
     }
     props.factory = factory;
-    function boot() {
-    }
-    props.boot = boot;
     function loop() {
         for (let prop of props.collection)
             prop.loop();
@@ -82,11 +79,21 @@ var props;
         prop.group = group;
     }
     props.take_collada_prop = take_collada_prop;
+    async function boot() {
+        let url = 'lights.json';
+        let response = await fetch(url);
+        const arrSales = await response.json();
+        props.presets_from_json = arrSales;
+        console.log(props.presets_from_json);
+        return arrSales;
+    }
+    props.boot = boot;
     props.collection = [];
     props.walls = [];
     props.sounds = [];
     props.boxes = [];
     props.lights = [];
+    props.presets_from_json = {};
     class prop {
         object;
         parameters;
@@ -286,20 +293,6 @@ var props;
         }
     }
     props.pdoor = pdoor;
-    const presets_lights = {
-        sconce: { hide: false, color: 'white', intensity: 0.1, distance: 1, offset: [0, 0, -5] },
-        sconce1: { hide: true, color: 'white', intensity: 0.1, distance: 2.0, decay: 0.1 },
-        openwindow: { hide: true, color: 'white', intensity: 0.5, distance: 3, decay: 0.3 },
-        skylightstart: { hide: true, color: 'white', intensity: 0.3, distance: 3.5, decay: 0.5, shadow: true },
-        mtfanambient: { hide: true, color: 'white', intensity: 0.15, distance: 5.0, decay: 0.1 },
-        skirt: { hide: true, color: '#668d66', intensity: 0.1, distance: 2.0, decay: 1.4, shadow: false },
-        alert: { hide: true, color: 'red', intensity: 0.05, distance: 1.0, decay: 0.6 },
-        sewerworld: { hide: true, color: 'red', intensity: 0.1, distance: 2.0, decay: 0.1 },
-        lwedge: { hide: true, color: 'cyan', intensity: 0.2, distance: 6.5, decay: 0.2, shadow: true },
-        lmetro1: { hide: true, color: 'yellow', intensity: 0.1, distance: 5.0, decay: 0.8, shadow: true },
-        lconnector: { hide: true, color: 'white', intensity: 0.1, distance: 5.0, decay: 0.5, shadow: true },
-        none: { hide: true, color: 'white', intensity: 0.1, distance: 10 }
-    };
     class plight extends prop {
         constructor(object, parameters) {
             super(object, parameters);
@@ -308,20 +301,20 @@ var props;
         }
         _finish() {
             //this.object.visible = false;
-            const preset = presets_lights[this.preset || 'none'];
+            const preset = props.presets_from_json[this.preset || 'none'];
             if (!preset) {
                 console.log(' preset no def ', this.preset);
                 return;
             }
             this.object.visible = !preset.hide;
-            let center = new THREE.Vector3();
-            this.aabb.getSize(center);
-            center.divideScalar(2.0);
-            center.multiplyScalar(hunt.inchMeter);
+            let size = new THREE.Vector3();
+            this.aabb.getSize(size);
+            size.divideScalar(2.0);
+            size.multiplyScalar(hunt.inchMeter);
             let light = new THREE.PointLight(preset.color, preset.intensity, preset.distance, preset.decay);
             light.castShadow = preset.shadow;
             //light.position.fromArray(preset.offset || [0, 0, 0]);
-            light.position.add(center);
+            light.position.add(size);
             // light.add(new THREE.AxesHelper(10));
             this.group.add(light);
         }
@@ -331,42 +324,40 @@ var props;
         }
     }
     props.plight = plight;
-    const presets_spotlights = {
-        sewerworld: { hide: true, color: 'red', intensity: 1.0, distance: 10.0, decay: 1.0, shadow: true, target: [0, 1, 0] },
-        slskirt: { hide: true, color: '#d0d69b', intensity: 3.0, distance: 8.0, decay: 1.0, shadow: true, target: [0, 0, -1] },
-    };
     class pspotlight extends prop {
+        spotlight;
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pspotlight';
             this.array = props.lights;
         }
         _finish() {
-            const preset = presets_spotlights[this.preset || 'none'];
+            const preset = props.presets_from_json[this.preset || 'none'];
             if (!preset) {
                 console.warn(' preset no def ');
                 return;
             }
             this.object.visible = !preset.hide;
-            const size = new THREE.Vector3();
-            const center = new THREE.Vector3();
+            let size = new THREE.Vector3();
             this.aabb.getSize(size);
-            this.aabb.getCenter(center);
+            size.divideScalar(2.0);
             size.multiplyScalar(hunt.inchMeter);
             //console.log('light size, center', size, center);
             let light = new THREE.SpotLight(preset.color, preset.intensity, preset.distance, preset.decay);
+            light.position.set(0, 0, 0);
             light.castShadow = preset.shadow;
             light.shadow.camera.far = 1000;
-            //light.angle = Math.PI / 2;
-            light.penumbra = 0.5;
-            //light.decay = 0.1;
-            //light.shadow.camera.near = 0.5;
-            //light.position.add(size.divideScalar(2.0));
-            //light.target.position.add(size.divideScalar(2.0));
-            light.target.position.add(new THREE.Vector3().fromArray(preset.target).multiplyScalar(10));
-            //this.group.add(new THREE.AxesHelper(10));
+            light.angle = preset.angle || Math.PI / 3;
+            light.penumbra = preset.penumbra || 0.0;
+            //light.add(new THREE.AxesHelper(10));
+            if (preset.target)
+                light.target.position.add(new THREE.Vector3().fromArray(preset.target).multiplyScalar(4));
+            light.target.position.add(size);
+            //light.target.add(new THREE.AxesHelper(10));
+            light.position.add(size);
             this.group.add(light);
             this.group.add(light.target);
+            this.spotlight = light;
             //this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
         }
         _loop() {
