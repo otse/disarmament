@@ -8,7 +8,7 @@
     },
     "slsewerworld": {
         "hide": true,
-        "color": "red",
+        "color": "#93cbc8",
         "intensity": 1.0,
         "distance": 10.0,
         "penumbra": 0.1,
@@ -50,10 +50,10 @@
     },
     "slribs": {
         "hide": true,
-        "color": "#668d66",
-        "intensity": 1,
+        "color": "#93cb9b",
+        "intensity": 0.5,
         "distance": 4,
-        "penumbra": 0.0,
+        "penumbra": 0.1,
         "decay": 1,
         "shadow": false,
         "target": [

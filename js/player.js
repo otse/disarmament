@@ -74,6 +74,9 @@ class player {
             return;
         if (app.proompt('v') == 1) {
             this.noclip = !this.noclip;
+            if (!this.noclip) {
+                this.cannon_body.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+            }
             //this.cannonBody.collisionResponse = this.noclip ? true : 0;
         }
         this.noclip ? this.noclip_move(delta) : this.physics_move(delta);

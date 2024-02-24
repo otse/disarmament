@@ -16,7 +16,7 @@ namespace physics {
 		none: { mass: 0.5, material: 'cardboard' }
 	}
 
-	export const wireframe_helpers = false; // broken
+	export const wireframe_helpers = true; // broken
 
 	export var materials: any = {}
 
@@ -87,7 +87,8 @@ namespace physics {
 		const groundBody = new CANNON.Body({ mass: 0, material: materials.ground });
 		groundBody.addShape(groundShape);
 		groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-		world.addBody(groundBody);
+
+		//world.addBody(groundBody);
 
 	}
 
@@ -121,9 +122,9 @@ namespace physics {
 	const boo = 0;
 	var bodies: fbody[] = []
 
-	var sboxes: simple_box[] = []
+	var sboxes: simple_box_unused[] = []
 
-	export class simple_box {
+	export class simple_box_unused {
 		boxBody
 		boxMesh
 		constructor() {
@@ -176,6 +177,7 @@ namespace physics {
 	export class fbox extends fbody {
 		override _lod() {
 			world.removeBody(this.body);
+			renderer.scene.remove(this.AABBMesh);
 		}
 		constructor(prop) {
 			super(prop);
@@ -189,11 +191,11 @@ namespace physics {
 
 			// rewrite this eventually
 			let kind = kinds_of_props[this.prop.preset];
-			if (prop.kind == 'wall' || prop.kind == 'solid')
+			if (prop.kind == 'wall' || prop.kind == 'solid' || prop.kind == 'ground')
 				kind = kinds_of_props['solid'];
 			if (!kind)
 				kind = kinds_of_props['none'];
-			
+
 			const weight = kind.weight || 1;
 			const mass = kind.mass;
 
@@ -201,6 +203,13 @@ namespace physics {
 			switch (prop.object.name) {
 				case 'wall':
 					material = materials.wall;
+					break;
+				case 'ground':
+					material = materials.ground;
+					break;
+				case 'solid':
+					material = materials.solid;
+					break;
 				default:
 					material = materials.generic;
 			}
@@ -231,7 +240,7 @@ namespace physics {
 				volume = hunt.clamp(velocity, 0.1, 1.0);
 
 				let sample = '';
-				
+
 				const impacts = props.impact_sounds[kind.material];
 				if (!impacts)
 					return;
@@ -245,9 +254,7 @@ namespace physics {
 				let sound = audio.playOnce(sample, volume);
 				if (sound) {
 					prop.group.add(sound);
-					sound.onEnded = () => {
-						sound.removeFromParent();
-					}
+					sound.onEnded = () => sound.removeFromParent();
 				}
 			});
 
@@ -259,21 +266,18 @@ namespace physics {
 		add_helper_aabb() {
 			if (!wireframe_helpers)
 				return;
-			//console.log('add helper aabb');
-
 			const size = new THREE.Vector3();
 			this.prop.aabb.getSize(size);
-			size.divideScalar(2);
 
 			const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
-			const boxGeometry = new THREE.BoxGeometry(size.x * 2, size.y * 2, size.z * 2);
+			const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
 			this.AABBMesh = new THREE.Mesh(boxGeometry, material);
 			//this.AABBMesh.add(new THREE.AxesHelper(1));
 
 			renderer.scene.add(this.AABBMesh);
 		}
-		flipper = 1;
-		redOrBlue = false;
+		flipper = 1
+		redOrBlue = false
 		override loop() {
 			if (!this.AABBMesh)
 				return;
@@ -292,6 +296,42 @@ namespace physics {
 
 		}
 
+	}
+
+	export class fstairstep extends fbody {
+		override _lod() {
+			world.removeBody(this.body);
+		}
+		constructor(prop) {
+			super(prop);
+
+			const size = new THREE.Vector3();
+			this.prop.aabb.getSize(size);
+			size.divideScalar(2);
+
+			const halfExtents = new CANNON.Vec3(size.x, size.y, size.z);
+			const boxShape = new CANNON.Box(halfExtents);
+			const boxBody = new CANNON.Body({ mass: 0, material: materials.ground });
+
+			const center = new THREE.Vector3();
+			this.prop.aabb.getCenter(center);
+			boxBody.position.copy(center);
+			//console.log(boxBody.quaternion);
+			//new THREE.Quaternion().
+
+			//boxBody.rotation.copy(this.prop.oldRotation);
+			boxBody.addShape(boxShape);
+			world.addBody(boxBody);
+			this.body = boxBody;
+
+			//if (prop.parameters.mass == 0)
+			//	boxBody.collisionResponse = 0;
+
+			boxBody.addEventListener("collide", function (e) {
+				console.log('woo');
+				
+			});
+		}
 	}
 
 	const door_arbitrary_shrink = 0.95;
@@ -344,7 +384,7 @@ namespace physics {
 				[-0.5 * size.z, 0, 0],
 				[0.5 * size.z, 0, 0]
 			];
-			
+
 			const n = parseInt(this.prop.preset) - 1;
 			const offset = pivots[n];
 			const hinge = hinges[n];

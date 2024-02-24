@@ -27,8 +27,12 @@ var props;
                 prop = new pspotlight(object, {});
                 break;
             case 'wall':
+            case 'ground':
             case 'solid':
                 prop = new pwallorsolid(object, {});
+                break;
+            case 'stairstep':
+                prop = new pstairstep(object, {});
                 break;
             case 'door':
                 prop = new pdoor(object, {});
@@ -140,7 +144,8 @@ var props;
             this.aabb.setFromObject(this.object);
         }
         correction_for_physics() {
-            // strange but very clear code
+            //return;
+            // strange but working code
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
             size.multiplyScalar(hunt.inchMeter);
@@ -159,11 +164,27 @@ var props;
             new physics.fbox(this);
             if (this.object.name == 'wall')
                 this.object.visible = false;
+            this.group.position.copy(this.fbody.body.position);
+            this.group.quaternion.copy(this.fbody.body.quaternion);
         }
         _loop() {
         }
     }
     props.pwallorsolid = pwallorsolid;
+    class pstairstep extends prop {
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'pstairstep';
+            this.array = props.walls;
+        }
+        _finish() {
+            new physics.fstairstep(this);
+            //this.object.visible = false;
+        }
+        _loop() {
+        }
+    }
+    props.pstairstep = pstairstep;
     class pbox extends prop {
         constructor(object, parameters) {
             super(object, parameters);

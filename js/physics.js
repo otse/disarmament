@@ -14,7 +14,7 @@ var physics;
         solid: { mass: 0.0, material: 'cardboard' },
         none: { mass: 0.5, material: 'cardboard' }
     };
-    physics.wireframe_helpers = false; // broken
+    physics.wireframe_helpers = true; // broken
     physics.materials = {};
     physics.walls = [], physics.balls = [], physics.ballMeshes = [], physics.boxes = [], physics.boxMeshes = [];
     function boot() {
@@ -65,7 +65,7 @@ var physics;
         const groundBody = new CANNON.Body({ mass: 0, material: physics.materials.ground });
         groundBody.addShape(groundShape);
         groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-        physics.world.addBody(groundBody);
+        //world.addBody(groundBody);
     }
     physics.boot = boot;
     var lastCallTime = 0;
@@ -91,7 +91,7 @@ var physics;
     const boo = 0;
     var bodies = [];
     var sboxes = [];
-    class simple_box {
+    class simple_box_unused {
         boxBody;
         boxMesh;
         constructor() {
@@ -119,7 +119,7 @@ var physics;
             this.boxMesh.quaternion.copy(this.boxBody.quaternion);
         }
     }
-    physics.simple_box = simple_box;
+    physics.simple_box_unused = simple_box_unused;
     class fbody {
         prop;
         body;
@@ -142,6 +142,7 @@ var physics;
     class fbox extends fbody {
         _lod() {
             physics.world.removeBody(this.body);
+            renderer.scene.remove(this.AABBMesh);
         }
         constructor(prop) {
             super(prop);
@@ -152,7 +153,7 @@ var physics;
             const boxShape = new CANNON.Box(halfExtents);
             // rewrite this eventually
             let kind = kinds_of_props[this.prop.preset];
-            if (prop.kind == 'wall' || prop.kind == 'solid')
+            if (prop.kind == 'wall' || prop.kind == 'solid' || prop.kind == 'ground')
                 kind = kinds_of_props['solid'];
             if (!kind)
                 kind = kinds_of_props['none'];
@@ -162,6 +163,13 @@ var physics;
             switch (prop.object.name) {
                 case 'wall':
                     material = physics.materials.wall;
+                    break;
+                case 'ground':
+                    material = physics.materials.ground;
+                    break;
+                case 'solid':
+                    material = physics.materials.solid;
+                    break;
                 default:
                     material = physics.materials.generic;
             }
@@ -200,9 +208,7 @@ var physics;
                 let sound = audio.playOnce(sample, volume);
                 if (sound) {
                     prop.group.add(sound);
-                    sound.onEnded = () => {
-                        sound.removeFromParent();
-                    };
+                    sound.onEnded = () => sound.removeFromParent();
                 }
             });
             //if (!this.prop.parameters.solid)
@@ -212,12 +218,10 @@ var physics;
         add_helper_aabb() {
             if (!physics.wireframe_helpers)
                 return;
-            //console.log('add helper aabb');
             const size = new THREE.Vector3();
             this.prop.aabb.getSize(size);
-            size.divideScalar(2);
             const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
-            const boxGeometry = new THREE.BoxGeometry(size.x * 2, size.y * 2, size.z * 2);
+            const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
             this.AABBMesh = new THREE.Mesh(boxGeometry, material);
             //this.AABBMesh.add(new THREE.AxesHelper(1));
             renderer.scene.add(this.AABBMesh);
@@ -242,6 +246,35 @@ var physics;
         }
     }
     physics.fbox = fbox;
+    class fstairstep extends fbody {
+        _lod() {
+            physics.world.removeBody(this.body);
+        }
+        constructor(prop) {
+            super(prop);
+            const size = new THREE.Vector3();
+            this.prop.aabb.getSize(size);
+            size.divideScalar(2);
+            const halfExtents = new CANNON.Vec3(size.x, size.y, size.z);
+            const boxShape = new CANNON.Box(halfExtents);
+            const boxBody = new CANNON.Body({ mass: 0, material: physics.materials.ground });
+            const center = new THREE.Vector3();
+            this.prop.aabb.getCenter(center);
+            boxBody.position.copy(center);
+            //console.log(boxBody.quaternion);
+            //new THREE.Quaternion().
+            //boxBody.rotation.copy(this.prop.oldRotation);
+            boxBody.addShape(boxShape);
+            physics.world.addBody(boxBody);
+            this.body = boxBody;
+            //if (prop.parameters.mass == 0)
+            //	boxBody.collisionResponse = 0;
+            boxBody.addEventListener("collide", function (e) {
+                console.log('woo');
+            });
+        }
+    }
+    physics.fstairstep = fstairstep;
     const door_arbitrary_shrink = 0.95;
     class fdoor extends fbody {
         constraint;

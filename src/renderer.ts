@@ -237,7 +237,7 @@ namespace renderer {
 
 		scene = new THREE.Scene();
 		scene.add(propsGroup);
-		scene.background = new THREE.Color('white');
+		scene.background = new THREE.Color('black');
 
 		scene2 = new THREE.Scene();
 		scene2.matrixAutoUpdate = false;
