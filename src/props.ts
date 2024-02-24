@@ -150,17 +150,20 @@ namespace props {
 				this.fbody.lod();
 		}
 		protected measure() {
+			// this includes the z up to y up fix from the collada loader
 			this.aabb = new THREE.Box3();
 			this.aabb.setFromObject(this.object);
 		}
 		correction_for_physics() {
+			// this method is called by fbody after measure
 			//return;
 			// strange but working code
 			const size = new THREE.Vector3();
 			this.aabb.getSize(size);
+			size.divideScalar(2);
 			size.multiplyScalar(hunt.inchMeter);
 			this.object.rotation.set(-Math.PI / 2, 0, 0);
-			this.object.position.set(-size.x / 2, -size.y / 2, size.z / 2);
+			this.object.position.set(-size.x, -size.y, size.z);
 		}
 	}
 
@@ -205,9 +208,9 @@ namespace props {
 			new physics.fbox(this);
 		}
 		override _loop() {
+			this.fbody.loop();
 			this.group.position.copy(this.fbody.body.position);
 			this.group.quaternion.copy(this.fbody.body.quaternion);
-			this.fbody.loop();
 		}
 		override _lod() {
 		}

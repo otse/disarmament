@@ -205,9 +205,12 @@ var sketchup;
             scene.traverse(traversal);
             for (let prop of queue)
                 prop.complete();
+            const helper = new THREE.AxesHelper(1);
             const group = new THREE.Group();
             levelGroup = group;
             group.add(scene);
+            console.log('sketchup scene rotation', scene.rotation);
+            //group.add(helper);
             renderer.scene.add(group);
         });
     }

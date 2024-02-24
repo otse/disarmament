@@ -407,7 +407,7 @@ namespace physics {
 
 			this.add_helper_aabb();
 		}
-		AABBMesh
+		wireMesh
 		AABBMesh2
 
 		add_helper_aabb() {
@@ -420,16 +420,17 @@ namespace physics {
 			const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
 			const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
 
-			this.AABBMesh = new THREE.Mesh(boxGeometry, material);
+			this.wireMesh = new THREE.Mesh(boxGeometry, material);
 			//this.AABBMesh2 = new THREE.Mesh(boxGeometry, material);
 
-			renderer.scene.add(this.AABBMesh);
+			this.prop.group.add(this.wireMesh);
+			//renderer.scene.add(this.wireMesh);
 		}
 		override loop() {
 			if (!wireframe_helpers)
 				return;
-			this.AABBMesh.position.copy(this.prop.group.position);
-			this.AABBMesh.quaternion.copy(this.prop.group.quaternion);
+			this.wireMesh.position.copy(this.prop.group.position);
+			this.wireMesh.quaternion.copy(this.prop.group.quaternion);
 
 			//this.AABBMesh2.position.copy(this.prop.group.position);
 			//this.AABBMesh2.quaternion.copy(this.prop.group.quaternion);

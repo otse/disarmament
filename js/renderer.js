@@ -208,7 +208,7 @@ var renderer;
         const material = new THREE.MeshLambertMaterial({ color: 'red' });
         const geometry = new THREE.RingGeometry(0.5, 1, 8);
         const mesh = new THREE.Mesh(geometry, material);
-        mesh.add(new THREE.AxesHelper(1));
+        //mesh.add(new THREE.AxesHelper(1));
         renderer_1.propsGroup.add(mesh);
         renderer_1.scene = new THREE.Scene();
         renderer_1.scene.add(renderer_1.propsGroup);

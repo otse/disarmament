@@ -338,7 +338,7 @@ var physics;
             this.staticBody = staticBody;
             this.add_helper_aabb();
         }
-        AABBMesh;
+        wireMesh;
         AABBMesh2;
         add_helper_aabb() {
             if (!physics.wireframe_helpers)
@@ -347,15 +347,16 @@ var physics;
             this.prop.aabb.getSize(size);
             const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
             const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-            this.AABBMesh = new THREE.Mesh(boxGeometry, material);
+            this.wireMesh = new THREE.Mesh(boxGeometry, material);
             //this.AABBMesh2 = new THREE.Mesh(boxGeometry, material);
-            renderer.scene.add(this.AABBMesh);
+            this.prop.group.add(this.wireMesh);
+            //renderer.scene.add(this.wireMesh);
         }
         loop() {
             if (!physics.wireframe_helpers)
                 return;
-            this.AABBMesh.position.copy(this.prop.group.position);
-            this.AABBMesh.quaternion.copy(this.prop.group.quaternion);
+            this.wireMesh.position.copy(this.prop.group.position);
+            this.wireMesh.quaternion.copy(this.prop.group.quaternion);
             //this.AABBMesh2.position.copy(this.prop.group.position);
             //this.AABBMesh2.quaternion.copy(this.prop.group.quaternion);
         }
