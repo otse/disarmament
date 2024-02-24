@@ -7,6 +7,8 @@ import renderer from "./renderer.js";
 
 namespace props {
 
+	export const wireframe_helpers = true; // broken
+
 	export function factory(object: any) {
 		let prop: prop | undefined;
 		if (!object.name)
@@ -113,6 +115,8 @@ namespace props {
 	export var presets_from_json = {}
 
 	export abstract class prop {
+		build_debug_box = false
+		wiremesh?: wiremesh
 		array: prop[] = []
 		type
 		kind
@@ -129,6 +133,8 @@ namespace props {
 			this.array.push(this);
 			take_collada_prop(this);
 			this.measure();
+			if (this.build_debug_box)
+				this.wiremesh = new wiremesh(this);
 			this._finish();
 		}
 		protected _finish() { // override
@@ -145,19 +151,18 @@ namespace props {
 			collection.splice(collection.indexOf(this), 1);
 			this.array.splice(this.array.indexOf(this), 1);
 			this._lod();
+			this.wiremesh?.lod();
 			renderer.propsGroup.remove(this.group);
 			if (this.fbody)
 				this.fbody.lod();
 		}
 		protected measure() {
-			// this includes the z up to y up fix from the collada loader
+			// this includes the lazy z-up to y-up from the collada loader
 			this.aabb = new THREE.Box3();
 			this.aabb.setFromObject(this.object);
 		}
 		correction_for_physics() {
 			// this method is called by fbody after measure
-			//return;
-			// strange but working code
 			const size = new THREE.Vector3();
 			this.aabb.getSize(size);
 			size.divideScalar(2);
@@ -198,11 +203,37 @@ namespace props {
 		}
 	}
 
+	export class wiremesh {
+		mesh
+		constructor(public prop: prop) {
+			this.add_wire_mesh_to_prop_group();
+		}
+		lod() {
+			//this.prop.group.remove(this.mesh);
+		}
+		add_wire_mesh_to_prop_group() {
+			if (!wireframe_helpers)
+				return;
+			console.log('add helper aabb');
+			const size = new THREE.Vector3();
+			this.prop.aabb.getSize(size);
+			size.multiplyScalar(hunt.inchMeter);
+			const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
+			const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+			this.mesh = new THREE.Mesh(boxGeometry, material);
+			this.prop.group.add(this.mesh);
+		}
+		recolor(color) {
+			this.mesh.material.color = new THREE.Color(color);
+		}
+	}
+
 	export class pbox extends prop {
 		constructor(object, parameters) {
 			super(object, parameters);
 			this.type = 'pbox';
 			this.array = boxes;
+			this.build_debug_box = true;
 		}
 		override _finish() {
 			new physics.fbox(this);
@@ -333,9 +364,9 @@ namespace props {
 			//this.group.add(new THREE.AxesHelper(20));
 		}
 		override _loop() {
+			this.fbody.loop();
 			this.group.position.copy(this.fbody.body.position);
 			this.group.quaternion.copy(this.fbody.body.quaternion);
-			this.fbody.loop();
 		}
 	}
 

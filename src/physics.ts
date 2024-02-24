@@ -5,6 +5,8 @@ import renderer from "./renderer.js";
 
 namespace physics {
 
+	const collision_happy_colors = ['salmon', 'red', 'blue', 'lime', 'magenta']
+
 	const kinds_of_props = {
 		floppy: { mass: 0.1, material: 'plastic' },
 		fridge: { mass: 3, material: 'metal' },
@@ -15,8 +17,6 @@ namespace physics {
 		solid: { mass: 0.0, material: 'cardboard' },
 		none: { mass: 0.5, material: 'cardboard' }
 	}
-
-	export const wireframe_helpers = true; // broken
 
 	export var materials: any = {}
 
@@ -101,12 +101,12 @@ namespace physics {
 		const dt = time - lastCallTime;
 		lastCallTime = time;
 
-		for (let body of bodies)
-			body.loop();
+		//for (let body of bodies)
+		//	body.loop();
 
-		for (let sbox of sboxes) {
-			sbox.loop();
-		}
+		//for (let sbox of sboxes) {
+		//	sbox.loop();
+		//}
 
 		world.step(timeStep, dt);
 
@@ -164,6 +164,7 @@ namespace physics {
 			prop.fbody = this;
 			prop.correction_for_physics();
 		}
+
 		loop() { // override
 		}
 		lod() {
@@ -177,7 +178,6 @@ namespace physics {
 	export class fbox extends fbody {
 		override _lod() {
 			world.removeBody(this.body);
-			renderer.scene.remove(this.AABBMesh);
 		}
 		constructor(prop) {
 			super(prop);
@@ -229,6 +229,8 @@ namespace physics {
 			//if (prop.parameters.mass == 0)
 			//	boxBody.collisionResponse = 0;
 
+			const that = this;
+
 			boxBody.addEventListener("collide", function (e) {
 				if (mass == 0)
 					return;
@@ -238,6 +240,10 @@ namespace physics {
 				let volume;
 				volume = hunt.clamp(mass * velocity, 0.1, 3);
 				volume = hunt.clamp(velocity, 0.1, 1.0);
+
+				if (that.prop.wiremesh)
+				that.prop.wiremesh.recolor(hunt.sample(collision_happy_colors));
+				that.swatch = !that.swatch;
 
 				let sample = '';
 
@@ -258,40 +264,16 @@ namespace physics {
 				}
 			});
 
-			//if (!this.prop.parameters.solid)
-			this.add_helper_aabb();
-
 		}
-		AABBMesh
-		add_helper_aabb() {
-			if (!wireframe_helpers)
-				return;
-			const size = new THREE.Vector3();
-			this.prop.aabb.getSize(size);
-
-			const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
-			const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-			this.AABBMesh = new THREE.Mesh(boxGeometry, material);
-			//this.AABBMesh.add(new THREE.AxesHelper(1));
-
-			renderer.scene.add(this.AABBMesh);
-		}
-		flipper = 1
-		redOrBlue = false
+		timer = 1
+		swatch = false
 		override loop() {
-			if (!this.AABBMesh)
+			if (!this.prop.wiremesh)
 				return;
-			this.AABBMesh.position.copy(this.prop.group.position);
-			this.AABBMesh.quaternion.copy(this.prop.group.quaternion);
-			if ((this.flipper -= hunt.dt) <= 0) {
-				if (this.redOrBlue) {
-					this.AABBMesh.material.color = new THREE.Color('red');
-				}
-				else {
-					this.AABBMesh.material.color = new THREE.Color('blue');
-				}
-				this.redOrBlue = !this.redOrBlue;
-				this.flipper = 1;
+			if ((this.timer -= hunt.dt) <= 0) {
+				//this.prop.wiremesh.recolor(this.swatch ? 'red' : 'blue');
+				//this.swatch = !this.swatch;
+				this.timer = 1 - this.timer;
 			}
 
 		}
@@ -329,7 +311,7 @@ namespace physics {
 
 			boxBody.addEventListener("collide", function (e) {
 				console.log('woo');
-				
+
 			});
 		}
 	}
@@ -404,36 +386,9 @@ namespace physics {
 			this.body = hingedBody;
 			this.hingedBody = hingedBody;
 			this.staticBody = staticBody;
-
-			this.add_helper_aabb();
-		}
-		wireMesh
-		AABBMesh2
-
-		add_helper_aabb() {
-			if (!wireframe_helpers)
-				return;
-
-			const size = new THREE.Vector3();
-			this.prop.aabb.getSize(size);
-
-			const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
-			const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-
-			this.wireMesh = new THREE.Mesh(boxGeometry, material);
-			//this.AABBMesh2 = new THREE.Mesh(boxGeometry, material);
-
-			this.prop.group.add(this.wireMesh);
-			//renderer.scene.add(this.wireMesh);
 		}
 		override loop() {
-			if (!wireframe_helpers)
-				return;
-			this.wireMesh.position.copy(this.prop.group.position);
-			this.wireMesh.quaternion.copy(this.prop.group.quaternion);
 
-			//this.AABBMesh2.position.copy(this.prop.group.position);
-			//this.AABBMesh2.quaternion.copy(this.prop.group.quaternion);
 		}
 	}
 }
