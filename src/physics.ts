@@ -278,6 +278,9 @@ namespace physics {
 			const size = new THREE.Vector3();
 			this.prop.aabb.getSize(size);
 			size.multiplyScalar(hunt.inchMeter);
+
+			this.prop.object.position.z -= size.z;
+			//size.multiplyScalar(hunt.inchMeter);
 			//size.divideScalar(2);
 
 			let geometry = this.prop.object.geometry;
@@ -286,7 +289,7 @@ namespace physics {
 			const matrix = new THREE.Matrix4().copy(this.prop.object.matrixWorld);
 			//const position = new THREE.Vector3().setFromMatrixPosition(matrix);
 			//console.log(' fconvex matrix position ', position);
-			geometry.applyMatrix4(matrix);
+			//geometry.applyMatrix4(matrix);
 			//this.prop.object.position.z -= size.z;
 			
 			//matrix.setPosition(0, 0, 0);
@@ -312,7 +315,7 @@ namespace physics {
 				const b = positions[i + 1];// / hunt.inchMeter;
 				const c = positions[i + 2];// / hunt.inchMeter;
 				const vector = new THREE.Vector3(a, b, c);
-				//vector.applyMatrix4(this.prop.object.matrixWorld);
+				vector.applyMatrix4(matrix);
 				//vector.applyMatrix4(new THREE.Matrix4().makeScale(1 / hunt.inchMeter, 1 / hunt.inchMeter, 1 / hunt.inchMeter));
 				vertices.push(new CANNON.Vec3(vector.x, vector.y, vector.z));
 			}
@@ -343,7 +346,7 @@ namespace physics {
 
 			const center = new THREE.Vector3();
 			this.prop.aabb.getCenter(center);
-			body.position.copy(center);
+			//body.position.copy(center);
 
 			this.body = body;
 

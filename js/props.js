@@ -175,6 +175,7 @@ var props;
             super(object, parameters);
             this.type = 'pwallorsolid';
             this.array = props.walls;
+            this.build_debug_box = true;
         }
         _finish() {
             new physics.fbox(this);
@@ -258,6 +259,10 @@ var props;
             this.build_debug_box = true;
         }
         _finish() {
+            const size = new THREE.Vector3();
+            this.aabb.getSize(size);
+            size.multiplyScalar(hunt.inchMeter);
+            this.object.position.z -= size.z;
             new physics.fconvex(this);
         }
         _loop() {

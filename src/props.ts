@@ -187,6 +187,7 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pwallorsolid';
 			this.array = walls;
+			this.build_debug_box = true;
 		}
 		override _finish() {
 			new physics.fbox(this);
@@ -268,6 +269,10 @@ namespace props {
 			this.build_debug_box = true;
 		}
 		override _finish() {
+			const size = new THREE.Vector3();
+			this.aabb.getSize(size);
+			size.multiplyScalar(hunt.inchMeter);
+			this.object.position.z -= size.z;
 			new physics.fconvex(this);
 		}
 		override _loop() {
