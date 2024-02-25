@@ -39,7 +39,6 @@ var app;
     }
     app.proompt = proompt;
     function boot(version) {
-        VRButton = VRButton;
         console.log('app boot');
         hooks.call('AppBoot', null);
         hunt.boot();

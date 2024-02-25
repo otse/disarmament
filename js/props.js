@@ -41,6 +41,9 @@ var props;
             case 'fan':
                 prop = new pfan(object, {});
                 break;
+            case 'convex':
+                console.log(' new convex ');
+                prop = new pconvex(object, {});
             default:
         }
         if (prop) {
@@ -185,7 +188,10 @@ var props;
             this.array = props.walls;
         }
         _finish() {
+            console.log('finish stairstep');
             new physics.fstairstep(this);
+            this.group.position.copy(this.fbody.body.position);
+            this.group.quaternion.copy(this.fbody.body.quaternion);
             //this.object.visible = false;
         }
         _loop() {
@@ -238,6 +244,25 @@ var props;
         }
     }
     props.pbox = pbox;
+    class pconvex extends prop {
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'pconvex';
+            this.array = props.boxes;
+            this.build_debug_box = true;
+        }
+        _finish() {
+            new physics.fconvex(this);
+        }
+        _loop() {
+            this.fbody.loop();
+            this.group.position.copy(this.fbody.body.position);
+            this.group.quaternion.copy(this.fbody.body.quaternion);
+        }
+        _lod() {
+        }
+    }
+    props.pconvex = pconvex;
     const presets_sounds = {
         skylight: { name: 'alien_powernode', volume: .3, loop: true, distance: 4 },
         fan: { name: 'tram_move', volume: .05, loop: true, distance: 3.0, delay: [0, 3] },

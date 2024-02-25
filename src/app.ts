@@ -35,8 +35,6 @@ namespace app {
 
 	export function boot(version: string) {
 
-		VRButton = VRButton;
-
 		console.log('app boot');
 		hooks.call('AppBoot', null);
 		hunt.boot();

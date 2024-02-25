@@ -8,9 +8,7 @@ declare var CANNON: any
 
 declare var ColladaLoader: any
 declare var PointerLockControls: any
-declare var VRButton: any
 declare var PositionalAudioHelper: any
-declare var XRControllerModelFactory: any
-declare var XRHandModelFactory: any
+declare var BufferGeometryUtils: any
 
 declare var XRRigidTransform

@@ -45,20 +45,16 @@
 		import * as three from 'three';
 		import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 		import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-		import { VRButton } from 'three/addons/webxr/VRButton.js';
 		import { PositionalAudioHelper } from 'three/addons/helpers/PositionalAudioHelper.js';
-		import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
-		import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
+		import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 		import { default as backwards } from "./js/app.js";
 		app = backwards;
 		CANNON = cannon;
 		THREE = three;
 		window.ColladaLoader = ColladaLoader;
+		window.BufferGeometryUtils = BufferGeometryUtils;
 		window.PointerLockControls = PointerLockControls;
-		window.VRButton = VRButton;
 		window.PositionalAudioHelper = PositionalAudioHelper;
-		window.XRControllerModelFactory = XRControllerModelFactory;
-		window.XRHandModelFactory = XRHandModelFactory;
 	</script>
 
 	<script>

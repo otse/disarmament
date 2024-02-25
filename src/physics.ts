@@ -179,6 +179,8 @@ namespace physics {
 		override _lod() {
 			world.removeBody(this.body);
 		}
+		override loop() {
+		}
 		constructor(prop) {
 			super(prop);
 
@@ -187,7 +189,7 @@ namespace physics {
 			size.divideScalar(2);
 
 			const halfExtents = new CANNON.Vec3(size.x, size.y, size.z);
-			const boxShape = new CANNON.Box(halfExtents);
+			const shape = new CANNON.Box(halfExtents);
 
 			// rewrite this eventually
 			let kind = kinds_of_props[this.prop.preset];
@@ -196,9 +198,9 @@ namespace physics {
 			if (!kind)
 				kind = kinds_of_props['none'];
 
-			const weight = kind.weight || 1;
 			const mass = kind.mass;
 
+			// redo this pleas
 			let material;
 			switch (prop.object.name) {
 				case 'wall':
@@ -213,25 +215,25 @@ namespace physics {
 				default:
 					material = materials.generic;
 			}
-			const boxBody = new CANNON.Body({ mass: mass, material: material });
+			const body = new CANNON.Body({ mass: mass, material: material });
 
 			const center = new THREE.Vector3();
 			this.prop.aabb.getCenter(center);
-			boxBody.position.copy(center);
+			body.position.copy(center);
 			//console.log(boxBody.quaternion);
 			//new THREE.Quaternion().
 
 			//boxBody.rotation.copy(this.prop.oldRotation);
-			boxBody.addShape(boxShape);
-			world.addBody(boxBody);
-			this.body = boxBody;
+			body.addShape(shape);
+			world.addBody(body);
+			this.body = body;
 
 			//if (prop.parameters.mass == 0)
 			//	boxBody.collisionResponse = 0;
 
 			const that = this;
 
-			boxBody.addEventListener("collide", function (e) {
+			body.addEventListener("collide", function (e) {
 				if (mass == 0)
 					return;
 				const velocity = e.contact.getImpactVelocityAlongNormal();
@@ -242,8 +244,7 @@ namespace physics {
 				volume = hunt.clamp(velocity, 0.1, 1.0);
 
 				if (that.prop.wiremesh)
-				that.prop.wiremesh.recolor(hunt.sample(collision_happy_colors));
-				that.swatch = !that.swatch;
+					that.prop.wiremesh.recolor(hunt.sample(collision_happy_colors));
 
 				let sample = '';
 
@@ -265,19 +266,78 @@ namespace physics {
 			});
 
 		}
-		timer = 1
-		swatch = false
-		override loop() {
-			if (!this.prop.wiremesh)
-				return;
-			if ((this.timer -= hunt.dt) <= 0) {
-				//this.prop.wiremesh.recolor(this.swatch ? 'red' : 'blue');
-				//this.swatch = !this.swatch;
-				this.timer = 1 - this.timer;
+	}
+
+	export class fconvex extends fbody {
+		override _lod() {
+			world.removeBody(this.body);
+		}
+		constructor(prop) {
+			super(prop);
+
+			const size = new THREE.Vector3();
+			this.prop.aabb.getSize(size);
+			size.divideScalar(2);
+
+			let geometry = this.prop.object.geometry;
+			geometry = BufferGeometryUtils.mergeVertices(geometry);
+			// this builds faces
+
+			const faces: any[] = [];
+			const points: any[] = [];
+			const normals: any[] = [];
+
+			console.log('fconvex constructor object rotation ', this.prop.object.quaternion);
+			
+			const indices = geometry.index.array;
+			const positions = geometry.attributes.position.array;
+			const normal = geometry.attributes.normal.array;
+
+			for (let i = 0; i < positions.length; i += 3) {
+				const a = positions[i];// / hunt.inchMeter;
+				const b = positions[i + 1];// / hunt.inchMeter;
+				const c = positions[i + 2];// / hunt.inchMeter;
+				const vector = new THREE.Vector3(a, b, c);
+				vector.applyMatrix4(this.prop.object.matrixWorld);
+				//vector.applyMatrix4(new THREE.Matrix4().makeScale(1 / hunt.inchMeter, 1 / hunt.inchMeter, 1 / hunt.inchMeter));
+				points.push(new CANNON.Vec3(vector.x, vector.y, vector.z));
 			}
 
-		}
+			for (var i = 0; i < indices.length; i += 3) {
+				faces.push([indices[i+0], indices[i+1], indices[i+2]]);
+			}
 
+			for (var i = 0; i < normal.length; i += 3) {
+				const a = normal[i];
+				const b = normal[i + 1];
+				const c = normal[i + 2];
+				normals.push(new CANNON.Vec3(a, b, c));
+			}
+
+			function CreateTrimesh(geometry) {
+				const vertices = geometry.attributes.position.array;
+				const indices = Object.keys(vertices).map(Number);
+				return new CANNON.Trimesh(vertices, indices);
+			}
+
+			const halfExtents = new CANNON.Vec3(size.x, size.y, size.z);
+			const shape = new CANNON.ConvexPolyhedron({vertices: points, faces: faces});
+			//const shape = CreateTrimesh(geometry); 
+			const body = new CANNON.Body({ mass: 0, material: materials.ground });
+			body.addShape(shape);
+			world.addBody(body);
+
+			const center = new THREE.Vector3();
+			this.prop.aabb.getCenter(center);
+			body.position.copy(center);
+
+			this.body = body;
+
+			body.addEventListener("collide", function (e) {
+				console.log(' touch the polyhedron ');
+
+			});
+		}
 	}
 
 	export class fstairstep extends fbody {
@@ -298,16 +358,10 @@ namespace physics {
 			const center = new THREE.Vector3();
 			this.prop.aabb.getCenter(center);
 			boxBody.position.copy(center);
-			//console.log(boxBody.quaternion);
-			//new THREE.Quaternion().
 
-			//boxBody.rotation.copy(this.prop.oldRotation);
 			boxBody.addShape(boxShape);
 			world.addBody(boxBody);
 			this.body = boxBody;
-
-			//if (prop.parameters.mass == 0)
-			//	boxBody.collisionResponse = 0;
 
 			boxBody.addEventListener("collide", function (e) {
 				console.log('woo');

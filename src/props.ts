@@ -44,6 +44,9 @@ namespace props {
 			case 'fan':
 				prop = new pfan(object, {});
 				break;
+			case 'convex':
+				console.log(' new convex ');
+				prop = new pconvex(object, {});
 			default:
 		}
 		if (prop) {
@@ -196,7 +199,10 @@ namespace props {
 			this.array = walls;
 		}
 		override _finish() {
+			console.log('finish stairstep');
 			new physics.fstairstep(this);
+			this.group.position.copy(this.fbody.body.position);
+			this.group.quaternion.copy(this.fbody.body.quaternion);
 			//this.object.visible = false;
 		}
 		override _loop() {
@@ -237,6 +243,25 @@ namespace props {
 		}
 		override _finish() {
 			new physics.fbox(this);
+		}
+		override _loop() {
+			this.fbody.loop();
+			this.group.position.copy(this.fbody.body.position);
+			this.group.quaternion.copy(this.fbody.body.quaternion);
+		}
+		override _lod() {
+		}
+	}
+
+	export class pconvex extends prop {
+		constructor(object, parameters) {
+			super(object, parameters);
+			this.type = 'pconvex';
+			this.array = boxes;
+			this.build_debug_box = true;
+		}
+		override _finish() {
+			new physics.fconvex(this);
 		}
 		override _loop() {
 			this.fbody.loop();
