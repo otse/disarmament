@@ -71,11 +71,12 @@ var props;
         const group = new THREE.Group();
         const object = prop.object;
         object.matrixWorld.decompose(group.position, group.quaternion, group.scale);
+        // group scale is now 0.0254
         object.position.set(0, 0, 0);
         object.rotation.set(0, 0, 0);
         object.quaternion.identity();
         object.updateMatrix();
-        object.updateMatrixWorld();
+        object.updateMatrixWorld(true);
         group.add(object);
         group.updateMatrix();
         group.updateMatrixWorld(true);
@@ -149,18 +150,23 @@ var props;
                 this.fbody.lod();
         }
         measure() {
-            // this includes the lazy z-up to y-up from the collada loader
+            this.object.updateMatrix();
+            // this includes the lazy z-up to y-up ?
             this.aabb = new THREE.Box3();
-            this.aabb.setFromObject(this.object);
+            this.aabb.setFromObject(this.group, true);
         }
         correction_for_physics() {
             // this method is called by fbody after measure
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
             size.divideScalar(2);
+            // because of parent transforms, the box is scaled by 0.0254
+            // bring it up to 1 / 0.0254 so we reenter render space
             size.multiplyScalar(hunt.inchMeter);
             this.object.rotation.set(-Math.PI / 2, 0, 0);
             this.object.position.set(-size.x, -size.y, size.z);
+            //this.object.updateMatrix();
+            //this.object.updateMatrixWorld();
         }
     }
     props.prop = prop;

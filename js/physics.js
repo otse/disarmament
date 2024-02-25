@@ -226,12 +226,23 @@ var physics;
             super(prop);
             const size = new THREE.Vector3();
             this.prop.aabb.getSize(size);
-            size.divideScalar(2);
+            size.multiplyScalar(hunt.inchMeter);
+            //size.divideScalar(2);
             let geometry = this.prop.object.geometry;
             geometry = BufferGeometryUtils.mergeVertices(geometry);
+            //this.prop.object.geometry = geometry;
+            const matrix = new THREE.Matrix4().copy(this.prop.object.matrixWorld);
+            //const position = new THREE.Vector3().setFromMatrixPosition(matrix);
+            //console.log(' fconvex matrix position ', position);
+            geometry.applyMatrix4(matrix);
+            //this.prop.object.position.z -= size.z;
+            //matrix.setPosition(0, 0, 0);
+            //matrix.makeTranslation(-0.1, 0, 0);
+            //matrix.multiply(new THREE.Matrix4().makeTranslation(0, -size.y*2, 0));
+            //this.object.position.set(-size.x, -size.y, size.z);
             // this builds faces
             const faces = [];
-            const points = [];
+            const vertices = [];
             const normals = [];
             console.log('fconvex constructor object rotation ', this.prop.object.quaternion);
             const indices = geometry.index.array;
@@ -242,9 +253,9 @@ var physics;
                 const b = positions[i + 1]; // / hunt.inchMeter;
                 const c = positions[i + 2]; // / hunt.inchMeter;
                 const vector = new THREE.Vector3(a, b, c);
-                vector.applyMatrix4(this.prop.object.matrixWorld);
+                //vector.applyMatrix4(this.prop.object.matrixWorld);
                 //vector.applyMatrix4(new THREE.Matrix4().makeScale(1 / hunt.inchMeter, 1 / hunt.inchMeter, 1 / hunt.inchMeter));
-                points.push(new CANNON.Vec3(vector.x, vector.y, vector.z));
+                vertices.push(new CANNON.Vec3(vector.x, vector.y, vector.z));
             }
             for (var i = 0; i < indices.length; i += 3) {
                 faces.push([indices[i + 0], indices[i + 1], indices[i + 2]]);
@@ -253,7 +264,7 @@ var physics;
                 const a = normal[i];
                 const b = normal[i + 1];
                 const c = normal[i + 2];
-                normals.push(new CANNON.Vec3(a, b, c));
+                normals.push(new CANNON.Vec3(c, b, a));
             }
             function CreateTrimesh(geometry) {
                 const vertices = geometry.attributes.position.array;
@@ -261,7 +272,7 @@ var physics;
                 return new CANNON.Trimesh(vertices, indices);
             }
             const halfExtents = new CANNON.Vec3(size.x, size.y, size.z);
-            const shape = new CANNON.ConvexPolyhedron({ vertices: points, faces: faces });
+            const shape = new CANNON.ConvexPolyhedron({ vertices: vertices, faces: faces, x: normals });
             //const shape = CreateTrimesh(geometry); 
             const body = new CANNON.Body({ mass: 0, material: physics.materials.ground });
             body.addShape(shape);
