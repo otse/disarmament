@@ -20,6 +20,27 @@
             0
         ]
     },
+    "slredstairs": {
+        "hide": true,
+        "color": "blue",
+        "intensity": 1.0,
+        "distance": 6.0,
+        "penumbra": 0.1,
+        "decay": 1.0,
+        "shadow": false,
+        "target": [
+            0,
+            0,
+            -1
+        ]
+    },
+    "lredstairs": {
+        "hide": true,
+        "color": "white",
+        "intensity": 0.05,
+        "distance": 5,
+        "decay": 1.0
+    },
     "lockers": {
         "hide": true,
         "color": "yellow",

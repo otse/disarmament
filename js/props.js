@@ -175,11 +175,10 @@ var props;
             super(object, parameters);
             this.type = 'pwallorsolid';
             this.array = props.walls;
-            this.build_debug_box = true;
         }
         _finish() {
             new physics.fbox(this);
-            if (this.object.name == 'wall')
+            if (this.object.name != 'solid')
                 this.object.visible = false;
             this.group.position.copy(this.fbody.body.position);
             this.group.quaternion.copy(this.fbody.body.quaternion);
@@ -193,6 +192,7 @@ var props;
             super(object, parameters);
             this.type = 'pstairstep';
             this.array = props.walls;
+            //this.build_debug_box = true;
         }
         _finish() {
             console.log('finish stairstep');

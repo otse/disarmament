@@ -187,11 +187,10 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pwallorsolid';
 			this.array = walls;
-			this.build_debug_box = true;
 		}
 		override _finish() {
 			new physics.fbox(this);
-			if (this.object.name == 'wall')
+			if (this.object.name != 'solid')
 				this.object.visible = false;
 			this.group.position.copy(this.fbody.body.position);
 			this.group.quaternion.copy(this.fbody.body.quaternion);
@@ -205,6 +204,7 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pstairstep';
 			this.array = walls;
+			//this.build_debug_box = true;
 		}
 		override _finish() {
 			console.log('finish stairstep');

@@ -7,7 +7,8 @@ var sketchup;
     const paths = {
         'ebony': ['./assets/textures/black', 10, false, false],
         'crete1': ['./assets/textures/crete1', 15, false, false],
-        'brick1': ['./assets/textures/brick1', 30, true, true],
+        'crete2': ['./assets/textures/crete2', 15, false, false],
+        'brick1': ['./assets/textures/brick1', 15, true, true],
         'bulkhead1': ['./assets/textures/bulkhead1', 30, true, true, true],
         'floor1': ['./assets/textures/floor1', 5, true],
         'metrofloor1': ['./assets/textures/metrofloor1', 2, false],

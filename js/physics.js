@@ -235,17 +235,6 @@ var physics;
             this.prop.object.geometry = geometry;
             const matrix = new THREE.Matrix4().copy(this.prop.object.matrixWorld);
             matrix.setPosition(-size.x / 2, 0, size.z / 2);
-            //this.prop.object.position.set(0, 0, 0);
-            //this.prop.object.scale.set(1, 1, 1);
-            //const position = new THREE.Vector3().setFromMatrixPosition(matrix);
-            //console.log(' fconvex matrix position ', position);
-            //geometry.applyMatrix4(matrix);
-            //this.prop.object.position.z -= size.z;
-            //matrix.setPosition(0, 0, 0);
-            //matrix.makeTranslation(-0.1, 0, 0);
-            //matrix.multiply(new THREE.Matrix4().makeTranslation(0, -size.y*2, 0));
-            //this.object.position.set(-size.x, -size.y, size.z);
-            // this builds faces
             const faces = [];
             const vertices = [];
             const normals = [];
@@ -269,7 +258,7 @@ var physics;
                 const a = normal[i];
                 const b = normal[i + 1];
                 const c = normal[i + 2];
-                normals.push(new CANNON.Vec3(c, b, a));
+                normals.push(new CANNON.Vec3(a, b, c));
             }
             function CreateTrimesh(geometry) {
                 const vertices = geometry.attributes.position.array;
@@ -277,7 +266,7 @@ var physics;
                 return new CANNON.Trimesh(vertices, indices);
             }
             const halfExtents = new CANNON.Vec3(size.x, size.y, size.z);
-            const shape = new CANNON.ConvexPolyhedron({ vertices: vertices, faces: faces, x: normals });
+            const shape = new CANNON.ConvexPolyhedron({ vertices, faces });
             //const shape = CreateTrimesh(geometry); 
             const body = new CANNON.Body({ mass: 0, material: physics.materials.ground });
             body.addShape(shape);
@@ -302,15 +291,15 @@ var physics;
             this.prop.aabb.getSize(size);
             size.divideScalar(2);
             const halfExtents = new CANNON.Vec3(size.x, size.y, size.z);
-            const boxShape = new CANNON.Box(halfExtents);
-            const boxBody = new CANNON.Body({ mass: 0, material: physics.materials.ground });
+            const shape = new CANNON.Box(halfExtents);
+            const body = new CANNON.Body({ mass: 0, material: physics.materials.ground });
             const center = new THREE.Vector3();
             this.prop.aabb.getCenter(center);
-            boxBody.position.copy(center);
-            boxBody.addShape(boxShape);
-            physics.world.addBody(boxBody);
-            this.body = boxBody;
-            boxBody.addEventListener("collide", function (e) {
+            body.position.copy(center);
+            body.addShape(shape);
+            physics.world.addBody(body);
+            this.body = body;
+            body.addEventListener("collide", function (e) {
                 console.log('woo');
             });
         }
