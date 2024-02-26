@@ -123,15 +123,21 @@ var app;
     }
     app.delta = 0;
     app.last = 0;
-    function loop() {
-        requestAnimationFrame(loop);
-        const now = (performance || Date).now();
-        app.delta = (now - app.last) / 1000;
-        app.last = now;
-        hunt.loop(app.delta);
-        app.wheel = 0;
-        post_keys();
-        post_mouse_buttons();
+    async function sleep() {
+        return new Promise(requestAnimationFrame);
+    }
+    async function loop() {
+        do {
+            await sleep();
+            await new Promise(resolve => setTimeout(resolve, 0.03 * 1000)); // 30 fps mode
+            const now = (performance || Date).now();
+            app.delta = (now - app.last) / 1000;
+            app.last = now;
+            hunt.loop(app.delta);
+            app.wheel = 0;
+            post_keys();
+            post_mouse_buttons();
+        } while (1);
     }
     app.loop = loop;
     function fluke_set_innerhtml(selector, html) {

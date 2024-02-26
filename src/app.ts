@@ -131,8 +131,15 @@ namespace app {
 	export var delta = 0
 	export var last = 0
 	export var af
-	export function loop() {
-		requestAnimationFrame(loop);
+
+	async function sleep() {
+		return new Promise(requestAnimationFrame);
+	}
+
+	export async function loop() {
+		do {
+		await sleep();
+		await new Promise(resolve => setTimeout(resolve, 0.03*1000)); // 30 fps mode
 		const now = (performance || Date).now();
 		delta = (now - last) / 1000;
 		last = now;
@@ -140,6 +147,7 @@ namespace app {
 		wheel = 0;
 		post_keys();
 		post_mouse_buttons();
+		} while (1);
 	}
 
 	export function fluke_set_innerhtml(selector, html) {

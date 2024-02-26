@@ -1,4 +1,5 @@
 import app from "./app.js";
+import hunt from "./hunt.js";
 import glob from "./lib/glob.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
@@ -32,7 +33,7 @@ namespace sketchup {
 
 	const activeMaterials: any[] = []
 
-	export function loop() {
+	export async function loop() {
 		if (glob.developer) {
 			if (app.proompt('r') == 1) {
 				dynamic_reload_textures();
@@ -41,10 +42,10 @@ namespace sketchup {
 				props.clear();
 				props.boot();
 				renderer.scene.remove(levelGroup);
-				load_room();
+				await load_room();
 			}
 			if (app.proompt('m') == 1) {
-				
+
 			}
 		}
 	}
@@ -53,7 +54,7 @@ namespace sketchup {
 		for (const i in library) {
 			const material = library[i];
 			console.log(' reloading material ', material.name);
-			
+
 			const tuple = paths[material.name];
 			const textureLoader = new THREE.TextureLoader();
 			const map = textureLoader.load(`${tuple[0]}.png`);
@@ -72,7 +73,7 @@ namespace sketchup {
 		}
 	}
 
-	export function boot() {
+	export async function boot() {
 		const textureLoader = new THREE.TextureLoader();
 		const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
 		for (let name in paths) {
@@ -164,7 +165,7 @@ namespace sketchup {
 			library[name] = material;
 		}
 
-		load_room();
+		await load_room();
 	}
 
 	function fix_sticker(material) {
@@ -193,56 +194,63 @@ namespace sketchup {
 
 	let levelGroup;
 
-	export function load_room() {
+	export async function load_room() {
 
-		const loadingManager = new THREE.LoadingManager(function () {
-		});
+		return new Promise((resolve, reject) => {
 
-		const colladaLoader = new ColladaLoader(loadingManager);
+			const loadingManager = new THREE.LoadingManager(function () {
+			});
 
-		colladaLoader.load('./assets/metal_place.dae', function (collada) {
+			const colladaLoader = new ColladaLoader(loadingManager);
 
-			const scene = collada.scene;
-			scene.updateMatrixWorld(); // without this everything explodes
+			colladaLoader.load('./assets/metal_place.dae', function (collada) {
 
-			console.log(' collada scene ', scene.scale);
+				const scene = collada.scene;
+				scene.updateMatrixWorld(); // without this everything explodes
 
-			const queue: props.prop[] = [];
+				console.log(' collada scene ', scene.scale);
 
-			function traversal(object) {
-				object.castShadow = true;
-				object.receiveShadow = true;
-				if (object.material) {
-					if (!object.material.length) {
-						adapt_from_materials_library(object, -1);
-					}
-					else {
-						console.warn(' multiple materials ');
-						for (let index in object.material) {
-							adapt_from_materials_library(object, index);
+				const queue: props.prop[] = [];
+
+				function traversal(object) {
+					object.castShadow = true;
+					object.receiveShadow = true;
+					if (object.material) {
+						if (!object.material.length) {
+							adapt_from_materials_library(object, -1);
+						}
+						else {
+							console.warn(' multiple materials ');
+							for (let index in object.material) {
+								adapt_from_materials_library(object, index);
+							}
 						}
 					}
+					const prop = props.factory(object);
+					if (prop)
+						queue.push(prop);
 				}
-				const prop = props.factory(object);
-				if (prop)
-					queue.push(prop);
-			}
 
-			scene.traverse(traversal);
+				scene.traverse(traversal);
 
-			for (let prop of queue)
-				prop.complete();
+				for (let prop of queue)
+					prop.complete();
 
-			const helper = new THREE.AxesHelper(1);
-			const group = new THREE.Group();
-			levelGroup = group;
-			group.add(scene);
+				const helper = new THREE.AxesHelper(1);
+				const group = new THREE.Group();
+				levelGroup = group;
+				group.add(scene);
 
-			console.log('sketchup scene rotation', scene.rotation);
-			
-			//group.add(helper);
+				console.log('sketchup scene rotation', scene.rotation);
 
-			renderer.scene.add(group);
+				//group.add(helper);
+
+				renderer.scene.add(group);
+
+				resolve(1);
+
+				hunt.dt = 0;
+			});
 		});
 	}
 }
