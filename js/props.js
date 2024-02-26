@@ -275,12 +275,6 @@ var props;
         }
     }
     props.pconvex = pconvex;
-    const presets_sounds = {
-        skylight: { name: 'alien_powernode', volume: .3, loop: true, distance: 4 },
-        fan: { name: 'tram_move', volume: .05, loop: true, distance: 3.0, delay: [0, 3] },
-        radio: { name: 'alien_cycletone', volume: .4, loop: true, distance: 3, delay: [0, 1] },
-        swedge: { name: 'ambience6', volume: .4, loop: true, distance: 4, delay: [0, 1] },
-    };
     class psound extends prop {
         sound;
         _lod() {
@@ -298,7 +292,7 @@ var props;
             };
             hooks.register('audioGestured', (x) => {
                 console.warn('late playing', this.preset);
-                const preset = presets_sounds[this.preset];
+                const preset = props.presets_from_json[this.preset];
                 if (!preset)
                     return;
                 if (preset.delay)
@@ -317,7 +311,7 @@ var props;
         _play() {
             if (!audio.allDone)
                 return;
-            const preset = presets_sounds[this.preset];
+            const preset = props.presets_from_json[this.preset];
             if (!preset)
                 return;
             this.sound = audio.playOnce(preset.name, preset.volume, preset.loop);

@@ -55,6 +55,9 @@ var audio;
         './assets/sound/env/tram_move.wav',
         './assets/sound/env/alien_cycletone.wav',
         './assets/sound/env/ambience6.wav',
+        './assets/sound/env/cave_outdoor1.wav',
+        './assets/sound/env/drone2lp.wav',
+        './assets/sound/env/hole_amb3.wav',
     ];
     audio.other = [
         './assets/sound/other/whoosh.wav',

@@ -195,7 +195,7 @@ var renderer;
     // reduce
     renderer_1.enable_post = true;
     renderer_1.animate_bounce_hdr = true;
-    renderer_1.dither = false;
+    renderer_1.dither = true;
     renderer_1.ren_stats = false;
     function boot() {
         window['renderer'] = this;
@@ -255,7 +255,10 @@ var renderer;
         renderer_1.renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer_1.renderer.xr.enabled = true;
         renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer_1.renderer.toneMappingExposure = 3.5;
+        if (renderer_1.dither)
+            renderer_1.renderer.toneMappingExposure = 5.5;
+        else
+            renderer_1.renderer.toneMappingExposure = 3.5;
         renderer_1.renderer.setPixelRatio(dpi);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
         renderer_1.renderer.shadowMap.enabled = true;
@@ -382,7 +385,7 @@ var renderer;
                 renderer_1.postShader.uniforms.glitch.value = 1;
                 renderer_1.postShader.uniforms.saturation.value = 2.0;
             }
-            renderer_1.postShader.uniforms.toneMappingExposure2.value = 3.0;
+            //postShader.uniforms.toneMappingExposure2.value = 3.0;
         }
         //camera.zoom = 0.5 + ease / 2;
         renderer_1.camera.updateProjectionMatrix();

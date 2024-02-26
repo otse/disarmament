@@ -212,7 +212,7 @@ namespace renderer {
 	// reduce
 	export var enable_post = true;
 	export var animate_bounce_hdr = true;
-	export var dither = false;
+	export var dither = true;
 	export var ren_stats = false;
 
 	export function boot() {
@@ -293,7 +293,10 @@ namespace renderer {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.xr.enabled = true;
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		renderer.toneMappingExposure = 3.5;
+		if (dither)
+			renderer.toneMappingExposure = 5.5;
+		else
+			renderer.toneMappingExposure = 3.5;
 		renderer.setPixelRatio(dpi);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
@@ -453,7 +456,7 @@ namespace renderer {
 				postShader.uniforms.glitch.value = 1;
 				postShader.uniforms.saturation.value = 2.0;
 			}
-			postShader.uniforms.toneMappingExposure2.value = 3.0;
+			//postShader.uniforms.toneMappingExposure2.value = 3.0;
 		}
 
 		//camera.zoom = 0.5 + ease / 2;
