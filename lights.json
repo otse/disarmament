@@ -1,171 +1,186 @@
 {
-    "sewerworld": {
-        "hide": true,
-        "color": "green",
-        "intensity": 0.05,
-        "distance": 2,
-        "decay": 0.1
-    },
-    "slsewerworld": {
-        "hide": true,
-        "color": "#93cbc8",
-        "intensity": 1.0,
-        "distance": 10.0,
-        "penumbra": 0.1,
-        "decay": 1.0,
-        "shadow": true,
-        "target": [
-            0,
-            1,
-            0
-        ]
-    },
-    "slredstairs": {
-        "hide": true,
-        "color": "blue",
-        "intensity": 1.0,
-        "distance": 6.0,
-        "penumbra": 0.1,
-        "decay": 1.0,
-        "shadow": false,
-        "target": [
-            0,
-            0,
-            -1
-        ]
-    },
-    "lredstairs": {
-        "hide": true,
-        "color": "white",
-        "intensity": 0.05,
-        "distance": 7,
-        "decay": 0.5
-    },
-    "lockers": {
-        "hide": true,
-        "color": "yellow",
-        "intensity": 0.3,
-        "angle": 1.0471975511965976,
-        "penumbra": 1.0471975511965976,
-        "distance": 10,
-        "decay": 1,
-        "shadow": true,
-        "target": [
-            0,
-            0,
-            -1
-        ]
-    },
-    "slskirt": {
-        "hide": true,
-        "color": "#d0d69b",
-        "intensity": 3,
-        "distance": 8,
-        "decay": 1,
-        "shadow": false,
-        "target": [
-            0,
-            0,
-            -1
-        ]
-    },
-    "slribs": {
-        "hide": true,
-        "color": "#93cb9b",
-        "intensity": 0.5,
-        "distance": 4,
-        "penumbra": 0.1,
-        "decay": 1,
-        "shadow": false,
-        "target": [
-            0,
-            0,
-            -1
-        ]
-    },
-    "sconce": {
-        "hide": false,
-        "color": "white",
-        "intensity": 0.1,
-        "distance": 1,
-        "offset": [
-            0,
-            0,
-            -5
-        ]
-    },
-    "sconce1": {
-        "hide": true,
-        "color": "white",
-        "intensity": 0.1,
-        "distance": 2,
-        "decay": 0.1
-    },
-    "openwindow": {
-        "hide": true,
-        "color": "white",
-        "intensity": 0.5,
-        "distance": 3,
-        "decay": 0.3
-    },
-    "skylightstart": {
-        "hide": true,
-        "color": "white",
-        "intensity": 0.2,
-        "distance": 3.5,
-        "decay": 0.5,
-        "shadow": false
-    },
-    "mtfanambient": {
-        "hide": true,
-        "color": "white",
-        "intensity": 0.15,
-        "distance": 5,
-        "decay": 0.1
-    },
-    "skirt": {
-        "hide": true,
-        "color": "#668d66",
-        "intensity": 0.1,
-        "distance": 2,
-        "decay": 1.4,
-        "shadow": false
-    },
-    "alert": {
-        "hide": true,
-        "color": "red",
-        "intensity": 0.05,
-        "distance": 1,
-        "decay": 0.6
-    },
-    "lwedge": {
-        "hide": true,
-        "color": "cyan",
-        "intensity": 0.2,
-        "distance": 6.5,
-        "decay": 0.2,
-        "shadow": true
-    },
-    "lmetro1": {
-        "hide": true,
-        "color": "white",
-        "intensity": 0.1,
-        "distance": 4,
-        "decay": 0.5,
-        "shadow": true
-    },
-    "lconnector": {
-        "hide": true,
-        "color": "white",
-        "intensity": 0.1,
-        "distance": 5,
-        "decay": 0.5,
-        "shadow": true
-    },
-    "none": {
-        "hide": true,
-        "color": "white",
-        "intensity": 0.1,
-        "distance": 10
-    }
+	"sewerworld": {
+		"hide": true,
+		"color": "green",
+		"intensity": 0.05,
+		"distance": 2,
+		"decay": 0.1
+	},
+	"slsewerworld": {
+		"hide": true,
+		"color": "#93cbc8",
+		"intensity": 1.0,
+		"distance": 10.0,
+		"penumbra": 0.1,
+		"decay": 1.0,
+		"shadow": true,
+		"target": [
+			0,
+			1,
+			0
+		]
+	},
+	"slredstairs": {
+		"hide": true,
+		"color": "blue",
+		"intensity": 1.0,
+		"distance": 6.0,
+		"penumbra": 0.1,
+		"decay": 1.0,
+		"shadow": false,
+		"target": [
+			0,
+			0,
+			-1
+		]
+	},
+	"lredstairs": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.05,
+		"distance": 7,
+		"decay": 0.5
+	},
+	"lockers": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.3,
+		"angle": 1.0,
+		"penumbra": 0.5,
+		"distance": 5,
+		"decay": 0.1,
+		"shadow": true,
+		"target": [
+			0,
+			0,
+			-1
+		]
+	},
+	"lockersoffice": {
+		"hide": true,
+		"color": "cyan",
+		"intensity": 0.2,
+		"angle": 1.3,
+		"penumbra": 0.8,
+		"distance": 3,
+		"decay": 0.1,
+		"shadow": true,
+		"target": [
+			0,
+			0,
+			-1
+		]
+	},
+	"slskirt": {
+		"hide": true,
+		"color": "#d0d69b",
+		"intensity": 3,
+		"distance": 8,
+		"decay": 1,
+		"shadow": false,
+		"target": [
+			0,
+			0,
+			-1
+		]
+	},
+	"slribs": {
+		"hide": true,
+		"color": "#93cb9b",
+		"intensity": 0.5,
+		"distance": 4,
+		"penumbra": 0.1,
+		"decay": 1,
+		"shadow": false,
+		"target": [
+			0,
+			0,
+			-1
+		]
+	},
+	"sconce": {
+		"hide": false,
+		"color": "white",
+		"intensity": 0.1,
+		"distance": 1,
+		"offset": [
+			0,
+			0,
+			-5
+		]
+	},
+	"sconce1": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.1,
+		"distance": 2,
+		"decay": 0.1
+	},
+	"openwindow": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.5,
+		"distance": 3,
+		"decay": 0.3
+	},
+	"skylightstart": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.2,
+		"distance": 3.5,
+		"decay": 0.5,
+		"shadow": false
+	},
+	"mtfanambient": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.15,
+		"distance": 5,
+		"decay": 0.1
+	},
+	"skirt": {
+		"hide": true,
+		"color": "#668d66",
+		"intensity": 0.1,
+		"distance": 2,
+		"decay": 1.4,
+		"shadow": false
+	},
+	"alert": {
+		"hide": true,
+		"color": "red",
+		"intensity": 0.05,
+		"distance": 1,
+		"decay": 0.6
+	},
+	"lwedge": {
+		"hide": true,
+		"color": "cyan",
+		"intensity": 0.2,
+		"distance": 6.5,
+		"decay": 0.2,
+		"shadow": true
+	},
+	"lmetro1": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.1,
+		"distance": 4,
+		"decay": 0.5,
+		"shadow": true
+	},
+	"lconnector": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.1,
+		"distance": 5,
+		"decay": 0.5,
+		"shadow": true
+	},
+	"none": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.1,
+		"distance": 10
+	}
 }

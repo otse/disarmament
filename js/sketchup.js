@@ -22,8 +22,9 @@ var sketchup;
         'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
         'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
         'locker1': ['./assets/textures/locker1', 40, false, false],
+        'lockerssplat': ['./assets/textures/lockerssplat', 25, false, false],
     };
-    const stickers = ['rust1'];
+    const stickers = ['lockerssplat'];
     const library = {};
     const activeMaterials = [];
     async function loop() {
@@ -76,6 +77,9 @@ var sketchup;
                 //flatShading: true,
                 //dithering: true,
             });
+            if (stickers.includes(name)) {
+                fix_sticker(material);
+            }
             /*material.onBeforeCompile = (shader) => {
                 console.log('onbeforecompile');
                 shader.defines = { AL_GORE: '', GORE: '', GEORGE: '' };
@@ -173,8 +177,8 @@ var sketchup;
         else
             object.material[index] = definition;
         activeMaterials.push(definition);
-        if (definition.name.includes('sticker'))
-            fix_sticker(definition);
+        //if (definition.name.includes('sticker'))
+        //	fix_sticker(definition);
     }
     let levelGroup;
     async function load_room() {

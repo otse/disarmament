@@ -139,11 +139,11 @@ namespace app {
 	export async function loop() {
 		do {
 		await sleep();
-		await new Promise(resolve => setTimeout(resolve, 0.03*1000)); // 30 fps mode
+		await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps
 		const now = (performance || Date).now();
 		delta = (now - last) / 1000;
 		last = now;
-		hunt.loop(delta);
+		await hunt.loop(delta);
 		wheel = 0;
 		post_keys();
 		post_mouse_buttons();

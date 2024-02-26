@@ -178,7 +178,7 @@ namespace props {
 			this.object.rotation.set(-Math.PI / 2, 0, 0);
 			this.object.position.set(-size.x, -size.y, size.z);
 			//this.object.updateMatrix();
-			//this.object.updateMatrixWorld();
+			//this.object.updateMatrixWorld(true);
 		}
 	}
 
@@ -247,7 +247,7 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pbox';
 			this.array = boxes;
-			this.build_debug_box = true;
+			this.build_debug_box = false;
 		}
 		override _finish() {
 			new physics.fbox(this);
@@ -266,7 +266,8 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pconvex';
 			this.array = boxes;
-			this.build_debug_box = true;
+			this.build_debug_box = false;
+			this.object.visible = false;
 		}
 		override _finish() {
 			const size = new THREE.Vector3();
@@ -456,7 +457,6 @@ namespace props {
 			const preset = presets_from_json[this.preset || 'none'];
 			if (!preset) {
 				console.warn(' preset no def ');
-
 				return;
 			}
 			this.object.visible = !preset.hide;

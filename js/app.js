@@ -129,11 +129,11 @@ var app;
     async function loop() {
         do {
             await sleep();
-            await new Promise(resolve => setTimeout(resolve, 0.03 * 1000)); // 30 fps mode
+            await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps
             const now = (performance || Date).now();
             app.delta = (now - app.last) / 1000;
             app.last = now;
-            hunt.loop(app.delta);
+            await hunt.loop(app.delta);
             app.wheel = 0;
             post_keys();
             post_mouse_buttons();

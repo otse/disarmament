@@ -287,7 +287,8 @@ namespace physics {
 			geometry = BufferGeometryUtils.mergeVertices(geometry);
 			this.prop.object.geometry = geometry;
 			const matrix = new THREE.Matrix4().copy(this.prop.object.matrixWorld);
-			matrix.setPosition(-size.x / 2, 0, size.z / 2);
+			// todo this is what correction_for_physics is doing too
+			matrix.setPosition(-size.x / 2, -size.y / 2, size.z / 2);
 
 			const faces: any[] = [];
 			const vertices: any[] = [];

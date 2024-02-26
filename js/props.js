@@ -166,7 +166,7 @@ var props;
             this.object.rotation.set(-Math.PI / 2, 0, 0);
             this.object.position.set(-size.x, -size.y, size.z);
             //this.object.updateMatrix();
-            //this.object.updateMatrixWorld();
+            //this.object.updateMatrixWorld(true);
         }
     }
     props.prop = prop;
@@ -237,7 +237,7 @@ var props;
             super(object, parameters);
             this.type = 'pbox';
             this.array = props.boxes;
-            this.build_debug_box = true;
+            this.build_debug_box = false;
         }
         _finish() {
             new physics.fbox(this);
@@ -256,7 +256,8 @@ var props;
             super(object, parameters);
             this.type = 'pconvex';
             this.array = props.boxes;
-            this.build_debug_box = true;
+            this.build_debug_box = false;
+            this.object.visible = false;
         }
         _finish() {
             const size = new THREE.Vector3();

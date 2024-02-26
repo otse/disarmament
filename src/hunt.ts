@@ -51,7 +51,7 @@ namespace hunt {
 		// new physics.simple_box();
 	}
 
-	export function loop(delta: number) {
+	export async function loop(delta: number) {
 		dt = delta;
 
 		glob.w = app.proompt('w');
@@ -73,7 +73,7 @@ namespace hunt {
 		gplayer.loop(delta);
 		physics.loop(hunt.timeStep);
 		props.loop();
-		sketchup.loop();
+		await sketchup.loop();
 		//if (!glob.xr)
 		renderer.render();
 	}

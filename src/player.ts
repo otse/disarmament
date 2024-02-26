@@ -134,8 +134,8 @@ class player {
 			x *= 2;
 		}
 		if (x || z) {
-			z *= 0.02;
-			x *= 0.02;
+			z *= 0.02 * 165 * delta;
+			x *= 0.02 * 165 * delta;
 
 			const camera = this.camera;
 			const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);

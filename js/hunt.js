@@ -38,7 +38,7 @@ var hunt;
         // new physics.simple_box();
     }
     hunt.boot = boot;
-    function loop(delta) {
+    async function loop(delta) {
         hunt.dt = delta;
         glob.w = app.proompt('w');
         glob.s = app.proompt('s');
@@ -57,7 +57,7 @@ var hunt;
         hunt.gplayer.loop(delta);
         physics.loop(hunt.timeStep);
         props.loop();
-        sketchup.loop();
+        await sketchup.loop();
         //if (!glob.xr)
         renderer.render();
     }
