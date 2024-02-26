@@ -9,7 +9,7 @@ namespace sketchup {
 	type tuple = [path: string, shininess?: number, normal?: boolean, specular?: boolean, transparent?: boolean]
 
 	const paths: { [index: string]: tuple } = {
-		'ebony': ['./assets/textures/black', 10, false, false],
+		'ebony': ['./assets/textures/black', 0, false, false],
 		'crete1': ['./assets/textures/crete1', 15, false, false],
 		'crete2': ['./assets/textures/crete2', 15, false, false],
 		'brick1': ['./assets/textures/brick1', 15, true, true],
