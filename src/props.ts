@@ -78,7 +78,7 @@ namespace props {
 			group.position,
 			group.quaternion,
 			group.scale);
-			
+
 		// group scale is now 0.0254
 
 		object.position.set(0, 0, 0);
@@ -470,6 +470,19 @@ namespace props {
 			light.shadow.camera.far = 1000;
 			light.angle = preset.angle || Math.PI / 3;
 			light.penumbra = preset.penumbra || 0.0;
+
+			/*const lensflare = new Lensflare();
+			const element = new LensflareElement(new THREE.TextureLoader().load('./assets/textures/flare1.png'), 100, 0, light.color);
+			//element.renderOrder = 1;
+			lensflare.addElement(element);
+			// Add lens flare to the light
+			//light.add(lensflare);*/
+
+			/*const flareMaterial = new THREE.SpriteMaterial({ map: new THREE.TextureLoader().load('./assets/textures/flare1.png'), blending: THREE.AdditiveBlending, transparent: true });
+			const flareSprite = new THREE.Sprite(flareMaterial);
+			const newSize = 10; // Set the new size you want
+			flareSprite.scale.set(newSize, newSize, 1);
+			light.add(flareSprite);*/
 
 			//light.add(new THREE.AxesHelper(10));
 

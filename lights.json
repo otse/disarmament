@@ -58,7 +58,7 @@
 	},
 	"lockersoffice": {
 		"hide": true,
-		"color": "white",
+		"color": "red",
 		"intensity": 0.2,
 		"angle": 1.3,
 		"penumbra": 0.8,

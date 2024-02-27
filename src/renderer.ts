@@ -203,7 +203,7 @@ namespace renderer {
 
 	export var propsGroup;
 
-	export var scene2, camera2, target, postShader, quad2, plane, glitch, hdr
+	export var scene2, camera2, renderTarget, postShader, quad2, plane, glitch, hdr
 
 	export var currt
 
@@ -243,14 +243,21 @@ namespace renderer {
 		scene2.matrixAutoUpdate = false;
 		//scene2.background = new THREE.Color('white');
 
-		target = new THREE.WebGLRenderTarget(512, 512, {
+		const depthTexture = new THREE.DepthTexture();
+		depthTexture.type = THREE.UnsignedShortType;
+
+		renderTarget = new THREE.WebGLRenderTarget(512, 512, {
 			type: THREE.FloatType, // hdr effect
 			minFilter: THREE.NearestFilter,
 			magFilter: THREE.NearestFilter,
+			depthBuffer: true,
+			stencilBuffer: true
 		});
+		renderTarget.depthTexture = depthTexture;
+
 		postShader = new THREE.ShaderMaterial({
 			uniforms: {
-				tDiffuse: { value: target.texture },
+				tDiffuse: { value: renderTarget.texture },
 				glitch: { value: 0.0 },
 				dither: { value: true },
 				saturation: { value: 1.0 },
@@ -290,7 +297,7 @@ namespace renderer {
 		camera.position.z = 5;
 
 		const dpi = window.devicePixelRatio;
-		renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		renderer.xr.enabled = true;
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
 		if (dither)
@@ -349,7 +356,7 @@ namespace renderer {
 		let offscreen = pts.divide(wh, offscreen_target_factor);
 		offscreen = pts.floor(offscreen);
 
-		target.setSize(offscreen[0], offscreen[1]);
+		renderTarget.setSize(offscreen[0], offscreen[1]);
 
 		camera2 = new THREE.OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
 
@@ -470,14 +477,21 @@ namespace renderer {
 		//camera.zoom = 0.5 + ease / 2;
 		camera.updateProjectionMatrix();
 
+		const lensflare = new Lensflare();
+		const element = new LensflareElement(new THREE.TextureLoader().load('./assets/textures/flare1.png'), 100, 0, 'white');
+		//element.renderOrder = 1;
+		lensflare.addElement(element);
+
 		//console.log('clock', clock.getElapsedTime());
 
 		if (enable_post) {
 			renderer.shadowMap.enabled = true;
 
-			renderer.setRenderTarget(target);
+			renderer.setRenderTarget(renderTarget);
 			renderer.clear();
+			
 			renderer.render(scene, camera);
+			//renderer.render(lensflare, camera);
 
 			renderer.shadowMap.enabled = false;
 

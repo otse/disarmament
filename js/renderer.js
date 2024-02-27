@@ -216,14 +216,19 @@ var renderer;
         renderer_1.scene2 = new THREE.Scene();
         renderer_1.scene2.matrixAutoUpdate = false;
         //scene2.background = new THREE.Color('white');
-        renderer_1.target = new THREE.WebGLRenderTarget(512, 512, {
+        const depthTexture = new THREE.DepthTexture();
+        depthTexture.type = THREE.UnsignedShortType;
+        renderer_1.renderTarget = new THREE.WebGLRenderTarget(512, 512, {
             type: THREE.FloatType,
             minFilter: THREE.NearestFilter,
             magFilter: THREE.NearestFilter,
+            depthBuffer: true,
+            stencilBuffer: true
         });
+        renderer_1.renderTarget.depthTexture = depthTexture;
         renderer_1.postShader = new THREE.ShaderMaterial({
             uniforms: {
-                tDiffuse: { value: renderer_1.target.texture },
+                tDiffuse: { value: renderer_1.renderTarget.texture },
                 glitch: { value: 0.0 },
                 dither: { value: true },
                 saturation: { value: 1.0 },
@@ -252,7 +257,7 @@ var renderer;
         renderer_1.scene.add(helper);
         renderer_1.camera.position.z = 5;
         const dpi = window.devicePixelRatio;
-        renderer_1.renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer_1.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer_1.renderer.xr.enabled = true;
         renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         if (renderer_1.dither)
@@ -298,7 +303,7 @@ var renderer;
         wh[1] = wh[1] - wh[1] % nearest;
         let offscreen = pts.divide(wh, offscreen_target_factor);
         offscreen = pts.floor(offscreen);
-        renderer_1.target.setSize(offscreen[0], offscreen[1]);
+        renderer_1.renderTarget.setSize(offscreen[0], offscreen[1]);
         renderer_1.camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
         let screen = pts.divide(wh, post_processing_factor);
         screen = pts.floor(screen);
@@ -397,12 +402,17 @@ var renderer;
         }
         //camera.zoom = 0.5 + ease / 2;
         renderer_1.camera.updateProjectionMatrix();
+        const lensflare = new Lensflare();
+        const element = new LensflareElement(new THREE.TextureLoader().load('./assets/textures/flare1.png'), 100, 0, 'white');
+        //element.renderOrder = 1;
+        lensflare.addElement(element);
         //console.log('clock', clock.getElapsedTime());
         if (renderer_1.enable_post) {
             renderer_1.renderer.shadowMap.enabled = true;
-            renderer_1.renderer.setRenderTarget(renderer_1.target);
+            renderer_1.renderer.setRenderTarget(renderer_1.renderTarget);
             renderer_1.renderer.clear();
             renderer_1.renderer.render(renderer_1.scene, renderer_1.camera);
+            //renderer.render(lensflare, camera);
             renderer_1.renderer.shadowMap.enabled = false;
             renderer_1.renderer.setRenderTarget(null);
             renderer_1.renderer.clear();

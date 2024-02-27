@@ -9,6 +9,10 @@ declare var CANNON: any
 declare var ColladaLoader: any
 declare var PointerLockControls: any
 declare var PositionalAudioHelper: any
+
 declare var BufferGeometryUtils: any
+declare var Lensflare: any
+declare var LensflareElement: any
+
 
 declare var XRRigidTransform
