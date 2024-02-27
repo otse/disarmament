@@ -18,7 +18,7 @@ var sketchup;
         'metal3': ['./assets/textures/metal3', 30, false, false, true],
         'rust1': ['./assets/textures/rust1', 30, false, false, false],
         'twotonewall': ['./assets/textures/twotonewall', 15, true, true],
-        'twotonewallb': ['./assets/textures/twotonewallb', 15, true, false],
+        'twotonewallb': ['./assets/textures/twotonewallb', 30, true, false],
         'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
         'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
         'locker1': ['./assets/textures/locker1', 40, false, false],

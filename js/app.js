@@ -129,7 +129,7 @@ var app;
     async function loop() {
         do {
             await sleep();
-            await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps
+            //await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps
             const now = (performance || Date).now();
             app.delta = (now - app.last) / 1000;
             app.last = now;

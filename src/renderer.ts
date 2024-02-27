@@ -193,7 +193,7 @@ void main() {
 namespace renderer {
 	// set up three.js here
 
-	const offscreen_target_factor = 5;
+	var offscreen_target_factor = 5;
 
 	const post_processing_factor = 1;
 
@@ -374,6 +374,14 @@ namespace renderer {
 
 	export function loop() {
 		if (glob.developer) {
+			if (app.proompt('+') == 1) {
+				offscreen_target_factor++;
+				resize();
+			}
+			if (app.proompt('-') == 1) {
+				offscreen_target_factor--;
+				resize();
+			}
 			if (glob.z == 1)
 				enable_post = !enable_post;
 			if (glob.x == 1)
@@ -423,8 +431,8 @@ namespace renderer {
 			if (ren_stats) {
 				app.fluke_set_innerhtml('hunt-stats', `
 					fps: ${fps.toFixed(1)}<br />
-					offscreen_target_factor: ${(1 / offscreen_target_factor).toFixed(2)}<br />
-					post_processing_factor: ${(1 / post_processing_factor).toFixed(2)}<br />
+					offscreen_target_factor: ${(1 / offscreen_target_factor).toFixed(2)} / ${offscreen_target_factor}<br />
+					post_processing_factor: ${(1 / post_processing_factor).toFixed(2)} / ${post_processing_factor}<br />
 					bounce hdr: ${(animate_bounce_hdr)}<br />
 					dither: ${(dither)}<br />
 			`);
