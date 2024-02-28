@@ -1,4 +1,21 @@
 {
+	"slcorridoor": {
+		"lensflare": true,
+		"lensflareSize": 2,
+		"hide": true,
+		"color": "#93cbc8",
+		"angle": 0.7,
+		"intensity": 6.5,
+		"distance": 7.0,
+		"penumbra": 0.1,
+		"decay": 1.0,
+		"shadow": false,
+		"target": [
+			0,
+			-1,
+			-0.5
+		]
+	},
 	"plsewerworld": {
 		"hide": true,
 		"color": "white",
@@ -58,6 +75,14 @@
 			0,
 			-1
 		]
+	},
+	"pllockers": {
+		"hide": true,
+		"color": "blue",
+		"intensity": 0.008,
+		"distance": 4.0,
+		"decay": 0.1,
+		"shadow": false
 	},
 	"lockersoffice": {
 		"hide": true,

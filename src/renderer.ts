@@ -338,7 +338,7 @@ namespace renderer {
 		sun.shadow.camera.right = sun.shadow.camera.top = 15;
 		sun.position.fromArray(sunOffset);
 		//scene.add(sun);
-		scene.add(sun.target);
+		//scene.add(sun.target);
 
 		// scene.add(new THREE.CameraHelper(sun.shadow.camera));
 

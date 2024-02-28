@@ -291,7 +291,7 @@ var renderer;
         renderer_1.sun.shadow.camera.right = renderer_1.sun.shadow.camera.top = 15;
         renderer_1.sun.position.fromArray(renderer_1.sunOffset);
         //scene.add(sun);
-        renderer_1.scene.add(renderer_1.sun.target);
+        //scene.add(sun.target);
         // scene.add(new THREE.CameraHelper(sun.shadow.camera));
         const hunt_main = document.querySelector('hunt-main');
         hunt_main.appendChild(renderer_1.renderer.domElement);
