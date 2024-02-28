@@ -30,7 +30,7 @@ namespace hunt {
 		return val > max ? max : val < min ? min : val;
 	}
 
-	export function boot() {
+	export async function boot() {
 		console.log('day setting up');
 
 		gviewport = new viewport;
@@ -43,7 +43,7 @@ namespace hunt {
 		physics.boot();
 		props.boot();
 		renderer.boot();
-		sketchup.boot();
+		await sketchup.boot();
 		audio.boot();
 
 		gplayer = new player();
@@ -70,7 +70,7 @@ namespace hunt {
 			hunt.locker.style.display = 'none';
 		}
 
-		gplayer.loop(delta);
+		gplayer?.loop(delta);
 		physics.loop(hunt.timeStep);
 		props.loop();
 		await sketchup.loop();

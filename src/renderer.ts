@@ -213,7 +213,7 @@ namespace renderer {
 	// reduce
 	export var enable_post = true;
 	export var animate_bounce_hdr = false;
-	export var dither = false;
+	export var dither = true;
 	export var ren_stats = false;
 
 	export function boot() {

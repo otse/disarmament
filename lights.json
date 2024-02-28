@@ -1,8 +1,8 @@
 {
-	"sewerworld": {
+	"plsewerworld": {
 		"hide": true,
-		"color": "green",
-		"intensity": 0.05,
+		"color": "white",
+		"intensity": 0.01,
 		"distance": 2,
 		"decay": 0.1
 	},
@@ -11,6 +11,7 @@
 		"lensflareSize": 3,
 		"hide": true,
 		"color": "#93cbc8",
+		"angle": 0.6,
 		"intensity": 1.0,
 		"distance": 10.0,
 		"penumbra": 0.1,

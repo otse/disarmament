@@ -4,8 +4,8 @@
         <contributor>
             <authoring_tool>SketchUp 17.2.2555</authoring_tool>
         </contributor>
-        <created>2024-02-28T09:03:56Z</created>
-        <modified>2024-02-28T09:03:56Z</modified>
+        <created>2024-02-28T10:50:30Z</created>
+        <modified>2024-02-28T10:50:30Z</modified>
         <unit meter="0.0254" name="inch" />
         <up_axis>Z_UP</up_axis>
     </asset>
@@ -90,7 +90,7 @@
                     </bind_material>
                 </instance_geometry>
                 <node name="skp_camera_Last_Saved_SketchUp_View">
-                    <matrix>-0.02126442 0.03965378 -0.9989872 149.4764 -0.9997739 -0.0008434054 0.02124769 -6.114449 -2.168404e-19 0.9992131 0.03966274 113.9837 0 0 0 1</matrix>
+                    <matrix>0.005139505 0.6525676 -0.7577131 124.4772 -0.9999868 0.003353919 -0.003894322 -199.6711 -1.734723e-18 0.757723 0.6525763 63.70898 0 0 0 1</matrix>
                     <instance_camera url="#ID1" />
                 </node>
                 <node name="skp_camera_entrance">
@@ -208,7 +208,7 @@
                     </instance_geometry>
                 </node>
                 <node id="ID96" name="light_plsewerworld">
-                    <matrix>1 0 0 146.9912 0 1 0 -226.9296 0 0 1 40.77559 0 0 0 1</matrix>
+                    <matrix>1 0 0 146.9912 0 1 0 -200.4139 0 0 1 40.77559 0 0 0 1</matrix>
                     <instance_geometry url="#ID97">
                         <bind_material>
                             <technique_common>
@@ -220,7 +220,7 @@
                     </instance_geometry>
                 </node>
                 <node id="ID103" name="light_plsewerworld">
-                    <matrix>1 0 0 276.8259 0 1 0 -226.9296 0 0 1 40.77559 0 0 0 1</matrix>
+                    <matrix>1 0 0 276.8259 0 1 0 -200.4139 0 0 1 40.77559 0 0 0 1</matrix>
                     <instance_geometry url="#ID104">
                         <bind_material>
                             <technique_common>
@@ -2095,11 +2095,11 @@
                     </instance_geometry>
                 </node>
                 <node id="ID1498" name="instance_12">
-                    <matrix>-0.02126442 0.9997739 5.495162e-17 177.7367 -0.9997739 -0.02126442 5.207846e-18 27.22726 5.925512e-18 5.554119e-17 1.075887 0.0005281325 0 0 0 1</matrix>
+                    <matrix>0.005139505 0.9999868 5.495162e-17 177.7367 -0.9999868 0.005139505 5.207846e-18 27.22726 4.577946e-18 5.540251e-17 1.075887 0.0005281325 0 0 0 1</matrix>
                     <instance_node url="#ID1499" />
                 </node>
                 <node id="ID1606" name="instance_13">
-                    <matrix>-0.02126442 0.9997739 5.495162e-17 374.8174 -0.9997739 -0.02126442 5.207846e-18 5.554598 5.925512e-18 5.554119e-17 1.075887 0.0005281325 0 0 0 1</matrix>
+                    <matrix>0.005139505 0.9999868 5.495162e-17 374.8174 -0.9999868 0.005139505 5.207846e-18 5.554598 4.577946e-18 5.540251e-17 1.075887 0.0005281325 0 0 0 1</matrix>
                     <instance_node url="#ID1499" />
                 </node>
                 <node id="ID1607" name="instance_14">

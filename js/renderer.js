@@ -195,7 +195,7 @@ var renderer;
     // reduce
     renderer_1.enable_post = true;
     renderer_1.animate_bounce_hdr = false;
-    renderer_1.dither = false;
+    renderer_1.dither = true;
     renderer_1.ren_stats = false;
     function boot() {
         window['renderer'] = this;

@@ -38,10 +38,10 @@ var app;
         return keys[k] || KEY.UNPRESSED;
     }
     app.proompt = proompt;
-    function boot(version) {
+    async function boot(version) {
         console.log(' app boot ');
         hooks.call('AppBoot', null);
-        hunt.boot();
+        await hunt.boot();
         app.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         function onmousemove(e) {
             pos[0] = e.clientX;
@@ -129,7 +129,7 @@ var app;
     async function loop() {
         do {
             await sleep();
-            //await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps
+            //await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps mode
             const now = (performance || Date).now();
             app.delta = (now - app.last) / 1000;
             app.last = now;

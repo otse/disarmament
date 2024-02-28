@@ -201,7 +201,9 @@ namespace sketchup {
 
 	export async function load_room() {
 
-		return new Promise((resolve, reject) => {
+		return new Promise(async (resolve, reject) => {
+
+			await new Promise(resolve => setTimeout(resolve, 500));
 
 			const loadingManager = new THREE.LoadingManager(function () {
 			});

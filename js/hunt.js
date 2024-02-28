@@ -23,7 +23,7 @@ var hunt;
         return val > max ? max : val < min ? min : val;
     }
     hunt.clamp = clamp;
-    function boot() {
+    async function boot() {
         console.log('day setting up');
         hunt.gviewport = new viewport;
         hunt.locker = document.querySelector('hunt-instructions');
@@ -32,7 +32,7 @@ var hunt;
         physics.boot();
         props.boot();
         renderer.boot();
-        sketchup.boot();
+        await sketchup.boot();
         audio.boot();
         hunt.gplayer = new player();
         // new physics.simple_box();
@@ -54,7 +54,7 @@ var hunt;
         if (app.proompt('f2')) {
             hunt.locker.style.display = 'none';
         }
-        hunt.gplayer.loop(delta);
+        hunt.gplayer?.loop(delta);
         physics.loop(hunt.timeStep);
         props.loop();
         await sketchup.loop();

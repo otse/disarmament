@@ -33,12 +33,12 @@ namespace app {
 		return keys[k] || KEY.UNPRESSED;
 	}
 
-	export function boot(version: string) {
+	export async function boot(version: string) {
 
 		console.log(' app boot ');
-		
+
 		hooks.call('AppBoot', null);
-		hunt.boot();
+		await hunt.boot();
 
 		mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 		function onmousemove(e) {
@@ -140,7 +140,7 @@ namespace app {
 	export async function loop() {
 		do {
 		await sleep();
-		//await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps
+		//await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps mode
 		const now = (performance || Date).now();
 		delta = (now - last) / 1000;
 		last = now;
