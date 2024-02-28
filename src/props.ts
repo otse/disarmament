@@ -332,9 +332,6 @@ namespace props {
 				panner.panningModel = 'HRTF';
 				this.sound.setRefDistance(preset.distance);
 
-				const helper = new PositionalAudioHelper(this.sound);
-				helper.update();
-				this.group.add(helper);
 				this.group.add(this.sound);
 			}
 		}
@@ -471,12 +468,15 @@ namespace props {
 			light.angle = preset.angle || Math.PI / 3;
 			light.penumbra = preset.penumbra || 0.0;
 
-			/*const lensflare = new Lensflare();
-			const element = new LensflareElement(new THREE.TextureLoader().load('./assets/textures/flare1.png'), 100, 0, light.color);
-			//element.renderOrder = 1;
-			lensflare.addElement(element);
-			// Add lens flare to the light
-			//light.add(lensflare);*/
+			if (preset.lensflare) {
+				const lensflare = new Lensflare();
+				const element = new LensflareElement(new THREE.TextureLoader().load('./assets/textures/flare1.png'), 20, 0, light.color);
+				const element2 = new LensflareElement(new THREE.TextureLoader().load('./assets/textures/flare1.png'), 10, 0.05, light.color);
+				lensflare.addElement(element);
+				lensflare.addElement(element2);
+				// Add lens flare to the light
+				light.add(lensflare);
+			}
 
 			/*const flareMaterial = new THREE.SpriteMaterial({ map: new THREE.TextureLoader().load('./assets/textures/flare1.png'), blending: THREE.AdditiveBlending, transparent: true });
 			const flareSprite = new THREE.Sprite(flareMaterial);

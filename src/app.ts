@@ -35,7 +35,8 @@ namespace app {
 
 	export function boot(version: string) {
 
-		console.log('app boot');
+		console.log(' app boot ');
+		
 		hooks.call('AppBoot', null);
 		hunt.boot();
 

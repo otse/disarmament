@@ -39,7 +39,7 @@ var app;
     }
     app.proompt = proompt;
     function boot(version) {
-        console.log('app boot');
+        console.log(' app boot ');
         hooks.call('AppBoot', null);
         hunt.boot();
         app.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);

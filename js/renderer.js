@@ -216,16 +216,18 @@ var renderer;
         renderer_1.scene2 = new THREE.Scene();
         renderer_1.scene2.matrixAutoUpdate = false;
         //scene2.background = new THREE.Color('white');
-        const depthTexture = new THREE.DepthTexture();
-        depthTexture.type = THREE.UnsignedShortType;
+        renderer_1.depthTexture = new THREE.DepthTexture();
+        renderer_1.depthTexture.type = THREE.UnsignedShortType;
         renderer_1.renderTarget = new THREE.WebGLRenderTarget(512, 512, {
-            type: THREE.FloatType,
+            //type: THREE.UnsignedByteType, // fix for lensflare
+            type: THREE.HalfFloatType,
+            format: THREE.RGBAFormat,
             minFilter: THREE.NearestFilter,
             magFilter: THREE.NearestFilter,
             depthBuffer: true,
-            stencilBuffer: true
+            //stencilBuffer: true
         });
-        renderer_1.renderTarget.depthTexture = depthTexture;
+        //renderTarget.depthTexture = depthTexture;
         renderer_1.postShader = new THREE.ShaderMaterial({
             uniforms: {
                 tDiffuse: { value: renderer_1.renderTarget.texture },
@@ -258,7 +260,8 @@ var renderer;
         renderer_1.camera.position.z = 5;
         const dpi = window.devicePixelRatio;
         renderer_1.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer_1.renderer.xr.enabled = true;
+        //renderer.depth = false;
+        //console.log('ren depthte', renderer.depthTexture);
         renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         if (renderer_1.dither)
             renderer_1.renderer.toneMappingExposure = 5.5;
@@ -303,6 +306,10 @@ var renderer;
         wh[1] = wh[1] - wh[1] % nearest;
         let offscreen = pts.divide(wh, offscreen_target_factor);
         offscreen = pts.floor(offscreen);
+        renderer_1.depthTexture = new THREE.DepthTexture(offscreen[0], offscreen[1]);
+        renderer_1.depthTexture.type = THREE.UnsignedShortType;
+        renderer_1.depthTexture.format = THREE.DepthFormat;
+        //renderTarget.depthTexture = depthTexture;
         renderer_1.renderTarget.setSize(offscreen[0], offscreen[1]);
         renderer_1.camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
         let screen = pts.divide(wh, post_processing_factor);
@@ -402,13 +409,16 @@ var renderer;
         }
         //camera.zoom = 0.5 + ease / 2;
         renderer_1.camera.updateProjectionMatrix();
-        const lensflare = new Lensflare();
+        /*const lensflare = new Lensflare();
         const element = new LensflareElement(new THREE.TextureLoader().load('./assets/textures/flare1.png'), 100, 0, 'white');
         //element.renderOrder = 1;
-        lensflare.addElement(element);
+        lensflare.addElement(element);*/
         //console.log('clock', clock.getElapsedTime());
         if (renderer_1.enable_post) {
             renderer_1.renderer.shadowMap.enabled = true;
+            //renderer.setRenderTarget(null);
+            //renderer.clear();
+            //renderer.render(scene, camera);
             renderer_1.renderer.setRenderTarget(renderer_1.renderTarget);
             renderer_1.renderer.clear();
             renderer_1.renderer.render(renderer_1.scene, renderer_1.camera);

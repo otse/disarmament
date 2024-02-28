@@ -203,8 +203,9 @@ namespace renderer {
 
 	export var propsGroup;
 
-	export var scene2, camera2, renderTarget, postShader, quad2, plane, glitch, hdr
+	export var scene2, camera2, postShader, quad2, plane, glitch, hdr
 
+	export var renderTarget, depthTexture
 	export var currt
 
 	export var sun, sunOffset = [0, 10, -0] // sunOffset = [1.0, 10, -1.0]
@@ -243,17 +244,19 @@ namespace renderer {
 		scene2.matrixAutoUpdate = false;
 		//scene2.background = new THREE.Color('white');
 
-		const depthTexture = new THREE.DepthTexture();
+		depthTexture = new THREE.DepthTexture();
 		depthTexture.type = THREE.UnsignedShortType;
 
 		renderTarget = new THREE.WebGLRenderTarget(512, 512, {
-			type: THREE.FloatType, // hdr effect
+			//type: THREE.UnsignedByteType, // fix for lensflare
+			type: THREE.HalfFloatType , // hdr effect
+			format: THREE.RGBAFormat ,
 			minFilter: THREE.NearestFilter,
 			magFilter: THREE.NearestFilter,
 			depthBuffer: true,
-			stencilBuffer: true
+			//stencilBuffer: true
 		});
-		renderTarget.depthTexture = depthTexture;
+		//renderTarget.depthTexture = depthTexture;
 
 		postShader = new THREE.ShaderMaterial({
 			uniforms: {
@@ -298,7 +301,9 @@ namespace renderer {
 
 		const dpi = window.devicePixelRatio;
 		renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-		renderer.xr.enabled = true;
+		//renderer.depth = false;
+		//console.log('ren depthte', renderer.depthTexture);
+		
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
 		if (dither)
 			renderer.toneMappingExposure = 5.5;
@@ -356,6 +361,10 @@ namespace renderer {
 		let offscreen = pts.divide(wh, offscreen_target_factor);
 		offscreen = pts.floor(offscreen);
 
+		depthTexture = new THREE.DepthTexture(offscreen[0], offscreen[1]);
+		depthTexture.type = THREE.UnsignedShortType;
+		depthTexture.format = THREE.DepthFormat;
+		//renderTarget.depthTexture = depthTexture;
 		renderTarget.setSize(offscreen[0], offscreen[1]);
 
 		camera2 = new THREE.OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
@@ -477,19 +486,22 @@ namespace renderer {
 		//camera.zoom = 0.5 + ease / 2;
 		camera.updateProjectionMatrix();
 
-		const lensflare = new Lensflare();
+		/*const lensflare = new Lensflare();
 		const element = new LensflareElement(new THREE.TextureLoader().load('./assets/textures/flare1.png'), 100, 0, 'white');
 		//element.renderOrder = 1;
-		lensflare.addElement(element);
+		lensflare.addElement(element);*/
 
 		//console.log('clock', clock.getElapsedTime());
 
 		if (enable_post) {
 			renderer.shadowMap.enabled = true;
 
+			//renderer.setRenderTarget(null);
+			//renderer.clear();
+			//renderer.render(scene, camera);
+
 			renderer.setRenderTarget(renderTarget);
 			renderer.clear();
-			
 			renderer.render(scene, camera);
 			//renderer.render(lensflare, camera);
 
