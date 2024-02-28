@@ -436,6 +436,8 @@ namespace props {
 		}
 	}
 
+	let lensflare1;
+
 	export class pspotlight extends prop {
 		spotlight
 		constructor(object, parameters) {
@@ -469,11 +471,18 @@ namespace props {
 			light.penumbra = preset.penumbra || 0.0;
 
 			if (preset.lensflare) {
+				lensflare1 ||= new THREE.TextureLoader().load('./assets/textures/flare1.png');
+				//lensflare1.opacity = 0.2;
+				//lensflare1.transparent = true;
+
 				const lensflare = new Lensflare();
-				const element = new LensflareElement(new THREE.TextureLoader().load('./assets/textures/flare1.png'), 20, 0, light.color);
-				const element2 = new LensflareElement(new THREE.TextureLoader().load('./assets/textures/flare1.png'), 10, 0.05, light.color);
+				const size = preset.lensflareSize || 1;
+				const element = new LensflareElement(lensflare1, 15 * size, 0, light.color);
+				const element2 = new LensflareElement(lensflare1, 10, 0.025 * size, light.color);
+				const element3 = new LensflareElement(lensflare1, 5, 0.07 * size, light.color);
 				lensflare.addElement(element);
 				lensflare.addElement(element2);
+				lensflare.addElement(element3);
 				// Add lens flare to the light
 				light.add(lensflare);
 			}

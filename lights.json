@@ -8,6 +8,7 @@
 	},
 	"slsewerworld": {
 		"lensflare": true,
+		"lensflareSize": 3,
 		"hide": true,
 		"color": "#93cbc8",
 		"intensity": 1.0,
@@ -73,7 +74,6 @@
 		]
 	},
 	"slskirt": {
-		"lensflare": true,
 		"hide": true,
 		"color": "#d0d69b",
 		"intensity": 3,
@@ -87,10 +87,10 @@
 		]
 	},
 	"slribs": {
-		"lensflare": true,
+		"lensflare": false,
 		"hide": true,
 		"color": "#93cb9b",
-		"intensity": 0.5,
+		"intensity": 0.15,
 		"distance": 4,
 		"penumbra": 0.1,
 		"decay": 1,
