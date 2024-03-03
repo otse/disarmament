@@ -86,6 +86,14 @@
 		"decay": 0.1,
 		"shadow": false
 	},
+	"lockersnightlight": {
+		"hide": true,
+		"color": "blue",
+		"intensity": 0.04,
+		"distance": 0.6,
+		"decay": 0.9,
+		"shadow": false
+	},
 	"lockersoffice": {
 		"hide": true,
 		"color": "red",
