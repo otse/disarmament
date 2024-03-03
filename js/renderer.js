@@ -188,7 +188,7 @@ void main() {
 var renderer;
 (function (renderer_1) {
     // set up three.js here
-    var offscreen_target_factor = 5;
+    var offscreen_target_factor = 4;
     const post_processing_factor = 1;
     renderer_1.dt = 0;
     renderer_1.sunOffset = [0, 10, -0]; // sunOffset = [1.0, 10, -1.0]
@@ -266,7 +266,7 @@ var renderer;
         if (renderer_1.dither)
             renderer_1.renderer.toneMappingExposure = 5.5;
         else
-            renderer_1.renderer.toneMappingExposure = 3.5;
+            renderer_1.renderer.toneMappingExposure = 2.5;
         renderer_1.renderer.setPixelRatio(dpi);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
         renderer_1.renderer.shadowMap.enabled = true;
@@ -344,7 +344,7 @@ var renderer;
                 if (renderer_1.dither)
                     renderer_1.renderer.toneMappingExposure = 5.5;
                 else
-                    renderer_1.renderer.toneMappingExposure = 3.5;
+                    renderer_1.renderer.toneMappingExposure = 2.5;
             }
             if (glob.h == 1) {
                 renderer_1.ren_stats = !renderer_1.ren_stats;

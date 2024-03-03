@@ -62,11 +62,13 @@
 		"decay": 0.5
 	},
 	"sllockers": {
+		"lensflare": true,
+		"lensflareSize": 0.5,
 		"hide": true,
 		"color": "white",
 		"intensity": 0.2,
-		"angle": 1.0,
-		"penumbra": 0.5,
+		"angle": 1.2,
+		"penumbra": 0.8,
 		"distance": 6,
 		"decay": 0.1,
 		"shadow": true,
@@ -79,8 +81,8 @@
 	"pllockers": {
 		"hide": true,
 		"color": "blue",
-		"intensity": 0.008,
-		"distance": 4.0,
+		"intensity": 0.0,
+		"distance": 3.0,
 		"decay": 0.1,
 		"shadow": false
 	},
@@ -186,9 +188,9 @@
 		"hide": true,
 		"color": "cyan",
 		"intensity": 0.2,
-		"distance": 6.5,
-		"decay": 0.2,
-		"shadow": true
+		"distance": 6.0,
+		"decay": 0.5,
+		"shadow": false
 	},
 	"lmetro1": {
 		"hide": true,
@@ -199,10 +201,12 @@
 		"shadow": true
 	},
 	"lwedgetobend": {
+		"lensflare": true,
+		"lensflareSize": 2,
 		"hide": true,
-		"color": "white",
-		"intensity": 0.1,
-		"distance": 4,
+		"color": "cyan",
+		"intensity": 0.3,
+		"distance": 8,
 		"decay": 0.5,
 		"shadow": true
 	},
@@ -221,14 +225,15 @@
 		"distance": 10
 	},
 	"skylight": {
+		"disabled": true,
 		"name": "alien_powernode",
 		"volume": 0.3,
 		"loop": true,
 		"distance": 4
 	},
 	"fan": {
-		"name": "tram_move",
-		"volume": 0.05,
+		"name": "computalk2",
+		"volume": 0.4,
 		"loop": true,
 		"distance": 3,
 		"delay": [
@@ -237,6 +242,7 @@
 		]
 	},
 	"radio": {
+		"disabled": true,
 		"name": "alien_cycletone",
 		"volume": 0.4,
 		"loop": true,
@@ -247,6 +253,7 @@
 		]
 	},
 	"swedge": {
+		"disabled": true,
 		"name": "ambience6",
 		"volume": 0.4,
 		"loop": true,
@@ -257,8 +264,9 @@
 		]
 	},
 	"envlockers": {
-		"name": "drone2lp",
-		"volume": 0.5,
+		"disabled": false,
+		"name": "quiet_cellblock_amb",
+		"volume": 0.4,
 		"loop": true,
 		"distance": 2.5,
 		"delay": [

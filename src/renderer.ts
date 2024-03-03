@@ -193,7 +193,7 @@ void main() {
 namespace renderer {
 	// set up three.js here
 
-	var offscreen_target_factor = 5;
+	var offscreen_target_factor = 4;
 
 	const post_processing_factor = 1;
 
@@ -308,7 +308,7 @@ namespace renderer {
 		if (dither)
 			renderer.toneMappingExposure = 5.5;
 		else
-			renderer.toneMappingExposure = 3.5;
+			renderer.toneMappingExposure = 2.5;
 		renderer.setPixelRatio(dpi);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
@@ -407,7 +407,7 @@ namespace renderer {
 				if (dither)
 					renderer.toneMappingExposure = 5.5;
 				else
-					renderer.toneMappingExposure = 3.5;
+					renderer.toneMappingExposure = 2.5;
 
 			}
 			if (glob.h == 1) {

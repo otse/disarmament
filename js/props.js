@@ -10,7 +10,7 @@ var props;
         let prop;
         if (!object.name)
             return;
-        const [kind, preset] = object.name.split('_');
+        const [kind, preset, hint] = object.name.split('_');
         switch (kind) {
             case 'prop':
             case 'box':
@@ -36,7 +36,7 @@ var props;
                 prop = new pstairstep(object, {});
                 break;
             case 'door':
-                prop = new pdoor(object, {});
+                prop = new pdoor(object, { rotation: hint });
                 break;
             case 'fan':
                 prop = new pfan(object, {});
@@ -314,6 +314,8 @@ var props;
             const preset = props.presets_from_json[this.preset];
             if (!preset)
                 return;
+            if (preset.disabled)
+                return;
             this.sound = audio.playOnce(preset.name, preset.volume, preset.loop);
             if (this.sound) {
                 const panner = this.sound.getOutput();
@@ -364,6 +366,8 @@ var props;
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pdoor';
+            '⛪️';
+            //console.log('pdoor hint', parameters.rotation || 0);
         }
         _finish() {
             new physics.fdoor(this);
@@ -401,6 +405,21 @@ var props;
             light.position.add(size);
             // light.add(new THREE.AxesHelper(10));
             this.group.add(light);
+            if (preset.lensflare) {
+                lensflare1 ||= new THREE.TextureLoader().load('./assets/textures/flare1.png');
+                //lensflare1.opacity = 0.2;
+                //lensflare1.transparent = true;
+                const lensflare = new Lensflare();
+                const size = preset.lensflareSize || 1;
+                const element = new LensflareElement(lensflare1, 15 * size, 0, light.color);
+                const element2 = new LensflareElement(lensflare1, 10, 0.025 * size, light.color);
+                const element3 = new LensflareElement(lensflare1, 5, 0.07 * size, light.color);
+                lensflare.addElement(element);
+                lensflare.addElement(element2);
+                lensflare.addElement(element3);
+                // Add lens flare to the light
+                light.add(lensflare);
+            }
         }
         _loop() {
         }

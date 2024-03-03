@@ -24,8 +24,9 @@ namespace sketchup {
 		'twotonewallb': ['./assets/textures/twotonewallb', 30, true, false],
 		'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
 		'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
-		'locker1': ['./assets/textures/locker1', 40, false, false],
-		'lockerssplat': ['./assets/textures/lockerssplat', 25, false, false],
+		'locker1': ['./assets/textures/locker1', 60, false, false],
+		'lockerssplat': ['./assets/textures/lockerssplat', 40, false, false],
+		'door1': ['./assets/textures/door1', 25, false, false],
 	}
 
 	const stickers = ['lockerssplat']

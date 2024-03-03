@@ -13,7 +13,7 @@ namespace props {
 		let prop: prop | undefined;
 		if (!object.name)
 			return;
-		const [kind, preset] = object.name.split('_');
+		const [kind, preset, hint] = object.name.split('_');
 		switch (kind) {
 			case 'prop':
 			case 'box':
@@ -39,7 +39,7 @@ namespace props {
 				prop = new pstairstep(object, {});
 				break;
 			case 'door':
-				prop = new pdoor(object, {});
+				prop = new pdoor(object, { rotation: hint });
 				break;
 			case 'fan':
 				prop = new pfan(object, {});
@@ -324,6 +324,8 @@ namespace props {
 			const preset = presets_from_json[this.preset];
 			if (!preset)
 				return;
+			if (preset.disabled)
+				return;
 			this.sound = audio.playOnce(preset.name, preset.volume, preset.loop);
 			if (this.sound) {
 				const panner = this.sound.getOutput();
@@ -384,7 +386,9 @@ namespace props {
 	export class pdoor extends prop {
 		constructor(object, parameters) {
 			super(object, parameters);
-			this.type = 'pdoor';
+			this.type = 'pdoor'; '⛪️'
+			//console.log('pdoor hint', parameters.rotation || 0);
+
 		}
 		override _finish() {
 			new physics.fdoor(this);
@@ -429,6 +433,23 @@ namespace props {
 			light.position.add(size);
 			// light.add(new THREE.AxesHelper(10));
 			this.group.add(light);
+
+			if (preset.lensflare) {
+				lensflare1 ||= new THREE.TextureLoader().load('./assets/textures/flare1.png');
+				//lensflare1.opacity = 0.2;
+				//lensflare1.transparent = true;
+
+				const lensflare = new Lensflare();
+				const size = preset.lensflareSize || 1;
+				const element = new LensflareElement(lensflare1, 15 * size, 0, light.color);
+				const element2 = new LensflareElement(lensflare1, 10, 0.025 * size, light.color);
+				const element3 = new LensflareElement(lensflare1, 5, 0.07 * size, light.color);
+				lensflare.addElement(element);
+				lensflare.addElement(element2);
+				lensflare.addElement(element3);
+				// Add lens flare to the light
+				light.add(lensflare);
+			}
 		}
 		override _loop() {
 		}

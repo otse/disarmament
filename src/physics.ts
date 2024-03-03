@@ -404,20 +404,6 @@ namespace physics {
 			const halfExtents = new CANNON.Vec3(shrink.x, shrink.y, shrink.z);
 			const hingedShape = new CANNON.Box(halfExtents);
 
-			const hingedBody = new CANNON.Body({ mass: 1.5 });
-			hingedBody.addShape(hingedShape);
-			hingedBody.position.copy(center);
-			hingedBody.linearDamping = 0.4;
-			world.addBody(hingedBody);
-
-			const halfExtents2 = new CANNON.Vec3(0.06, 0.06, 0.06);
-			const staticShape = new CANNON.Box(halfExtents2);
-			const staticBody = new CANNON.Body({ mass: 0 });
-			staticBody.addShape(staticShape);
-			staticBody.position.copy(center);
-			staticBody.collisionResponse = 0;
-			world.addBody(staticBody);
-
 			const pivots = [
 				[0, 0, 0.5], [0, 0, -0.5], [0.5, 0, 0], [-0.5, 0, 0]
 			];
@@ -434,6 +420,51 @@ namespace physics {
 			//console.log('door size', n, size);
 			const pivot = new CANNON.Vec3(size.x * offset[0] + hinge[0], 0, size.z * offset[2] + hinge[2]);
 			const axis = new CANNON.Vec3(0, 1, 0);
+
+			const hingedBody = new CANNON.Body({ mass: 1.5 });
+			hingedBody.addShape(hingedShape);
+
+			// Set the rotation point (axis of rotation)
+			const resultVec = new CANNON.Vec3();
+			resultVec.vadd(center, hinge);
+			
+			//rotationPoint.vadd(rotationPoint, center);
+
+			// Function to rotate the body around a point
+			function rotateBodyAroundPoint(body, point, angle) {
+				// Translate the body to the rotation point
+				const translation = new CANNON.Vec3().copy(point).negate();
+				body.position.vadd(translation, body.position);
+
+				// Rotate the body
+				const rotation = new CANNON.Quaternion().setFromAxisAngle(new CANNON.Vec3(0, 1, 0), angle);
+				body.quaternion.mult(rotation, body.quaternion);
+
+				// Translate the body back to its original position
+				body.position.vadd(point, body.position);
+
+				// Now, you can set force and torque to zero
+				body.force.set(0, 0, 0);
+				body.torque.set(0, 0, 0);
+			}
+
+			//const center = 
+			// Rotate the body around the specified point
+			
+			hingedBody.position.copy(center);
+			hingedBody.linearDamping = 0.4;
+			world.addBody(hingedBody);
+
+			rotateBodyAroundPoint(hingedBody, resultVec, -1.0); // Example: Rotate by 45 degrees
+
+			const halfExtents2 = new CANNON.Vec3(0.06, 0.06, 0.06);
+			const staticShape = new CANNON.Box(halfExtents2);
+			const staticBody = new CANNON.Body({ mass: 0 });
+			staticBody.addShape(staticShape);
+			staticBody.position.copy(center);
+			staticBody.collisionResponse = 0;
+			world.addBody(staticBody);
+
 			const constraint = new CANNON.HingeConstraint(staticBody, hingedBody, {
 				pivotA: pivot,
 				axisA: axis,
