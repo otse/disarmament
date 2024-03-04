@@ -43,8 +43,10 @@ lockers, bunker corridor
 
 <====
 
-you are on a desolate rock on a salvage yard. but the computer there makes you believe, that you are
+you are on a desolate rock on a salvage yard. but the computer there makes you believe that you are
 on a sewer planet, a vast world dedicated to the harvest and deconstruction of decomissioned space craft
 and machines of war.
 
-there are consoles with information? counter-argument is that that is way too matrix, hacky and tech savvy
+<====
+
+blobs have runover the yard.

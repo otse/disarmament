@@ -24,6 +24,7 @@ var sketchup;
         'locker1': ['./assets/textures/locker1', 60, false, false],
         'lockerssplat': ['./assets/textures/lockerssplat', 40, false, false],
         'door1': ['./assets/textures/door1', 25, false, false],
+        'grate1': ['./assets/textures/grate1', 40, false, false, true],
     };
     const stickers = ['lockerssplat'];
     const library = {};
