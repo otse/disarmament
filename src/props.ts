@@ -4,6 +4,7 @@ import hooks from "./lib/hooks.js";
 import hunt from "./hunt.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
+import easings from "./easings.js";
 
 namespace props {
 
@@ -25,7 +26,7 @@ namespace props {
 				prop = new psound(object, {});
 				break;
 			case 'light':
-				prop = new plight(object, {});
+				prop = new ppointlight(object, {});
 				break;
 			case 'spotlight':
 				prop = new pspotlight(object, {});
@@ -115,7 +116,7 @@ namespace props {
 	export var walls: psound[] = []
 	export var sounds: psound[] = []
 	export var boxes: psound[] = []
-	export var lights: plight[] = []
+	export var lights: ppointlight[] = []
 
 	export var presets_from_json = {}
 
@@ -404,7 +405,33 @@ namespace props {
 		}
 	}
 
-	export class plight extends prop {
+	class light extends prop {
+		light
+		preset_
+		constructor(object, parameters) {
+			super(object, parameters);
+		}
+		timer = 0
+		behavior() {
+			if (!this.preset_)
+				return;
+			const behavior = this.preset_.behavior;
+			if (!behavior)
+				return;
+			const cycle = behavior.cycle || 1;
+			if (this.timer >= 2)
+				this.timer -= 2;
+			let intensity = 1;
+			this.timer += hunt.dt / (cycle / 2);
+			if (behavior.type == 'bounce') {
+				const loop = easings.easeOutBounce(this.timer <= 1 ? this.timer : 2 - this.timer);
+				intensity = (behavior.base || 0) + loop * (behavior.variance || 1);
+			}
+			this.light.intensity = this.preset_.intensity * intensity;
+			this.light.needsUpdate = true;
+		}
+	}
+	export class ppointlight extends light {
 		constructor(object, parameters) {
 			super(object, parameters);
 			this.type = 'plight';
@@ -412,13 +439,13 @@ namespace props {
 		}
 		override _finish() {
 			//this.object.visible = false;
-			const preset = presets_from_json[this.preset || 'none'];
-			if (!preset) {
+			this.preset_ = presets_from_json[this.preset || 'none'];
+			if (!this.preset_) {
 				console.log(' preset no def ', this.preset);
 				return;
 			}
 
-			this.object.visible = !preset.hide;
+			this.object.visible = !this.preset_.hide;
 
 			let size = new THREE.Vector3();
 			this.aabb.getSize(size);
@@ -426,23 +453,24 @@ namespace props {
 			size.multiplyScalar(hunt.inchMeter);
 
 			let light = new THREE.PointLight(
-				preset.color,
-				preset.intensity,
-				preset.distance,
-				preset.decay);
-			light.castShadow = preset.shadow;
+				this.preset_.color || 'white',
+				this.preset_.intensity || 1,
+				this.preset_.distance || 3,
+				this.preset_.decay || 1);
+			this.light = light;
+			light.castShadow = this.preset_.shadow;
 			//light.position.fromArray(preset.offset || [0, 0, 0]);
 			light.position.add(size);
 			// light.add(new THREE.AxesHelper(10));
 			this.group.add(light);
 
-			if (preset.lensflare) {
+			if (this.preset_.lensflare) {
 				lensflare1 ||= new THREE.TextureLoader().load('./assets/textures/flare1.png');
 				//lensflare1.opacity = 0.2;
 				//lensflare1.transparent = true;
 
 				const lensflare = new Lensflare();
-				const size = preset.lensflareSize || 1;
+				const size = this.preset_.lensflareSize || 1;
 				const element = new LensflareElement(lensflare1, 15 * size, 0, light.color);
 				const element2 = new LensflareElement(lensflare1, 10, 0.025 * size, light.color);
 				const element3 = new LensflareElement(lensflare1, 5, 0.07 * size, light.color);
@@ -454,6 +482,7 @@ namespace props {
 			}
 		}
 		override _loop() {
+			this.behavior();
 		}
 		override _lod() {
 		}
@@ -461,7 +490,7 @@ namespace props {
 
 	let lensflare1;
 
-	export class pspotlight extends prop {
+	export class pspotlight extends light {
 		spotlight
 		constructor(object, parameters) {
 			super(object, parameters);
@@ -469,12 +498,12 @@ namespace props {
 			this.array = lights;
 		}
 		override _finish() {
-			const preset = presets_from_json[this.preset || 'none'];
-			if (!preset) {
+			this.preset_ = presets_from_json[this.preset || 'none'];
+			if (!this.preset_) {
 				console.warn(' preset no def ');
 				return;
 			}
-			this.object.visible = !preset.hide;
+			this.object.visible = !this.preset_.hide;
 
 			let size = new THREE.Vector3();
 			this.aabb.getSize(size);
@@ -483,23 +512,24 @@ namespace props {
 			//console.log('light size, center', size, center);
 
 			let light = new THREE.SpotLight(
-				preset.color,
-				preset.intensity,
-				preset.distance,
-				preset.decay);
+				this.preset_.color,
+				this.preset_.intensity,
+				this.preset_.distance,
+				this.preset_.decay);
+			this.light = light;
 			light.position.set(0, 0, 0);
-			light.castShadow = preset.shadow;
+			light.castShadow = this.preset_.shadow;
 			light.shadow.camera.far = 1000;
-			light.angle = preset.angle || Math.PI / 3;
-			light.penumbra = preset.penumbra || 0.0;
+			light.angle = this.preset_.angle || Math.PI / 3;
+			light.penumbra = this.preset_.penumbra || 0.0;
 
-			if (preset.lensflare) {
+			if (this.preset_.lensflare) {
 				lensflare1 ||= new THREE.TextureLoader().load('./assets/textures/flare1.png');
 				//lensflare1.opacity = 0.2;
 				//lensflare1.transparent = true;
 
 				const lensflare = new Lensflare();
-				const size = preset.lensflareSize || 1;
+				const size = this.preset_.lensflareSize || 1;
 				const element = new LensflareElement(lensflare1, 15 * size, 0, light.color);
 				const element2 = new LensflareElement(lensflare1, 10, 0.025 * size, light.color);
 				const element3 = new LensflareElement(lensflare1, 5, 0.07 * size, light.color);
@@ -518,8 +548,8 @@ namespace props {
 
 			//light.add(new THREE.AxesHelper(10));
 
-			if (preset.target)
-				light.target.position.add(new THREE.Vector3().fromArray(preset.target).multiplyScalar(4));
+			if (this.preset_.target)
+				light.target.position.add(new THREE.Vector3().fromArray(this.preset_.target).multiplyScalar(4));
 			light.target.position.add(size);
 			//light.target.add(new THREE.AxesHelper(10));
 			light.position.add(size);
@@ -530,6 +560,7 @@ namespace props {
 			//this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
 		}
 		override _loop() {
+			this.behavior();
 		}
 	}
 
