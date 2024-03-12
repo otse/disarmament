@@ -214,8 +214,8 @@ var renderer;
         renderer_1.scene.add(renderer_1.propsGroup);
         renderer_1.scene.background = new THREE.Color('black');
         renderer_1.scene2 = new THREE.Scene();
-        renderer_1.scene2.matrixAutoUpdate = false;
         //scene2.background = new THREE.Color('white');
+        renderer_1.scene2.matrixAutoUpdate = false;
         renderer_1.depthTexture = new THREE.DepthTexture();
         renderer_1.depthTexture.type = THREE.UnsignedShortType;
         renderer_1.renderTarget = new THREE.WebGLRenderTarget(512, 512, {
@@ -270,7 +270,7 @@ var renderer;
         renderer_1.renderer.setPixelRatio(dpi);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
         renderer_1.renderer.shadowMap.enabled = true;
-        renderer_1.renderer.shadowMap.type = THREE.BasicShadowMap;
+        renderer_1.renderer.shadowMap.type = THREE.PCFShadowMap;
         renderer_1.renderer.setClearColor(0xffffff, 0.0);
         resize();
         renderer_1.currt = renderer_1.renderer.getRenderTarget();

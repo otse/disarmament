@@ -8,7 +8,7 @@ var sketchup;
     const paths = {
         'ebony': ['./assets/textures/black', 0, false, false],
         'crete1': ['./assets/textures/crete1', 15, false, false],
-        'crete2': ['./assets/textures/crete2', 15, false, false],
+        'crete2': ['./assets/textures/crete2', 5, false, false],
         'brick1': ['./assets/textures/brick1', 15, true, true],
         'bulkhead1': ['./assets/textures/bulkhead1', 30, true, true, true],
         'floor1': ['./assets/textures/floor1', 5, true],
@@ -25,6 +25,7 @@ var sketchup;
         'lockerssplat': ['./assets/textures/lockerssplat', 40, false, false],
         'door1': ['./assets/textures/door1', 25, false, false],
         'grate1': ['./assets/textures/grate1', 40, false, false, true],
+        'grate2': ['./assets/textures/grate2', 40, false, false, true],
     };
     const stickers = ['lockerssplat'];
     const library = {};

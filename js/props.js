@@ -354,6 +354,8 @@ var props;
             //this.object.position.add(size);
         }
         _loop() {
+            if (this.preset == 'x')
+                this.group.rotation.x += 0.005;
             if (this.preset == 'y')
                 this.group.rotation.z += 0.005;
             if (this.preset == 'z')

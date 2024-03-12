@@ -241,8 +241,8 @@ namespace renderer {
 		scene.background = new THREE.Color('black');
 
 		scene2 = new THREE.Scene();
-		scene2.matrixAutoUpdate = false;
 		//scene2.background = new THREE.Color('white');
+		scene2.matrixAutoUpdate = false;
 
 		depthTexture = new THREE.DepthTexture();
 		depthTexture.type = THREE.UnsignedShortType;
@@ -312,7 +312,7 @@ namespace renderer {
 		renderer.setPixelRatio(dpi);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
-		renderer.shadowMap.type = THREE.BasicShadowMap;
+		renderer.shadowMap.type = THREE.PCFShadowMap;
 		renderer.setClearColor(0xffffff, 0.0);
 
 		resize();
