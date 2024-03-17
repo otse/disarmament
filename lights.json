@@ -157,9 +157,9 @@
 	"afterlockers": {
 		"hide": true,
 		"color": "thistle",
-		"intensity": 0.2,
+		"intensity": 0.15,
 		"distance": 5.0,
-		"decay": 0.1,
+		"decay": 0.3,
 		"shadow": true,
 		"target": [
 			0,

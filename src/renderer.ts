@@ -230,17 +230,18 @@ namespace renderer {
 		propsGroup.updateMatrix();
 		propsGroup.updateMatrixWorld();
 
+		// the infamous red testing ring
 		const material = new THREE.MeshLambertMaterial({ color: 'red' });
 		const geometry = new THREE.RingGeometry(0.5, 1, 8);
 		const mesh = new THREE.Mesh(geometry, material);
 		//mesh.add(new THREE.AxesHelper(1));
-		propsGroup.add(mesh);
+		//propsGroup.add(mesh);
 
 		scene = new THREE.Scene();
 		scene.add(propsGroup);
 		scene.background = new THREE.Color('black');
 
-		scene.fog = new THREE.Fog(0x131c1d, 5, 20);
+		scene.fog = new THREE.Fog(0x131c1d, 7, 20);
 
 		scene2 = new THREE.Scene();
 		//scene2.background = new THREE.Color('white');
@@ -296,8 +297,8 @@ namespace renderer {
 		camera.rotation.y = -Math.PI / 2;
 		camera.position.y = 1.5;
 
-		const helper = new THREE.AxesHelper(1);
-		scene.add(helper);
+		//const helper = new THREE.AxesHelper(1);
+		//scene.add(helper);
 
 		camera.position.z = 5;
 
