@@ -213,6 +213,7 @@ var renderer;
         renderer_1.scene = new THREE.Scene();
         renderer_1.scene.add(renderer_1.propsGroup);
         renderer_1.scene.background = new THREE.Color('black');
+        renderer_1.scene.fog = new THREE.Fog(0x131c1d, 5, 20);
         renderer_1.scene2 = new THREE.Scene();
         //scene2.background = new THREE.Color('white');
         renderer_1.scene2.matrixAutoUpdate = false;

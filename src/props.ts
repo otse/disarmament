@@ -5,6 +5,7 @@ import hunt from "./hunt.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
 import easings from "./easings.js";
+import app from "./app.js";
 
 namespace props {
 
@@ -43,7 +44,7 @@ namespace props {
 				prop = new pdoor(object, { rotation: hint });
 				break;
 			case 'fan':
-				prop = new pfan(object, {});
+				prop = new pfan(object, { rotation: hint });
 				break;
 			case 'convex':
 				console.log(' new convex ');
@@ -341,11 +342,16 @@ namespace props {
 	}
 
 	export class pfan extends prop {
+		preset_
 		constructor(object, parameters) {
 			super(object, parameters);
 			this.type = 'pfan';
 		}
 		override _finish() {
+			this.preset_ = presets_from_json[this.preset || 'none'];
+			console.log('fan preset_', this.preset_, this.preset);
+			
+
 			//this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
 			const size = new THREE.Vector3();
 			const center = new THREE.Vector3();
@@ -358,10 +364,10 @@ namespace props {
 			size.divideScalar(2);
 			size.z = -size.z;
 
-			if (this.preset == 'y') {
+			if (this.parameters.rotation == 'y') {
 			}
 
-			if (this.preset == 'z') {
+			if (this.parameters.rotation == 'z') {
 			}
 
 			this.object.position.sub(temp.divideScalar(2));
@@ -375,12 +381,13 @@ namespace props {
 
 		}
 		override _loop() {
-			if (this.preset == 'x')
-				this.group.rotation.x += 0.005;
-			if (this.preset == 'y')
-				this.group.rotation.z += 0.005;
-			if (this.preset == 'z')
-				this.group.rotation.y += 0.005;
+			const speed = (this.preset_?.speed || 1) * app.delta;
+			if (this.parameters.rotation == 'x')
+				this.group.rotation.x += speed;
+			if (this.parameters.rotation == 'y')
+				this.group.rotation.z += speed;
+			if (this.parameters.rotation == 'z')
+				this.group.rotation.y += speed;
 			this.group.updateMatrix();
 
 		}
@@ -423,10 +430,17 @@ namespace props {
 				this.timer -= 2;
 			let intensity = 1;
 			this.timer += hunt.dt / (cycle / 2);
-			if (behavior.type == 'bounce') {
-				const loop = easings.easeOutBounce(this.timer <= 1 ? this.timer : 2 - this.timer);
-				intensity = (behavior.base || 0) + loop * (behavior.variance || 1);
-			}
+			let value = (() => {
+				switch (behavior.type) {
+					case 'bounce':
+						return easings.easeOutBounce(this.timer <= 1 ? this.timer : 2 - this.timer);
+					case 'shake':
+						return easings.easeInOutElastic(this.timer <= 1 ? this.timer : 2 - this.timer);
+					default:
+						return 1;
+				}
+			})()
+			intensity = (behavior.base || .5) + value * (behavior.variance || .5);
 			this.light.intensity = this.preset_.intensity * intensity;
 			this.light.needsUpdate = true;
 		}

@@ -14,6 +14,7 @@ namespace physics {
 		compactdiscs: { mass: 0.7, material: 'cardboard' },
 		matress: { mass: 1.0, material: 'cardboard' },
 		barrel: { mass: 1.0, material: 'metal' },
+		locker: { mass: 4.0, material: 'metal' },
 		solid: { mass: 0.0, material: 'cardboard' },
 		none: { mass: 0.5, material: 'cardboard' }
 	}

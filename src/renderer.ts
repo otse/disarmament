@@ -240,6 +240,8 @@ namespace renderer {
 		scene.add(propsGroup);
 		scene.background = new THREE.Color('black');
 
+		scene.fog = new THREE.Fog(0x131c1d, 5, 20);
+
 		scene2 = new THREE.Scene();
 		//scene2.background = new THREE.Color('white');
 		scene2.matrixAutoUpdate = false;
@@ -249,8 +251,8 @@ namespace renderer {
 
 		renderTarget = new THREE.WebGLRenderTarget(512, 512, {
 			//type: THREE.UnsignedByteType, // fix for lensflare
-			type: THREE.HalfFloatType , // hdr effect
-			format: THREE.RGBAFormat ,
+			type: THREE.HalfFloatType, // hdr effect
+			format: THREE.RGBAFormat,
 			minFilter: THREE.NearestFilter,
 			magFilter: THREE.NearestFilter,
 			depthBuffer: true,
@@ -303,7 +305,7 @@ namespace renderer {
 		renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		//renderer.depth = false;
 		//console.log('ren depthte', renderer.depthTexture);
-		
+
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
 		if (dither)
 			renderer.toneMappingExposure = 5.5;

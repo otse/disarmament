@@ -170,9 +170,11 @@ class player {
 		// else our forward speed is 0 when looking down or up
 		euler.x = 0;
 
+		const speed = 0.025;
+
 		if (x || z) {
-			z *= 0.04;
-			x *= 0.04;
+			z *= speed;
+			x *= speed;
 
 			z *= 165 * delta;
 			x *= 165 * delta;
