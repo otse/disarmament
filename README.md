@@ -2,4 +2,4 @@
 
 gfx inspired by hamburger helper
 
-why is the source open, why is it here?
+https://otse.itch.io/salvage
