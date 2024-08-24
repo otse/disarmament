@@ -211,7 +211,8 @@ namespace renderer {
 	export var sun, sunOffset = [0, 10, -0] // sunOffset = [1.0, 10, -1.0]
 
 	// reduce
-	export var enable_post = true;
+	export var lets_pulse = true;
+	export var enable_post = false;
 	export var animate_bounce_hdr = false;
 	export var dither = true;
 	export var ren_stats = false;
@@ -230,16 +231,9 @@ namespace renderer {
 		propsGroup.updateMatrix();
 		propsGroup.updateMatrixWorld();
 
-		// the infamous red testing ring
-		const material = new THREE.MeshLambertMaterial({ color: 'red' });
-		const geometry = new THREE.RingGeometry(0.5, 1, 8);
-		const mesh = new THREE.Mesh(geometry, material);
-		//mesh.add(new THREE.AxesHelper(1));
-		//propsGroup.add(mesh);
-
 		scene = new THREE.Scene();
 		scene.add(propsGroup);
-		scene.background = new THREE.Color('black');
+		scene.background = new THREE.Color('green');
 
 		scene.fog = new THREE.Fog(0x131c1d, 7, 20);
 
@@ -252,8 +246,8 @@ namespace renderer {
 
 		renderTarget = new THREE.WebGLRenderTarget(512, 512, {
 			//type: THREE.UnsignedByteType, // fix for lensflare
-			type: THREE.HalfFloatType, // hdr effect
-			format: THREE.RGBAFormat,
+			type: THREE.FloatType, // HalfFloatType
+			//format: THREE.RGBAFormat,
 			minFilter: THREE.NearestFilter,
 			magFilter: THREE.NearestFilter,
 			depthBuffer: true,
@@ -303,19 +297,25 @@ namespace renderer {
 		camera.position.z = 5;
 
 		const dpi = window.devicePixelRatio;
-		renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+		renderer = new THREE.WebGLRenderer({
+			antialias: true,
+			//alpha: false
+		});
+		renderer.autoClear = false;
+		renderer.xr.enabled = true;
+		//renderer.setAnimationLoop( render ); // <---
 		//renderer.depth = false;
 		//console.log('ren depthte', renderer.depthTexture);
 
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
 		if (dither)
-			renderer.toneMappingExposure = 5.5;
+			renderer.toneMappingExposure = 4.5;
 		else
 			renderer.toneMappingExposure = 2.5;
 		renderer.setPixelRatio(dpi);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
-		renderer.shadowMap.type = THREE.PCFShadowMap;
+		renderer.shadowMap.type = THREE.BasicShadowMap;//PCFShadowMap;
 		renderer.setClearColor(0xffffff, 0.0);
 
 		resize();
@@ -350,11 +350,42 @@ namespace renderer {
 		hunt_main.appendChild(renderer.domElement);
 		// test
 
-
 		window.addEventListener('resize', resize);
 	}
 
+	function redo() {
+		const wh = pts.make(window.innerWidth, window.innerHeight);
+		const rescale = pts.divide(wh, offscreen_target_factor);
+
+		renderTarget.setSize(rescale[0], rescale[1]);
+
+		quad2.geometry = new THREE.PlaneGeometry(wh[0], wh[1]);
+
+		camera2 = new THREE.OrthographicCamera(
+			wh[0] / - 2, wh[0] / 2, wh[1] / 2, wh[1] / - 2, -100, 100);
+		camera2.updateProjectionMatrix();
+
+		camera2 = new THREE.OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
+	}
+
 	export function resize() {
+
+		redo();
+
+		//const wh = pts.make(window.innerWidth, window.innerHeight);
+		//const rescale = pts.divide(wh, offscreen_target_factor);
+
+		//renderTarget.setSize(rescale[0], rescale[1]);
+
+		renderer.setSize(window.innerWidth, window.innerHeight);
+
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		//render();
+	}
+
+	export function resizee() {
 		let wh = pts.make(window.innerWidth, window.innerHeight);
 
 		const nearest = 8;
@@ -458,6 +489,23 @@ namespace renderer {
 			}
 		}
 
+		if (lets_pulse) {
+			const pulse_cycle = 4;
+
+			glitch += dt / (pulse_cycle / 2);
+			hdr += dt / 1.0;
+
+			if (glitch >= 2)
+				glitch -= 2;
+
+			if (hdr >= 1)
+				hdr -= 1;
+
+			let itch = easings.easeOutBounce(glitch <= 1 ? glitch : 2 - glitch);
+
+			renderer.toneMappingExposure = 5.5 + itch;
+		}
+
 		if (enable_post) {
 			const pulse_cycle = 4;
 
@@ -515,14 +563,16 @@ namespace renderer {
 			renderer.render(scene2, camera2);
 		}
 		else {
-			renderer.shadowMap.enabled = true;
+			//renderer.shadowMap.enabled = true;
 			//renderer.shadowMap.enabled = false;
 
 			//let rt = renderer.getRenderTarget();
 			//console.log('currt vs rt', currt, rt);
 
+			//renderer.setSize(window.innerWidth / 4, window.innerHeight / 4);
+
 			//if (renderer.xr.getBaseLayer()) {
-			//	renderer.setRenderTargetFramebuffer(tarrt, renderer.xr.getBaseLayer().framebuffer);
+			//	renderer.setRenderTargetFramebuffer(renderTarget, renderer.xr.getBaseLayer().framebuffer);
 			//}
 			//renderer.setRenderTarget(tarrt);
 			//renderer.setRenderTarget(null);

@@ -6,6 +6,7 @@ import player from "./player.js";
 import props from "./props.js";
 import points from "./lib/pts.js";
 import renderer from "./renderer.js";
+import vr from "./vr/vr.js";
 import sketchup from "./sketchup.js";
 import viewport from "./viewport.js";
 glob.developer = true;
@@ -32,8 +33,10 @@ var hunt;
         physics.boot();
         props.boot();
         renderer.boot();
+        vr.boot();
         await sketchup.boot();
         audio.boot();
+        vr.start();
         hunt.gplayer = new player();
         // new physics.simple_box();
     }
@@ -58,6 +61,7 @@ var hunt;
         physics.loop(hunt.timeStep);
         props.loop();
         await sketchup.loop();
+        vr.loop();
         //if (!glob.xr)
         renderer.render();
     }

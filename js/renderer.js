@@ -193,7 +193,8 @@ var renderer;
     renderer_1.dt = 0;
     renderer_1.sunOffset = [0, 10, -0]; // sunOffset = [1.0, 10, -1.0]
     // reduce
-    renderer_1.enable_post = true;
+    renderer_1.lets_pulse = true;
+    renderer_1.enable_post = false;
     renderer_1.animate_bounce_hdr = false;
     renderer_1.dither = true;
     renderer_1.ren_stats = false;
@@ -205,15 +206,9 @@ var renderer;
         renderer_1.propsGroup = new THREE.Group();
         renderer_1.propsGroup.updateMatrix();
         renderer_1.propsGroup.updateMatrixWorld();
-        // the infamous red testing ring
-        const material = new THREE.MeshLambertMaterial({ color: 'red' });
-        const geometry = new THREE.RingGeometry(0.5, 1, 8);
-        const mesh = new THREE.Mesh(geometry, material);
-        //mesh.add(new THREE.AxesHelper(1));
-        //propsGroup.add(mesh);
         renderer_1.scene = new THREE.Scene();
         renderer_1.scene.add(renderer_1.propsGroup);
-        renderer_1.scene.background = new THREE.Color('black');
+        renderer_1.scene.background = new THREE.Color('green');
         renderer_1.scene.fog = new THREE.Fog(0x131c1d, 7, 20);
         renderer_1.scene2 = new THREE.Scene();
         //scene2.background = new THREE.Color('white');
@@ -222,8 +217,8 @@ var renderer;
         renderer_1.depthTexture.type = THREE.UnsignedShortType;
         renderer_1.renderTarget = new THREE.WebGLRenderTarget(512, 512, {
             //type: THREE.UnsignedByteType, // fix for lensflare
-            type: THREE.HalfFloatType,
-            format: THREE.RGBAFormat,
+            type: THREE.FloatType,
+            //format: THREE.RGBAFormat,
             minFilter: THREE.NearestFilter,
             magFilter: THREE.NearestFilter,
             depthBuffer: true,
@@ -261,18 +256,24 @@ var renderer;
         //scene.add(helper);
         renderer_1.camera.position.z = 5;
         const dpi = window.devicePixelRatio;
-        renderer_1.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer_1.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            //alpha: false
+        });
+        renderer_1.renderer.autoClear = false;
+        renderer_1.renderer.xr.enabled = true;
+        //renderer.setAnimationLoop( render ); // <---
         //renderer.depth = false;
         //console.log('ren depthte', renderer.depthTexture);
         renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         if (renderer_1.dither)
-            renderer_1.renderer.toneMappingExposure = 5.5;
+            renderer_1.renderer.toneMappingExposure = 4.5;
         else
             renderer_1.renderer.toneMappingExposure = 2.5;
         renderer_1.renderer.setPixelRatio(dpi);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
         renderer_1.renderer.shadowMap.enabled = true;
-        renderer_1.renderer.shadowMap.type = THREE.PCFShadowMap;
+        renderer_1.renderer.shadowMap.type = THREE.BasicShadowMap; //PCFShadowMap;
         renderer_1.renderer.setClearColor(0xffffff, 0.0);
         resize();
         renderer_1.currt = renderer_1.renderer.getRenderTarget();
@@ -301,7 +302,27 @@ var renderer;
         window.addEventListener('resize', resize);
     }
     renderer_1.boot = boot;
+    function redo() {
+        const wh = pts.make(window.innerWidth, window.innerHeight);
+        const rescale = pts.divide(wh, offscreen_target_factor);
+        renderer_1.renderTarget.setSize(rescale[0], rescale[1]);
+        renderer_1.quad2.geometry = new THREE.PlaneGeometry(wh[0], wh[1]);
+        renderer_1.camera2 = new THREE.OrthographicCamera(wh[0] / -2, wh[0] / 2, wh[1] / 2, wh[1] / -2, -100, 100);
+        renderer_1.camera2.updateProjectionMatrix();
+        renderer_1.camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    }
     function resize() {
+        redo();
+        //const wh = pts.make(window.innerWidth, window.innerHeight);
+        //const rescale = pts.divide(wh, offscreen_target_factor);
+        //renderTarget.setSize(rescale[0], rescale[1]);
+        renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer_1.camera.aspect = window.innerWidth / window.innerHeight;
+        renderer_1.camera.updateProjectionMatrix();
+        //render();
+    }
+    renderer_1.resize = resize;
+    function resizee() {
         let wh = pts.make(window.innerWidth, window.innerHeight);
         const nearest = 8;
         wh[0] = wh[0] - wh[0] % nearest;
@@ -324,7 +345,7 @@ var renderer;
         renderer_1.camera.aspect = screen[0] / screen[1];
         renderer_1.camera.updateProjectionMatrix();
     }
-    renderer_1.resize = resize;
+    renderer_1.resizee = resizee;
     var prevTime = 0, time = 0, frames = 0;
     renderer_1.fps = 0;
     function loop() {
@@ -387,6 +408,17 @@ var renderer;
 			`);
             }
         }
+        if (renderer_1.lets_pulse) {
+            const pulse_cycle = 4;
+            renderer_1.glitch += renderer_1.dt / (pulse_cycle / 2);
+            renderer_1.hdr += renderer_1.dt / 1.0;
+            if (renderer_1.glitch >= 2)
+                renderer_1.glitch -= 2;
+            if (renderer_1.hdr >= 1)
+                renderer_1.hdr -= 1;
+            let itch = easings.easeOutBounce(renderer_1.glitch <= 1 ? renderer_1.glitch : 2 - renderer_1.glitch);
+            renderer_1.renderer.toneMappingExposure = 5.5 + itch;
+        }
         if (renderer_1.enable_post) {
             const pulse_cycle = 4;
             renderer_1.glitch += renderer_1.dt / (pulse_cycle / 2);
@@ -431,12 +463,13 @@ var renderer;
             renderer_1.renderer.render(renderer_1.scene2, renderer_1.camera2);
         }
         else {
-            renderer_1.renderer.shadowMap.enabled = true;
+            //renderer.shadowMap.enabled = true;
             //renderer.shadowMap.enabled = false;
             //let rt = renderer.getRenderTarget();
             //console.log('currt vs rt', currt, rt);
+            //renderer.setSize(window.innerWidth / 4, window.innerHeight / 4);
             //if (renderer.xr.getBaseLayer()) {
-            //	renderer.setRenderTargetFramebuffer(tarrt, renderer.xr.getBaseLayer().framebuffer);
+            //	renderer.setRenderTargetFramebuffer(renderTarget, renderer.xr.getBaseLayer().framebuffer);
             //}
             //renderer.setRenderTarget(tarrt);
             //renderer.setRenderTarget(null);

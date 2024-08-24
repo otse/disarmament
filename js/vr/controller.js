@@ -39,7 +39,7 @@ export class ctrlr {
         }
         renderer.scene.add(this.controller);
         const controllerModelFactory = new XRControllerModelFactory();
-        const handModelFactory = new XRHandModelFactory();
+        ///const handModelFactory = new XRHandModelFactory();
         // this creates a quest 2 controller with the tracking ring
         // it can also make a black rift s controller
         this.grip = renderer.renderer.xr.getControllerGrip(index);
@@ -51,7 +51,7 @@ export class ctrlr {
             //console.warn(' axes', this.grip.data.gamepad.axes[3]);
         });
         this.hand = renderer.renderer.xr.getHand(index);
-        this.hand.add(handModelFactory.createHandModel(this.hand));
+        ///this.hand.add(handModelFactory.createHandModel(this.hand));
         renderer.scene.add(this.hand);
         this.controller.addEventListener('selectstart', onSelectStart);
         this.controller.addEventListener('selectend', onSelectEnd);

@@ -28,6 +28,7 @@
 		var FirstPersonControls;
 		var PointerLockControls;
 		var VRButton;
+		var XRControllerModelFactory;
 	</script>
 
 	<script type="importmap">
@@ -43,6 +44,8 @@
 	<script type="module">
 		import * as cannon from 'cannon';
 		import * as three from 'three';
+		import { VRButton } from 'three/addons/webxr/VRButton.js';
+		import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 		import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 		import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 		import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
@@ -51,6 +54,8 @@
 		app = backwards;
 		CANNON = cannon;
 		THREE = three;
+		window.VRButton = VRButton;
+		window.XRControllerModelFactory = XRControllerModelFactory;
 		window.ColladaLoader = ColladaLoader;
 		window.BufferGeometryUtils = BufferGeometryUtils;
 		window.PointerLockControls = PointerLockControls;

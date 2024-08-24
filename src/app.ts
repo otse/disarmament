@@ -109,7 +109,7 @@ namespace app {
 			document.onwheel = onwheel;
 		}
 		window.onerror = onerror;
-		loop();
+		loop_forever(); // replaced by vr.start which uses renderer.setanimationloop
 	}
 
 	function post_keys() {
@@ -131,15 +131,8 @@ namespace app {
 
 	export var delta = 0
 	export var last = 0
-	export var af
-
-	async function sleep() {
-		return new Promise(requestAnimationFrame);
-	}
 
 	export async function loop() {
-		do {
-		await sleep();
 		//await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps mode
 		const now = (performance || Date).now();
 		delta = (now - last) / 1000;
@@ -148,6 +141,16 @@ namespace app {
 		wheel = 0;
 		post_keys();
 		post_mouse_buttons();
+	}
+
+	async function sleep() {
+		return new Promise(requestAnimationFrame);
+	}
+
+	export async function loop_forever() {
+		do {
+		await sleep();
+		await loop();
 		} while (1);
 	}
 

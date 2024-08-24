@@ -6,7 +6,7 @@
 		"speed": -0.5
 	},
 	"fanlockers": {
-		"speed": 5.0
+		"speed": 4.0
 	},
 	"plgeneric": {
 		"hide": true,
@@ -146,7 +146,7 @@
 			"variance": 0.05
 		}
 	},
-	"lockersfan": {
+	"lockersupperambient": {
 		"hide": true,
 		"color": "lightblue",
 		"intensity": 0.04,
@@ -154,10 +154,18 @@
 		"decay": 0.001,
 		"shadow": false
 	},
+	"lockersfanlight": {
+		"hide": true,
+		"color": "blue",
+		"intensity": 0.3,
+		"distance": 0.7,
+		"decay": 0.1,
+		"shadow": false
+	},
 	"afterlockers": {
 		"hide": true,
-		"color": "thistle",
-		"intensity": 0.15,
+		"color": "black",
+		"intensity": 0.0,
 		"distance": 5.0,
 		"decay": 0.3,
 		"shadow": true,

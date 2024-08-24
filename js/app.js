@@ -103,7 +103,7 @@ var app;
             document.onwheel = onwheel;
         }
         window.onerror = onerror;
-        loop();
+        loop_forever(); // replaced by vr.start which uses renderer.setanimationloop
     }
     app.boot = boot;
     function post_keys() {
@@ -123,23 +123,27 @@ var app;
     }
     app.delta = 0;
     app.last = 0;
+    async function loop() {
+        //await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps mode
+        const now = (performance || Date).now();
+        app.delta = (now - app.last) / 1000;
+        app.last = now;
+        await hunt.loop(app.delta);
+        app.wheel = 0;
+        post_keys();
+        post_mouse_buttons();
+    }
+    app.loop = loop;
     async function sleep() {
         return new Promise(requestAnimationFrame);
     }
-    async function loop() {
+    async function loop_forever() {
         do {
             await sleep();
-            //await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps mode
-            const now = (performance || Date).now();
-            app.delta = (now - app.last) / 1000;
-            app.last = now;
-            await hunt.loop(app.delta);
-            app.wheel = 0;
-            post_keys();
-            post_mouse_buttons();
+            await loop();
         } while (1);
     }
-    app.loop = loop;
+    app.loop_forever = loop_forever;
     function fluke_set_innerhtml(selector, html) {
         let element = document.querySelectorAll(selector)[0];
         element.innerHTML = html;

@@ -79,26 +79,53 @@ namespace sketchup {
 		}
 	}
 
+	const revert = false;
+
+	const createTextureFromImage = (imageUrl, scale) => {
+		if (revert)
+			return new THREE.TextureLoader().load(imageUrl);
+		else {
+			const canvas = document.createElement('canvas');
+			const texture = new THREE.CanvasTexture(canvas);
+
+			new THREE.ImageLoader().load(imageUrl, image => {
+				const ctx = canvas.getContext('2d')!;
+
+				canvas.width = image.width / scale;
+				canvas.height = image.height / scale;
+				ctx.clearRect(0.0, 0.0, canvas.width, canvas.height);
+
+				ctx.drawImage(image, 0.0, 0.0, canvas.width, canvas.height);
+			});
+
+			return texture;
+		}
+	};
+
 	export async function boot() {
-		const textureLoader = new THREE.TextureLoader();
 		const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
 		for (let name in paths) {
 			const tuple = paths[name];
-			const colorMap = textureLoader.load(`${tuple[0]}.png`);
+			const url = `${tuple[0]}.png`;
+			const texture = createTextureFromImage(url, 4);
+			const colorMap = texture;//textureLoader.load(`${tuple[0]}.png`);
+			//colorMap.generateMipmaps = true;
 			colorMap.wrapS = colorMap.wrapT = THREE.RepeatWrapping;
 			const material = new THREE.MeshPhongMaterial({
 				name: name,
 				map: colorMap,
-				//flatShading: true,
-				//dithering: true,
+				//minFilter: THREE.LinearFilter,
+				//magFilter: THREE.LinearFilter,
+				//flatShading: true, // fucky
+				//dithering: true, // no effect
 			});
 			if (stickers.includes(name)) {
 				fix_sticker(material);
 			}
 
-			/*material.onBeforeCompile = (shader) => {
+			material.onBeforeCompile = (shader) => {
 				console.log('onbeforecompile');
-				shader.defines = { AL_GORE: '', GORE: '', GEORGE: '' };
+				shader.defines = { GORDON: '', GORE: '', GEORGE: '' };
 				shader.fragmentShader = shader.fragmentShader.replace(
 					`#include <tonemapping_fragment>`,
 					`#include <tonemapping_fragment>
@@ -106,13 +133,13 @@ namespace sketchup {
 					vec3 lumaWeights = vec3(.25,.50,.25);
 
 					vec3 grey;
-					float saturation = 0.5;
-					float factor = 150.0;
-					float saturation2 = 3.0;
+					float saturation = 1.0;
+					float factor = 50.0;
+					float saturation2 = 1.0;
 					float factor2 = 100.0;
 					//vec3 diffuse = material.diffuseColor.rgb;
 					vec3 diffuse = gl_FragColor.rgb;
-					#ifdef AL_GORE
+					#ifdef GORDON
 					grey = vec3(dot(lumaWeights, diffuse.rgb));
 					diffuse = vec3(grey + saturation * (diffuse.rgb - grey));
 					#endif
@@ -139,18 +166,18 @@ namespace sketchup {
 			}
 			material.customProgramCacheKey = function () {
 				return 'clucked';
-			}*/
+			}
 			material.specular.set(0.1, 0.1, 0.1);
 			material.shininess = tuple[1] || 30;
 
 			if (tuple[2]) {
-				const map = textureLoader.load(`${tuple[0]}_normal.png`);
+				const map = createTextureFromImage(`${tuple[0]}_normal.png`, 4);
 				map.wrapS = map.wrapT = colorMap.wrapS;
 				material.normalMap = map;
 				material.normalScale.set(0.4, -0.4);
 			}
 			if (tuple[3]) {
-				const map = textureLoader.load(`${tuple[0]}_specular.png`);
+				const map = createTextureFromImage(`${tuple[0]}_specular.png`, 4);
 				map.wrapS = map.wrapT = colorMap.wrapS;
 				material.specularMap = map;
 			}
@@ -169,9 +196,6 @@ namespace sketchup {
 				//material.side = THREE.DoubleSided; 
 				material.alphaTest = 0.9;
 			}
-			colorMap.wrapS = colorMap.wrapT = THREE.RepeatWrapping;
-			//cubify(material.map);
-			//material.map.minFilter = material.map.magFilter = THREE.NearestFilter;
 			library[name] = material;
 		}
 

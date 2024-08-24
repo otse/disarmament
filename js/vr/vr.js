@@ -1,4 +1,3 @@
-import app from "../app.js";
 import glob from "../lib/glob.js";
 import hooks from "../lib/hooks.js";
 import renderer from "../renderer.js";
@@ -52,7 +51,7 @@ var vr;
     }
     vr.start = start;
     function animate() {
-        app.loop();
+        //app.loop();
     }
     function loop() {
         leftController.loop();
