@@ -1,5 +1,5 @@
 import audio from "./audio.js";
-import hunt from "./hunt.js";
+import salvage from "./salvage.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
 var physics;
@@ -195,21 +195,21 @@ var physics;
                 if (velocity < 0.3)
                     return;
                 let volume;
-                volume = hunt.clamp(mass * velocity, 0.1, 3);
-                volume = hunt.clamp(velocity, 0.1, 1.0);
+                volume = salvage.clamp(mass * velocity, 0.1, 3);
+                volume = salvage.clamp(velocity, 0.1, 1.0);
                 if (that.prop.wiremesh)
-                    that.prop.wiremesh.recolor(hunt.sample(collision_happy_colors));
+                    that.prop.wiremesh.recolor(salvage.sample(collision_happy_colors));
                 let sample = '';
                 const impacts = props.impact_sounds[kind.material];
                 if (!impacts)
                     return;
                 if (velocity < 0.6) {
-                    sample = hunt.sample(impacts.soft);
+                    sample = salvage.sample(impacts.soft);
                 }
                 else {
-                    sample = hunt.sample(impacts.hard);
+                    sample = salvage.sample(impacts.hard);
                 }
-                volume = hunt.clamp(volume, 0, 0.2);
+                volume = salvage.clamp(volume, 0, 0.2);
                 let sound = audio.playOnce(sample, volume);
                 if (sound) {
                     prop.group.add(sound);

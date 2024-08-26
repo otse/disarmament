@@ -12,7 +12,7 @@ export class ctrlr {
     constructor(index = 1) {
         this.index = index;
         this.controller = renderer.renderer.xr.getController(index);
-        console.log(' hunt ctrlr controller', this.controller);
+        // console.log(' hunt ctrlr controller', this.controller);
         const that = this;
         this.controller.addEventListener('connected', function (event) {
             this.add(buildController(event.data));
@@ -44,7 +44,7 @@ export class ctrlr {
         // it can also make a black rift s controller
         this.grip = renderer.renderer.xr.getControllerGrip(index);
         this.grip.add(controllerModelFactory.createControllerModel(this.grip));
-        console.log(' ctrlr grip', this.grip);
+        //console.log(' ctrlr grip', this.grip);
         renderer.scene.add(this.grip);
         this.grip.addEventListener("connected", (e) => {
             //console.warn(' hunt vr gamepad', e.data.gamepad)

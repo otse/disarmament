@@ -14,7 +14,7 @@ export class ctrlr {
 	constructor(readonly index = 1) {
 		this.controller = renderer.renderer.xr.getController(index);
 
-		console.log(' hunt ctrlr controller', this.controller);
+		// console.log(' hunt ctrlr controller', this.controller);
 
 		const that = this;
 
@@ -56,7 +56,7 @@ export class ctrlr {
 		this.grip = renderer.renderer.xr.getControllerGrip(index);
 		this.grip.add(controllerModelFactory.createControllerModel(this.grip));
 
-		console.log(' ctrlr grip', this.grip);
+		//console.log(' ctrlr grip', this.grip);
 
 		renderer.scene.add(this.grip);
 

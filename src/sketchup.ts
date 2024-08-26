@@ -1,5 +1,5 @@
 import app from "./app.js";
-import hunt from "./hunt.js";
+import salvage from "./salvage.js";
 import glob from "./lib/glob.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
@@ -79,7 +79,7 @@ namespace sketchup {
 		}
 	}
 
-	const revert = false;
+	const revert = true;
 
 	const createTextureFromImage = (imageUrl, scale) => {
 		if (revert)
@@ -107,7 +107,7 @@ namespace sketchup {
 		for (let name in paths) {
 			const tuple = paths[name];
 			const url = `${tuple[0]}.png`;
-			const texture = createTextureFromImage(url, 4);
+			const texture = createTextureFromImage(url, 8);
 			const colorMap = texture;//textureLoader.load(`${tuple[0]}.png`);
 			//colorMap.generateMipmaps = true;
 			colorMap.wrapS = colorMap.wrapT = THREE.RepeatWrapping;
@@ -125,7 +125,7 @@ namespace sketchup {
 
 			material.onBeforeCompile = (shader) => {
 				console.log('onbeforecompile');
-				shader.defines = { GORDON: '', GORE: '', GEORGE: '' };
+				shader.defines = { SAT: '', REDUCE: '', RESAT: '', REREDUCE: ''  };
 				shader.fragmentShader = shader.fragmentShader.replace(
 					`#include <tonemapping_fragment>`,
 					`#include <tonemapping_fragment>
@@ -133,27 +133,34 @@ namespace sketchup {
 					vec3 lumaWeights = vec3(.25,.50,.25);
 
 					vec3 grey;
-					float saturation = 1.0;
-					float factor = 50.0;
-					float saturation2 = 1.0;
-					float factor2 = 100.0;
+					float saturation = 2.0;
+					float reduce = 100.0;
+					float resat = 2.0;
+					float postduce = 100.0;
+
 					//vec3 diffuse = material.diffuseColor.rgb;
 					vec3 diffuse = gl_FragColor.rgb;
-					#ifdef GORDON
+
+					#ifdef SAT
 					grey = vec3(dot(lumaWeights, diffuse.rgb));
 					diffuse = vec3(grey + saturation * (diffuse.rgb - grey));
 					#endif
-					#ifdef GORE
-					diffuse *= factor;
+
+					#ifdef REDUCE
+					diffuse *= reduce;
 					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
-					diffuse /= factor;
+					diffuse /= reduce;
 					#endif
-					#ifdef GEORGE
+
+					#ifdef RESAT
 					grey = vec3(dot(lumaWeights, diffuse.rgb));
-					diffuse = vec3(grey + saturation2 * (diffuse.rgb - grey));
-					diffuse *= factor2;
+					diffuse = vec3(grey + resat * (diffuse.rgb - grey));
+					#endif
+
+					#ifdef REREDUCE
+					diffuse *= postduce;
 					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
-					diffuse /= factor2;
+					diffuse /= postduce;
 					#endif
 
 					// when at before lighting pass
@@ -171,13 +178,13 @@ namespace sketchup {
 			material.shininess = tuple[1] || 30;
 
 			if (tuple[2]) {
-				const map = createTextureFromImage(`${tuple[0]}_normal.png`, 4);
+				const map = createTextureFromImage(`${tuple[0]}_normal.png`, 1);
 				map.wrapS = map.wrapT = colorMap.wrapS;
 				material.normalMap = map;
-				material.normalScale.set(0.4, -0.4);
+				material.normalScale.set(0.5, -0.5);
 			}
 			if (tuple[3]) {
-				const map = createTextureFromImage(`${tuple[0]}_specular.png`, 4);
+				const map = createTextureFromImage(`${tuple[0]}_specular.png`, 8);
 				map.wrapS = map.wrapT = colorMap.wrapS;
 				material.specularMap = map;
 			}
@@ -190,7 +197,7 @@ namespace sketchup {
 			//	material.alphaMap = map;
 			//}
 			if (tuple[4]) {
-				console.log('material', name, 'is transparent');
+				// console.log('material', name, 'is transparent');
 
 				material.transparent = true;
 				//material.side = THREE.DoubleSided; 
@@ -256,7 +263,7 @@ namespace sketchup {
 							adapt_from_materials_library(object, -1);
 						}
 						else {
-							console.warn(' multiple materials ');
+							// console.warn(' multiple materials ');
 							for (let index in object.material) {
 								adapt_from_materials_library(object, index);
 							}
@@ -285,7 +292,7 @@ namespace sketchup {
 
 				resolve(1);
 
-				hunt.dt = 0;
+				salvage.dt = 0;
 			});
 		});
 	}

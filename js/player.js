@@ -1,7 +1,7 @@
 import app from "./app.js";
 import glob from "./lib/glob.js";
 import hooks from "./lib/hooks.js";
-import hunt from "./hunt.js";
+import salvage from "./salvage.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
 //import plc from "./plc.js";
@@ -15,18 +15,18 @@ class player {
     constructor() {
         this.setup();
         this.make_physics();
-        hooks.register('xrStart', () => this.retreat());
+        hooks.register('xrStart', () => this.xr_takes_over());
     }
     setup() {
         this.controls = new PointerLockControls(renderer.camera, renderer.renderer.domElement);
         this.controls.enabled = true;
         this.camera = this.controls.getObject();
-        hunt.locker.addEventListener('click', () => this.controls.lock());
-        this.controls.addEventListener('lock', () => hunt.locker.style.display = 'none');
-        this.controls.addEventListener('unlock', () => hunt.locker.style.display = '');
+        salvage.locker.addEventListener('click', () => this.controls.lock());
+        this.controls.addEventListener('lock', () => salvage.locker.style.display = 'none');
+        this.controls.addEventListener('unlock', () => salvage.locker.style.display = '');
     }
-    retreat() {
-        console.warn(' player retreat ');
+    xr_takes_over() {
+        console.warn('player xr takes over');
         this.controls.disconnect();
         this.active = false;
     }
@@ -70,7 +70,7 @@ class player {
             return;
         if (!this.active)
             return;
-        if (glob.xhr)
+        if (glob.xr)
             return;
         if (app.proompt('v') == 1) {
             this.noclip = !this.noclip;
@@ -83,15 +83,15 @@ class player {
     }
     noclip_move(delta) {
         let x = 0, z = 0;
-        if (glob.w && !glob.s)
+        if (app.proompt('w') && !app.proompt('s'))
             z = -1;
-        if (glob.s && !glob.w)
+        if (app.proompt('s') && !app.proompt('w'))
             z = 1;
-        if (glob.a && !glob.d)
+        if (app.proompt('a') && !app.proompt('d'))
             x = -1;
-        if (glob.d && !glob.a)
+        if (app.proompt('d') && !app.proompt('a'))
             x = 1;
-        if (glob.shift) {
+        if (app.proompt('shift')) {
             z *= 2;
             x *= 2;
         }
@@ -111,15 +111,15 @@ class player {
             this.body_velocity.y = 10;
             this.can_jump = false;
         }
-        if (glob.w && !glob.s)
+        if (app.proompt('w') && !app.proompt('s'))
             z = -1;
-        if (glob.s && !glob.w)
+        if (app.proompt('s') && !app.proompt('w'))
             z = 1;
-        if (glob.a && !glob.d)
+        if (app.proompt('a') && !app.proompt('d'))
             x = -1;
-        if (glob.d && !glob.a)
+        if (app.proompt('d') && !app.proompt('a'))
             x = 1;
-        if (glob.shift) {
+        if (app.proompt('shift')) {
             z *= 2.0;
             x *= 2.0;
         }

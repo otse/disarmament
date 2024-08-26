@@ -3,9 +3,8 @@
 <head>
 	<title>salvage</title>
 	<link rel="stylesheet" type="text/css" href="styles.css">
-	<script src="hunt.js"></script>
-	<!--<script src="js/rpg2.js" type="module"></script>
-    -->
+	<script src="salvage.js"></script>
+	<!--<script src="js/mod.js" type="module"></script>-->
 
 	<style>
 		@import url('https://fonts.googleapis.com/css2?family=Waiting+for+the+Sunrise&display=swap');
@@ -42,18 +41,19 @@
 	</script>
 
 	<script type="module">
-		import * as cannon from 'cannon';
-		import * as three from 'three';
+		import * as CANNON from 'cannon';
+		import * as THREE from 'three';
 		import { VRButton } from 'three/addons/webxr/VRButton.js';
 		import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 		import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 		import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 		import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 		import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
-		import { default as backwards } from "./js/app.js";
-		app = backwards;
-		CANNON = cannon;
-		THREE = three;
+		import { default as app } from "./js/app.js";
+		
+		window.app = app;
+		window.CANNON = CANNON;
+		window.THREE = THREE;
 		window.VRButton = VRButton;
 		window.XRControllerModelFactory = XRControllerModelFactory;
 		window.ColladaLoader = ColladaLoader;
@@ -72,8 +72,8 @@
 
 <body>
 
-	<hunt-main>
-		<hunt-instructions>
+	<salvage-body>
+		<salvage-instructions>
 			welcome to my sewer western . fullscreen recommended . > turn sound on <
 			<br />
 			<br />
@@ -84,12 +84,12 @@
 			<br />
 			<br />
 			press h for stats, z, x, c for post process, v for noclip, t to reload level
-		</hunt-instructions>
+		</salvage-instructions>
 
-		<hunt-stats>
+		<salvage-stats>
 			stats
-		</hunt-stats>
-	</hunt-main>
+		</salvage-stats>
+	</salvage-body>
 
 </body>
 

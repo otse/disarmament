@@ -1,5 +1,5 @@
 import hooks from "./lib/hooks.js";
-import hunt from "./hunt.js";
+import salvage from "./salvage.js";
 import renderer from "./renderer.js";
 class asd {
     bluh;
@@ -57,7 +57,7 @@ var audio;
     ];
     audio.buffers = {};
     function boot() {
-        hunt.locker.addEventListener('click', function () {
+        salvage.locker.addEventListener('click', function () {
             console.log('create gesture');
             gesture();
         });

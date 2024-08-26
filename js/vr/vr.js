@@ -15,13 +15,11 @@ var vr;
         console.log(' button ', button);
         document.body.appendChild(button);
         renderer.renderer.xr.addEventListener('sessionstart', () => {
-            console.warn(' glob xr true ');
             glob.xr = true;
             vr.baseReferenceSpace = renderer.renderer.xr.getReferenceSpace();
             const offsetPosition = renderer.camera.position;
-            const temp = new THREE.Vector3();
-            //const offsetRotation = camera.rotation;
             const offsetRotation = renderer.camera.quaternion;
+            const temp = new THREE.Vector3();
             const transform = new XRRigidTransform(temp, {
                 x: offsetRotation.x,
                 y: -offsetRotation.y,
@@ -33,7 +31,6 @@ var vr;
             hooks.call('xrStart', 1);
         });
         renderer.renderer.xr.addEventListener('sessionend', () => {
-            console.warn(' glob xr false ');
             glob.xr = false;
             hooks.call('xrEnd', 1);
         });
@@ -47,15 +44,23 @@ var vr;
     }
     vr.boot = boot;
     function start() {
-        renderer.renderer.setAnimationLoop(animate);
+        renderer.renderer.xr.addEventListener('sessionstart', () => {
+            //renderer.ambiance.intensity = 2;
+            //app.blockable.stop();
+            //renderer.renderer.setAnimationLoop( app.base_loop );
+        });
+        renderer.renderer.xr.addEventListener('sessionend', () => {
+            //renderer.ambiance.intensity = 1;
+        });
     }
     vr.start = start;
     function animate() {
+        //app.blockable = renderer.renderer.setAnimationLoop( app.base_loop ); // <---
         //app.loop();
     }
     function loop() {
-        leftController.loop();
-        rightController.loop();
+        //leftController.loop();
+        //rightController.loop();
     }
     vr.loop = loop;
 })(vr || (vr = {}));

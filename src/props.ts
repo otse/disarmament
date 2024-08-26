@@ -1,7 +1,7 @@
 import audio from "./audio.js";
 import glob from "./lib/glob.js";
 import hooks from "./lib/hooks.js";
-import hunt from "./hunt.js";
+import salvage from "./salvage.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
 import easings from "./easings.js";
@@ -176,7 +176,7 @@ namespace props {
 			size.divideScalar(2);
 			// because of parent transforms, the box is scaled by 0.0254
 			// bring it up to 1 / 0.0254 so we reenter render space
-			size.multiplyScalar(hunt.inchMeter);
+			size.multiplyScalar(salvage.inchMeter);
 			this.object.rotation.set(-Math.PI / 2, 0, 0);
 			this.object.position.set(-size.x, -size.y, size.z);
 			//this.object.updateMatrix();
@@ -233,7 +233,7 @@ namespace props {
 			console.log('add helper aabb');
 			const size = new THREE.Vector3();
 			this.prop.aabb.getSize(size);
-			size.multiplyScalar(hunt.inchMeter);
+			size.multiplyScalar(salvage.inchMeter);
 			const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
 			const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
 			this.mesh = new THREE.Mesh(boxGeometry, material);
@@ -274,7 +274,7 @@ namespace props {
 		override _finish() {
 			const size = new THREE.Vector3();
 			this.aabb.getSize(size);
-			size.multiplyScalar(hunt.inchMeter);
+			size.multiplyScalar(salvage.inchMeter);
 			this.object.position.z -= size.z;
 			new physics.fconvex(this);
 		}
@@ -359,7 +359,7 @@ namespace props {
 			this.aabb.getCenter(center);
 
 			const temp = new THREE.Vector3(size.x, size.z, size.y);
-			temp.multiplyScalar(hunt.inchMeter);
+			temp.multiplyScalar(salvage.inchMeter);
 
 			size.divideScalar(2);
 			size.z = -size.z;
@@ -429,7 +429,7 @@ namespace props {
 			if (this.timer >= 2)
 				this.timer -= 2;
 			let intensity = 1;
-			this.timer += hunt.dt / (cycle / 2);
+			this.timer += salvage.dt / (cycle / 2);
 			let value = (() => {
 				switch (behavior.type) {
 					case 'bounce':
@@ -464,7 +464,7 @@ namespace props {
 			let size = new THREE.Vector3();
 			this.aabb.getSize(size);
 			size.divideScalar(2.0);
-			size.multiplyScalar(hunt.inchMeter);
+			size.multiplyScalar(salvage.inchMeter);
 
 			let light = new THREE.PointLight(
 				this.preset_.color || 'white',
@@ -522,7 +522,7 @@ namespace props {
 			let size = new THREE.Vector3();
 			this.aabb.getSize(size);
 			size.divideScalar(2.0);
-			size.multiplyScalar(hunt.inchMeter);
+			size.multiplyScalar(salvage.inchMeter);
 			//console.log('light size, center', size, center);
 
 			let light = new THREE.SpotLight(

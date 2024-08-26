@@ -1,12 +1,14 @@
 import glob from "./lib/glob.js";
 import hooks from "./lib/hooks.js";
 import points from "./lib/pts.js";
-import hunt from "./hunt.js";
+import salvage from "./salvage.js";
 
 namespace app {
+
 	export enum KEY {
 		UNPRESSED, PRESSED, REPEAT_DELAY, REPEAT, RELEASED
 	}
+
 	export enum MB {
 		UP = - 1, OFF, DOWN, STILL
 	}
@@ -38,16 +40,18 @@ namespace app {
 		console.log(' app boot ');
 
 		hooks.call('AppBoot', null);
-		await hunt.boot();
+
+		await salvage.boot();
 
 		mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 		function onmousemove(e) {
 			pos[0] = e.clientX;
 			pos[1] = e.clientY;
 		}
 
 		function onmousedown(e) {
-			mb[e.button] = 1;
+			mb[e.button] = MB.DOWN;
 			if (e.button == 1)
 				return false;
 		}
@@ -94,7 +98,7 @@ namespace app {
 		}
 
 		function onerror(message) {
-			document.querySelectorAll('hunt-stats')[0].innerHTML = message;
+			document.querySelectorAll('salvage-stats')[0].innerHTML = message;
 		}
 		if (mobile) {
 			document.ontouchstart = ontouchstart;
@@ -109,7 +113,7 @@ namespace app {
 			document.onwheel = onwheel;
 		}
 		window.onerror = onerror;
-		loop_forever(); // replaced by vr.start which uses renderer.setanimationloop
+		//blockable = trick_animation_frame(base_loop);
 	}
 
 	function post_keys() {
@@ -132,12 +136,12 @@ namespace app {
 	export var delta = 0
 	export var last = 0
 
-	export async function loop() {
+	export async function base_loop() {
 		//await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps mode
 		const now = (performance || Date).now();
 		delta = (now - last) / 1000;
 		last = now;
-		await hunt.loop(delta);
+		await salvage.loop(delta);
 		wheel = 0;
 		post_keys();
 		post_mouse_buttons();
@@ -147,11 +151,18 @@ namespace app {
 		return new Promise(requestAnimationFrame);
 	}
 
-	export async function loop_forever() {
+	export var blockable
+
+	export async function trick_animation_frame(callback) {
+		let run = true;
 		do {
-		await sleep();
-		await loop();
-		} while (1);
+			await sleep();
+			await callback();
+		} while (run);
+		return {
+			runs: () => run,
+			stop: () => run = false,
+		};
 	}
 
 	export function fluke_set_innerhtml(selector, html) {

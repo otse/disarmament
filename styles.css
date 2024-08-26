@@ -3,7 +3,7 @@ body {
   background: black;
   font-family: 'Waiting for the Sunrise', cursive;
 }
-hunt-main {
+salvage-body {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -11,14 +11,14 @@ hunt-main {
   height: 100%;
   bbackground: green;
 }
-hunt-instructions {
+salvage-instructions {
   display: flex;
   position: absolute;
   color: white;
   text-shadow: 1px 1px 5px black;
   text-align: center;
 }
-hunt-stats {
+salvage-stats {
   display: flex;
   position: absolute;
   visibility: hidden;
@@ -27,5 +27,5 @@ hunt-stats {
   margin: 10px;
   font-family: 'Courier New', Courier, monospace;
   font-size: 11px;
-  color: white;
+  color: green;
 }

@@ -1,6 +1,6 @@
 import hooks from "./lib/hooks.js";
 import points from "./lib/pts.js";
-import hunt from "./hunt.js";
+import salvage from "./salvage.js";
 var app;
 (function (app) {
     let KEY;
@@ -41,14 +41,14 @@ var app;
     async function boot(version) {
         console.log(' app boot ');
         hooks.call('AppBoot', null);
-        await hunt.boot();
+        await salvage.boot();
         app.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         function onmousemove(e) {
             pos[0] = e.clientX;
             pos[1] = e.clientY;
         }
         function onmousedown(e) {
-            mb[e.button] = 1;
+            mb[e.button] = MB.DOWN;
             if (e.button == 1)
                 return false;
         }
@@ -88,7 +88,7 @@ var app;
             //return false;
         }
         function onerror(message) {
-            document.querySelectorAll('hunt-stats')[0].innerHTML = message;
+            document.querySelectorAll('salvage-stats')[0].innerHTML = message;
         }
         if (app.mobile) {
             document.ontouchstart = ontouchstart;
@@ -103,7 +103,7 @@ var app;
             document.onwheel = onwheel;
         }
         window.onerror = onerror;
-        loop_forever(); // replaced by vr.start which uses renderer.setanimationloop
+        //blockable = trick_animation_frame(base_loop);
     }
     app.boot = boot;
     function post_keys() {
@@ -123,27 +123,32 @@ var app;
     }
     app.delta = 0;
     app.last = 0;
-    async function loop() {
+    async function base_loop() {
         //await new Promise(resolve => setTimeout(resolve, 16.6)); // 60 fps mode
         const now = (performance || Date).now();
         app.delta = (now - app.last) / 1000;
         app.last = now;
-        await hunt.loop(app.delta);
+        await salvage.loop(app.delta);
         app.wheel = 0;
         post_keys();
         post_mouse_buttons();
     }
-    app.loop = loop;
+    app.base_loop = base_loop;
     async function sleep() {
         return new Promise(requestAnimationFrame);
     }
-    async function loop_forever() {
+    async function trick_animation_frame(callback) {
+        let run = true;
         do {
             await sleep();
-            await loop();
-        } while (1);
+            await callback();
+        } while (run);
+        return {
+            runs: () => run,
+            stop: () => run = false,
+        };
     }
-    app.loop_forever = loop_forever;
+    app.trick_animation_frame = trick_animation_frame;
     function fluke_set_innerhtml(selector, html) {
         let element = document.querySelectorAll(selector)[0];
         element.innerHTML = html;

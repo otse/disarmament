@@ -127,7 +127,7 @@
 		"lensflare": false,
 		"lensflareSize": 0.5,
 		"hide": true,
-		"color": "white",
+		"color": "cyan",
 		"intensity": 0.4,
 		"angle": 1.2,
 		"penumbra": 0.6,
@@ -149,7 +149,7 @@
 	"lockersupperambient": {
 		"hide": true,
 		"color": "lightblue",
-		"intensity": 0.04,
+		"intensity": 0.005,
 		"distance": 3.0,
 		"decay": 0.001,
 		"shadow": false
