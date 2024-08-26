@@ -18,12 +18,13 @@ var renderer;
         renderer_1.propsGroup.updateMatrixWorld();
         renderer_1.scene = new THREE.Scene();
         renderer_1.scene.add(renderer_1.propsGroup);
-        renderer_1.scene.background = new THREE.Color('green');
+        renderer_1.scene.background = new THREE.Color('white');
+        //let helepr = new THREE.AxesHelper();
+        //scene.add(helepr);
         renderer_1.scene.fog = new THREE.Fog(0x131c1d, 7, 20);
         renderer_1.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         renderer_1.camera.rotation.y = -Math.PI / 2;
-        renderer_1.camera.position.y = 1.5;
-        renderer_1.camera.position.z = 5;
+        //camera.position.set(5, 0, 0);
         renderer_1.renderer = new THREE.WebGLRenderer({
             antialias: true
         });
@@ -32,7 +33,7 @@ var renderer;
         renderer_1.renderer.toneMappingExposure = 4.5;
         renderer_1.renderer.setPixelRatio(window.devicePixelRatio);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer_1.renderer.setAnimationLoop(app.base_loop);
+        //renderer.setAnimationLoop( app.base_loop );
         renderer_1.renderer.xr.setFramebufferScaleFactor(1); // :x
         renderer_1.renderer.shadowMap.enabled = true;
         renderer_1.renderer.xr.enabled = true;
@@ -82,9 +83,6 @@ var renderer;
         sun.target.position.fromArray([xz[0], 0, xz[1]]);
         */
         renderer_1.dt = renderer_1.clock.getDelta();
-        // if we run sub 10 fps, pretend it's 10
-        // this prevents huge dt of seconds, minutes, hours
-        // if your fps is very low, the game will appear to be in slow motion
         const min_dt = 1.0 / 10.0;
         renderer_1.dt = renderer_1.dt > min_dt ? min_dt : renderer_1.dt;
         frames++;
@@ -100,17 +98,6 @@ var renderer;
 			`);
             }
         }
-        /*
-        if (lets_pulse) {
-            const pulse_cycle = 4;
-            glitch += dt / (pulse_cycle / 2);
-            if (glitch >= 2)
-                glitch -= 2;
-            let itch = easings.easeOutBounce(glitch <= 1 ? glitch : 2 - glitch);
-            renderer.toneMappingExposure = 5.5 + itch;
-        }
-        */
-        //renderer.xr.updateCamera( camera );
         renderer_1.renderer.render(renderer_1.scene, renderer_1.camera);
     }
     renderer_1.loop_and_render = loop_and_render;

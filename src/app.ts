@@ -1,7 +1,7 @@
 import glob from "./lib/glob.js";
 import hooks from "./lib/hooks.js";
 import points from "./lib/pts.js";
-import salvage from "./salvage.js";
+import garbage from "./garbage.js";
 
 namespace app {
 
@@ -41,7 +41,7 @@ namespace app {
 
 		hooks.call('AppBoot', null);
 
-		await salvage.boot();
+		await garbage.boot();
 
 		mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -113,7 +113,7 @@ namespace app {
 			document.onwheel = onwheel;
 		}
 		window.onerror = onerror;
-		//blockable = trick_animation_frame(base_loop);
+		blockable = trick_animation_frame(base_loop);
 	}
 
 	function post_keys() {
@@ -141,7 +141,7 @@ namespace app {
 		const now = (performance || Date).now();
 		delta = (now - last) / 1000;
 		last = now;
-		await salvage.loop(delta);
+		await garbage.loop(delta);
 		wheel = 0;
 		post_keys();
 		post_mouse_buttons();

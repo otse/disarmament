@@ -1,5 +1,5 @@
 import app from "./app.js";
-import salvage from "./salvage.js";
+import garbage from "./garbage.js";
 import glob from "./lib/glob.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
@@ -39,7 +39,7 @@ var sketchup;
             }
             if (app.proompt('t') == 1) {
                 props.clear();
-                props.boot();
+                await props.boot();
                 renderer.scene.remove(levelGroup);
                 await load_room();
             }
@@ -69,9 +69,9 @@ var sketchup;
             }
         }
     }
-    const revert = true;
+    const downscale = false;
     const createTextureFromImage = (imageUrl, scale) => {
-        if (revert)
+        if (!downscale)
             return new THREE.TextureLoader().load(imageUrl);
         else {
             const canvas = document.createElement('canvas');
@@ -91,17 +91,15 @@ var sketchup;
         for (let name in paths) {
             const tuple = paths[name];
             const url = `${tuple[0]}.png`;
-            const texture = createTextureFromImage(url, 8);
-            const colorMap = texture; //textureLoader.load(`${tuple[0]}.png`);
+            const colorMap = createTextureFromImage(url, 8);
             //colorMap.generateMipmaps = true;
             colorMap.wrapS = colorMap.wrapT = THREE.RepeatWrapping;
+            colorMap.minFilter = colorMap.magFilter = THREE.LinearFilter;
             const material = new THREE.MeshPhongMaterial({
                 name: name,
                 map: colorMap,
-                //minFilter: THREE.LinearFilter,
-                //magFilter: THREE.LinearFilter,
-                //flatShading: true, // fucky
-                //dithering: true, // no effect
+                //flatShading: true,
+                //dithering: true,
             });
             if (stickers.includes(name)) {
                 fix_sticker(material);
@@ -114,17 +112,17 @@ var sketchup;
 					vec3 lumaWeights = vec3(.25,.50,.25);
 
 					vec3 grey;
-					float saturation = 2.0;
+					float sat = 2.0;
 					float reduce = 100.0;
 					float resat = 2.0;
-					float postduce = 100.0;
+					float rereduce = 100.0;
 
 					//vec3 diffuse = material.diffuseColor.rgb;
 					vec3 diffuse = gl_FragColor.rgb;
 
 					#ifdef SAT
 					grey = vec3(dot(lumaWeights, diffuse.rgb));
-					diffuse = vec3(grey + saturation * (diffuse.rgb - grey));
+					diffuse = vec3(grey + sat * (diffuse.rgb - grey));
 					#endif
 
 					#ifdef REDUCE
@@ -139,9 +137,9 @@ var sketchup;
 					#endif
 
 					#ifdef REREDUCE
-					diffuse *= postduce;
+					diffuse *= rereduce;
 					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
-					diffuse /= postduce;
+					diffuse /= rereduce;
 					#endif
 
 					// when at before lighting pass
@@ -210,14 +208,17 @@ var sketchup;
     let levelGroup;
     async function load_room() {
         return new Promise(async (resolve, reject) => {
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 200));
             const loadingManager = new THREE.LoadingManager(function () {
             });
             const colladaLoader = new ColladaLoader(loadingManager);
-            colladaLoader.load('./assets/metal_place.dae', function (collada) {
+            colladaLoader.load('./assets/gen.dae', function (collada) {
                 const scene = collada.scene;
+                scene.updateMatrix();
                 scene.updateMatrixWorld(); // without this everything explodes
-                console.log(' collada scene ', scene.scale);
+                console.log(' collada scene ', scene);
+                //scene.scale.set(1, 1, 1);
+                //scene.position.set(-garbage.inch, 0, 0);
                 const queue = [];
                 function traversal(object) {
                     object.castShadow = true;
@@ -240,15 +241,17 @@ var sketchup;
                 scene.traverse(traversal);
                 for (let prop of queue)
                     prop.complete();
-                const helper = new THREE.AxesHelper(1);
+                const sceneHelper = new THREE.AxesHelper(1);
+                const helper = new THREE.AxesHelper(10.0 * garbage.inchMeter);
                 const group = new THREE.Group();
                 levelGroup = group;
                 group.add(scene);
+                group.add(sceneHelper);
+                scene.add(helper);
                 console.log('sketchup scene rotation', scene.rotation);
-                //group.add(helper);
                 renderer.scene.add(group);
                 resolve(1);
-                salvage.dt = 0;
+                garbage.dt = 0;
             });
         });
     }

@@ -1,5 +1,5 @@
 import hooks from "./lib/hooks.js";
-import salvage from "./salvage.js";
+import garbage from "./garbage.js";
 import renderer from "./renderer.js";
 
 class asd {
@@ -72,7 +72,7 @@ namespace audio {
 
 	export function boot() {
 
-		salvage.locker.addEventListener('click', function () {
+		garbage.locker.addEventListener('click', function () {
 			console.log('create gesture');
 			gesture();
 		});

@@ -13,6 +13,7 @@ var salvage;
 (function (salvage) {
     salvage.inch = 0.0254;
     salvage.inchMeter = (1 / 0.0254); // 39.3700787
+    salvage.spaceMultiply = salvage.inchMeter;
     salvage.timeStep = (1 / 60);
     salvage.dt = 0;
     function sample(a) {
@@ -44,7 +45,7 @@ var salvage;
         if (app.proompt('f2')) {
             salvage.locker.style.display = 'none';
         }
-        //gplayer?.loop(delta);
+        salvage.gplayer?.loop(delta);
         physics.loop(salvage.timeStep);
         props.loop();
         await sketchup.loop();

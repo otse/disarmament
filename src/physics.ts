@@ -1,5 +1,5 @@
 import audio from "./audio.js";
-import salvage from "./salvage.js";
+import garbage from "./garbage.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
 
@@ -241,11 +241,11 @@ namespace physics {
 				if (velocity < 0.3)
 					return;
 				let volume;
-				volume = salvage.clamp(mass * velocity, 0.1, 3);
-				volume = salvage.clamp(velocity, 0.1, 1.0);
+				volume = garbage.clamp(mass * velocity, 0.1, 3);
+				volume = garbage.clamp(velocity, 0.1, 1.0);
 
 				if (that.prop.wiremesh)
-					that.prop.wiremesh.recolor(salvage.sample(collision_happy_colors));
+					that.prop.wiremesh.recolor(garbage.sample(collision_happy_colors));
 
 				let sample = '';
 
@@ -253,12 +253,12 @@ namespace physics {
 				if (!impacts)
 					return;
 				if (velocity < 0.6) {
-					sample = salvage.sample(impacts.soft);
+					sample = garbage.sample(impacts.soft);
 				}
 				else {
-					sample = salvage.sample(impacts.hard);
+					sample = garbage.sample(impacts.hard);
 				}
-				volume = salvage.clamp(volume, 0, 0.2);
+				volume = garbage.clamp(volume, 0, 0.2);
 				let sound = audio.playOnce(sample, volume);
 				if (sound) {
 					prop.group.add(sound);

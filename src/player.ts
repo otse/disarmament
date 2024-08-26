@@ -1,7 +1,7 @@
 import app from "./app.js";
 import glob from "./lib/glob.js";
 import hooks from "./lib/hooks.js";
-import salvage from "./salvage.js";
+import garbage from "./garbage.js";
 import physics from "./physics.js";
 import pts from "./lib/pts.js";
 import renderer from "./renderer.js";
@@ -23,7 +23,6 @@ class player {
 	}
 
 	setup() {
-
 		this.controls = new PointerLockControls(
 			renderer.camera, renderer.renderer.domElement);
 
@@ -31,17 +30,22 @@ class player {
 
 		this.camera = this.controls.getObject();
 
-		salvage.locker.addEventListener('click', () =>
+		console.log('player camera object ', this.camera.position);
+
+		garbage.locker.addEventListener('click', () =>
 			this.controls.lock()
 		);
 
 		this.controls.addEventListener('lock', () =>
-			salvage.locker.style.display = 'none'
+			garbage.locker.style.display = 'none'
 		);
 
 		this.controls.addEventListener('unlock', () =>
-			salvage.locker.style.display = ''
+			garbage.locker.style.display = ''
 		);
+
+		console.log('player setup');
+
 	}
 
 	xr_takes_over() {
@@ -56,7 +60,7 @@ class player {
 		var sphereShape = new CANNON.Sphere(radius);
 		var sphereBody = new CANNON.Body({ mass: 1, material: physics.materials.player });
 		sphereBody.addShape(sphereShape);
-		sphereBody.position.set(0, 1, 0);
+		sphereBody.position.set(-1, 1, 0);
 		sphereBody.linearDamping = 0.95;
 		sphereBody.angularDamping = 0.999;
 
@@ -147,7 +151,7 @@ class player {
 
 	physics_move(delta) {
 		let x = 0, z = 0;
-		if (glob.space_bar && this.can_jump) {
+		if (app.proompt(' ') && this.can_jump) {
 			this.body_velocity.y = 10;
 			this.can_jump = false;
 		}
@@ -163,6 +167,9 @@ class player {
 			z *= 2.0;
 			x *= 2.0;
 		}
+
+		//console.log('');
+
 		const camera = this.camera;
 		const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
 

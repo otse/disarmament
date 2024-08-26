@@ -15,7 +15,7 @@
 		"strictNullChecks": true
 	},
 	"files": [
-		"src/salvage.d.ts"
+		"src/garbage.d.ts"
 	],
 	"include": [
 		"./src"

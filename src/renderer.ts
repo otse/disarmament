@@ -25,7 +25,7 @@ namespace renderer {
 		console.log('renderer boot');
 
 		THREE.ColorManagement.enabled = true;
-
+ 
 		clock = new THREE.Clock();
 
 		propsGroup = new THREE.Group();
@@ -35,15 +35,17 @@ namespace renderer {
 
 		scene = new THREE.Scene();
 		scene.add(propsGroup);
-		scene.background = new THREE.Color('green');
+		scene.background = new THREE.Color('white');
+
+		//let helepr = new THREE.AxesHelper();
+		//scene.add(helepr);
 
 		scene.fog = new THREE.Fog(0x131c1d, 7, 20);
 
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 		camera.rotation.y = -Math.PI / 2;
-		camera.position.y = 1.5;
-		camera.position.z = 5;
+		//camera.position.set(5, 0, 0);
 
 		renderer = new THREE.WebGLRenderer({
 			antialias: true
@@ -54,7 +56,7 @@ namespace renderer {
 		renderer.toneMappingExposure = 4.5;
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight);
-		renderer.setAnimationLoop( app.base_loop );
+		//renderer.setAnimationLoop( app.base_loop );
 		renderer.xr.setFramebufferScaleFactor(1); // :x
 		renderer.shadowMap.enabled = true;
 		renderer.xr.enabled = true;
@@ -97,6 +99,7 @@ namespace renderer {
 	}
 
 	var prevTime = 0, time = 0, frames = 0
+	
 	export var fps = 0;
 
 	export function loop_and_render() {
@@ -115,10 +118,6 @@ namespace renderer {
 
 		dt = clock.getDelta();
 
-		// if we run sub 10 fps, pretend it's 10
-		// this prevents huge dt of seconds, minutes, hours
-		// if your fps is very low, the game will appear to be in slow motion
-
 		const min_dt = 1.0 / 10.0;
 		dt = dt > min_dt ? min_dt : dt;
 		frames++;
@@ -135,18 +134,6 @@ namespace renderer {
 			}
 		}
 
-		/*
-		if (lets_pulse) {
-			const pulse_cycle = 4;
-			glitch += dt / (pulse_cycle / 2);
-			if (glitch >= 2)
-				glitch -= 2;
-			let itch = easings.easeOutBounce(glitch <= 1 ? glitch : 2 - glitch);
-			renderer.toneMappingExposure = 5.5 + itch;
-		}
-		*/
-
-		//renderer.xr.updateCamera( camera );
 		renderer.render(scene, camera);
 	}
 }

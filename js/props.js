@@ -1,6 +1,6 @@
 import audio from "./audio.js";
 import hooks from "./lib/hooks.js";
-import salvage from "./salvage.js";
+import garbage from "./garbage.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
 import easings from "./easings.js";
@@ -46,6 +46,10 @@ var props;
             case 'convex':
                 console.log(' new convex ');
                 prop = new pconvex(object, {});
+                break;
+            case 'marker':
+                prop = new pmarker(object, {});
+                break;
             default:
         }
         if (prop) {
@@ -73,7 +77,7 @@ var props;
         const group = new THREE.Group();
         const object = prop.object;
         object.matrixWorld.decompose(group.position, group.quaternion, group.scale);
-        // group scale is now 0.0254
+        // group scale is 0.0254
         object.position.set(0, 0, 0);
         object.rotation.set(0, 0, 0);
         object.quaternion.identity();
@@ -100,6 +104,7 @@ var props;
     }
     props.boot = boot;
     props.collection = [];
+    props.markers = [];
     props.walls = [];
     props.sounds = [];
     props.boxes = [];
@@ -164,7 +169,7 @@ var props;
             size.divideScalar(2);
             // because of parent transforms, the box is scaled by 0.0254
             // bring it up to 1 / 0.0254 so we reenter render space
-            size.multiplyScalar(salvage.inchMeter);
+            size.multiplyScalar(garbage.spaceMultiply);
             this.object.rotation.set(-Math.PI / 2, 0, 0);
             this.object.position.set(-size.x, -size.y, size.z);
             //this.object.updateMatrix();
@@ -223,7 +228,7 @@ var props;
             console.log('add helper aabb');
             const size = new THREE.Vector3();
             this.prop.aabb.getSize(size);
-            size.multiplyScalar(salvage.inchMeter);
+            size.multiplyScalar(garbage.spaceMultiply);
             const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
             const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
             this.mesh = new THREE.Mesh(boxGeometry, material);
@@ -264,7 +269,7 @@ var props;
         _finish() {
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
-            size.multiplyScalar(salvage.inchMeter);
+            size.multiplyScalar(garbage.spaceMultiply);
             this.object.position.z -= size.z;
             new physics.fconvex(this);
         }
@@ -345,7 +350,7 @@ var props;
             this.aabb.getSize(size);
             this.aabb.getCenter(center);
             const temp = new THREE.Vector3(size.x, size.z, size.y);
-            temp.multiplyScalar(salvage.inchMeter);
+            temp.multiplyScalar(garbage.spaceMultiply);
             size.divideScalar(2);
             size.z = -size.z;
             if (this.parameters.rotation == 'y') {
@@ -406,7 +411,7 @@ var props;
             if (this.timer >= 2)
                 this.timer -= 2;
             let intensity = 1;
-            this.timer += salvage.dt / (cycle / 2);
+            this.timer += garbage.dt / (cycle / 2);
             let value = (() => {
                 switch (behavior.type) {
                     case 'bounce':
@@ -439,7 +444,7 @@ var props;
             let size = new THREE.Vector3();
             this.aabb.getSize(size);
             size.divideScalar(2.0);
-            size.multiplyScalar(salvage.inchMeter);
+            size.multiplyScalar(garbage.spaceMultiply);
             let light = new THREE.PointLight(this.preset_.color || 'white', this.preset_.intensity || 1, this.preset_.distance || 3, this.preset_.decay || 1);
             this.light = light;
             light.castShadow = this.preset_.shadow;
@@ -488,7 +493,7 @@ var props;
             let size = new THREE.Vector3();
             this.aabb.getSize(size);
             size.divideScalar(2.0);
-            size.multiplyScalar(salvage.inchMeter);
+            size.multiplyScalar(garbage.spaceMultiply);
             //console.log('light size, center', size, center);
             let light = new THREE.SpotLight(this.preset_.color, this.preset_.intensity, this.preset_.distance, this.preset_.decay);
             this.light = light;
@@ -533,6 +538,21 @@ var props;
         }
     }
     props.pspotlight = pspotlight;
+    class pmarker extends prop {
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'pmarker';
+            this.array = props.markers;
+        }
+        _finish() {
+            this.object.visible = true;
+            let helper = new THREE.AxesHelper(1);
+            this.object.add(helper);
+        }
+        _loop() {
+        }
+    }
+    props.pmarker = pmarker;
     props.impact_sounds = {
         'cardboard': {
             soft: [

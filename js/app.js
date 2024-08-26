@@ -1,6 +1,6 @@
 import hooks from "./lib/hooks.js";
 import points from "./lib/pts.js";
-import salvage from "./salvage.js";
+import garbage from "./garbage.js";
 var app;
 (function (app) {
     let KEY;
@@ -41,7 +41,7 @@ var app;
     async function boot(version) {
         console.log(' app boot ');
         hooks.call('AppBoot', null);
-        await salvage.boot();
+        await garbage.boot();
         app.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         function onmousemove(e) {
             pos[0] = e.clientX;
@@ -103,7 +103,7 @@ var app;
             document.onwheel = onwheel;
         }
         window.onerror = onerror;
-        //blockable = trick_animation_frame(base_loop);
+        app.blockable = trick_animation_frame(base_loop);
     }
     app.boot = boot;
     function post_keys() {
@@ -128,7 +128,7 @@ var app;
         const now = (performance || Date).now();
         app.delta = (now - app.last) / 1000;
         app.last = now;
-        await salvage.loop(app.delta);
+        await garbage.loop(app.delta);
         app.wheel = 0;
         post_keys();
         post_mouse_buttons();
