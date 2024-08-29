@@ -17,7 +17,7 @@ namespace renderer {
 	// reduce
 	export var lets_pulse = false;
 	export var animate_bounce_hdr = false;
-	export var ren_stats = false;
+	export var statsEnabled = false;
 
 	export function boot() {
 		window['renderer'] = this;
@@ -25,7 +25,7 @@ namespace renderer {
 		console.log('renderer boot');
 
 		THREE.ColorManagement.enabled = true;
- 
+
 		clock = new THREE.Clock();
 
 		propsGroup = new THREE.Group();
@@ -35,7 +35,7 @@ namespace renderer {
 
 		scene = new THREE.Scene();
 		scene.add(propsGroup);
-		scene.background = new THREE.Color('white');
+		scene.background = new THREE.Color('#333');
 
 		//let helepr = new THREE.AxesHelper();
 		//scene.add(helepr);
@@ -51,20 +51,21 @@ namespace renderer {
 			antialias: true
 		});
 		//renderer.autoClear = false;
-		
+
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
 		renderer.toneMappingExposure = 4.5;
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight);
-		//renderer.setAnimationLoop( app.base_loop );
+		if (glob.hasHeadset)
+			renderer.setAnimationLoop(app.base_loop);
 		renderer.xr.setFramebufferScaleFactor(1); // :x
 		renderer.shadowMap.enabled = true;
 		renderer.xr.enabled = true;
 		//renderer.xr.cameraAutoUpdate = false;
-		renderer.shadowMap.type = THREE.BasicShadowMap;//PCFShadowMap;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 		//renderer.setClearColor(0xffffff, 0.0);
 
-		const percent = 2 / 100;
+		const percent = 1 / 100;
 		ambiance = new THREE.AmbientLight(0xffffff, percent);
 		scene.add(ambiance);
 
@@ -84,6 +85,11 @@ namespace renderer {
 
 		// scene.add(new THREE.CameraHelper(sun.shadow.camera));
 
+		if (glob.hasHeadset) {
+			statsEnabled = true;
+			app.selector_style('salvage-stats', 'visibility', 'visible');
+		}
+
 		document.querySelector('salvage-body')!.appendChild(renderer.domElement);
 
 		window.addEventListener('resize', onWindowResize);
@@ -99,19 +105,24 @@ namespace renderer {
 	}
 
 	var prevTime = 0, time = 0, frames = 0
-	
+
 	export var fps = 0;
 
 	export function loop_and_render() {
+
+		if (app.proompt('h') == 1) {
+			statsEnabled = !statsEnabled;
+			app.selector_style('salvage-stats', 'visibility', statsEnabled ? 'visible' : 'hidden');
+		}
 		/*
 		const jump_sun_every = 1;
 		let xz = [camera.position.x, camera.position.z] as vec2;
 		let div = pts.divide(xz, jump_sun_every);
 		xz = pts.mult(pts.floor(div), jump_sun_every);
 		//xz = pts.mult(xz, hunt.inchMeter);
-
+	
 		//console.log('zx', xz);
-
+	
 		sun.position.fromArray([xz[0] + sunOffset[0], sunOffset[1], xz[1] + sunOffset[2]]);
 		sun.target.position.fromArray([xz[0], 0, xz[1]]);
 		*/
@@ -126,8 +137,8 @@ namespace renderer {
 			fps = (frames * 1000) / (time - prevTime);
 			prevTime = time;
 			frames = 0;
-			if (ren_stats) {
-				app.fluke_set_innerhtml('salvage-stats', `
+			if (statsEnabled) {
+				app.selector_innerhtml('salvage-stats', `
 					fps: ${fps.toFixed(1)}<br />
 					bounce hdr: ${(animate_bounce_hdr)}<br />
 			`);

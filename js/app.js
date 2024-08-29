@@ -1,3 +1,4 @@
+import glob from "./lib/glob.js";
 import hooks from "./lib/hooks.js";
 import points from "./lib/pts.js";
 import garbage from "./garbage.js";
@@ -21,7 +22,6 @@ var app;
     const keys = {};
     const mb = {};
     var pos = [0, 0];
-    app.mobile = false;
     app.wheel = 0;
     function onkeys(event) {
         const key = event.key.toLowerCase();
@@ -40,9 +40,11 @@ var app;
     app.proompt = proompt;
     async function boot(version) {
         console.log(' app boot ');
-        hooks.call('AppBoot', null);
+        hooks.call('appBoot', null);
+        if ('xr' in navigator)
+            await navigator.xr.isSessionSupported('immersive-vr').then(x => glob.hasHeadset = x);
         await garbage.boot();
-        app.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        glob.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         function onmousemove(e) {
             pos[0] = e.clientX;
             pos[1] = e.clientY;
@@ -90,7 +92,7 @@ var app;
         function onerror(message) {
             document.querySelectorAll('salvage-stats')[0].innerHTML = message;
         }
-        if (app.mobile) {
+        if (glob.mobile) {
             document.ontouchstart = ontouchstart;
             document.ontouchmove = ontouchmove;
             document.ontouchend = ontouchend;
@@ -103,7 +105,8 @@ var app;
             document.onwheel = onwheel;
         }
         window.onerror = onerror;
-        app.blockable = trick_animation_frame(base_loop);
+        if (!glob.hasHeadset)
+            app.blockable = trick_animation_frame(base_loop);
     }
     app.boot = boot;
     function post_keys() {
@@ -149,16 +152,16 @@ var app;
         };
     }
     app.trick_animation_frame = trick_animation_frame;
-    function fluke_set_innerhtml(selector, html) {
+    function selector_innerhtml(selector, html) {
         let element = document.querySelectorAll(selector)[0];
         element.innerHTML = html;
     }
-    app.fluke_set_innerhtml = fluke_set_innerhtml;
-    function fluke_set_style(selector, style, property) {
+    app.selector_innerhtml = selector_innerhtml;
+    function selector_style(selector, style, property) {
         let element = document.querySelectorAll(selector)[0];
         element.style[style] = property;
     }
-    app.fluke_set_style = fluke_set_style;
+    app.selector_style = selector_style;
 })(app || (app = {}));
 window['App'] = app;
 export default app;

@@ -28,7 +28,7 @@ class player {
 
 		this.controls.enabled = true;
 
-		this.camera = this.controls.getObject();
+		this.camera = this.controls.camera;		
 
 		console.log('player camera object ', this.camera.position);
 

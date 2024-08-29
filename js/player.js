@@ -20,7 +20,7 @@ class player {
     setup() {
         this.controls = new PointerLockControls(renderer.camera, renderer.renderer.domElement);
         this.controls.enabled = true;
-        this.camera = this.controls.getObject();
+        this.camera = this.controls.camera;
         console.log('player camera object ', this.camera.position);
         garbage.locker.addEventListener('click', () => this.controls.lock());
         this.controls.addEventListener('lock', () => garbage.locker.style.display = 'none');

@@ -12,17 +12,19 @@ namespace sketchup {
 		'ebony': ['./assets/textures/black', 0, false, false],
 		'crete1': ['./assets/textures/crete1', 15, false, false],
 		'crete2': ['./assets/textures/crete2', 5, false, false],
-		'brick1': ['./assets/textures/brick1', 15, true, true],
-		'bulkhead1': ['./assets/textures/bulkhead1', 30, true, true, true],
+		'brick1': ['./assets/textures/brick1', 15, false, true],
+		'bulkhead1': ['./assets/textures/bulkhead1', 50, true, true, true],
 		'floor1': ['./assets/textures/floor1', 5, true],
+		'floor2': ['./assets/textures/floor2', 5, false],
 		'metrofloor1': ['./assets/textures/metrofloor1', 2, false],
 		'metal2': ['./assets/textures/metal2', 30, true, false, false],
 		'metal2b': ['./assets/textures/metal2b', 5, true, false, false],
 		'metal3': ['./assets/textures/metal3', 30, false, false, true],
 		'rust1': ['./assets/textures/rust1', 30, false, false, false],
 		'singletonewall': ['./assets/textures/singletonewall', 5, false, false],
-		'twotonewall': ['./assets/textures/twotonewall', 15, true, true],
-		'twotonewallb': ['./assets/textures/twotonewallb', 30, true, false],
+		'twotonewall': ['./assets/textures/twotonewall', 40, true, true],
+		'twotonewall_var': ['./assets/textures/twotonewall_var', 40, true, false],
+		'twotonewallb': ['./assets/textures/twotonewallb', 20, false, false],
 		'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
 		'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
 		'barrel1': ['./assets/textures/barrel1', 10, true, false],
@@ -37,17 +39,16 @@ namespace sketchup {
 
 	const library = {}
 
-	const activeMaterials: any[] = []
-
 	export async function loop() {
 		if (glob.developer) {
 			if (app.proompt('r') == 1) {
-				dynamic_reload_textures();
+				await reload_textures();
+				steal_from_library(levelGroup);
 			}
 			if (app.proompt('t') == 1) {
 				props.clear();
-				await props.boot();
 				renderer.scene.remove(levelGroup);
+				await props.boot();
 				await load_room();
 			}
 			if (app.proompt('m') == 1) {
@@ -56,70 +57,30 @@ namespace sketchup {
 		}
 	}
 
-	function dynamic_reload_textures() {
-		for (const i in library) {
-			const material = library[i];
-			console.log(' reloading material ', material.name);
-
-			const tuple = paths[material.name];
-			const textureLoader = new THREE.TextureLoader();
-			const map = textureLoader.load(`${tuple[0]}.png`);
-			map.wrapS = map.wrapT = THREE.RepeatWrapping;
-			material.map = map;
-			if (tuple[2]) {
-				const map = textureLoader.load(`${tuple[0]}_normal.png`);
-				map.wrapS = map.wrapT = THREE.RepeatWrapping;
-				material.normalMap = map;
-			}
-			if (tuple[3]) {
-				const map = textureLoader.load(`${tuple[0]}_specular.png`);
-				map.wrapS = map.wrapT = THREE.RepeatWrapping;
-				material.specularMap = map;
-			}
-		}
-	}
-
-	const downscale = false;
-
-	const createTextureFromImage = (imageUrl, scale) => {
-		if (!downscale)
-			return new THREE.TextureLoader().load(imageUrl);
-		else {
-			const canvas = document.createElement('canvas');
-			const texture = new THREE.CanvasTexture(canvas);
-
-			new THREE.ImageLoader().load(imageUrl, image => {
-				const ctx = canvas.getContext('2d')!;
-
-				canvas.width = image.width / scale;
-				canvas.height = image.height / scale;
-
-				ctx.clearRect(0.0, 0.0, canvas.width, canvas.height);
-				ctx.drawImage(image, 0.0, 0.0, canvas.width, canvas.height);
-			});
-
-			return texture;
-		}
-	};
-
-	export async function boot() {
-		const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
+	async function reload_textures() {
 		for (let name in paths) {
+			const existing = library[name];
 			const tuple = paths[name];
-			const url = `${tuple[0]}.png`;
-			const colorMap = createTextureFromImage(url, 8);
-			//colorMap.generateMipmaps = true;
-			colorMap.wrapS = colorMap.wrapT = THREE.RepeatWrapping;
-			colorMap.minFilter = colorMap.magFilter = THREE.LinearFilter;
+			let randy = `?x=${Math.random()}`;
+			const texture = <any>await createTextureFromImage(`${tuple[0]}.png`, 4);
+			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+			texture.minFilter = texture.magFilter = THREE.LinearFilter;
 			const material = new THREE.MeshPhongMaterial({
 				name: name,
-				map: colorMap,
-				//flatShading: true,
-				//dithering: true,
+				map: texture
 			});
-			if (stickers.includes(name)) {
-				fix_sticker(material);
+			if (tuple[2]) {
+				const texture = <any>await createTextureFromImage(`${tuple[0]}_normal.png`, 2);
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				material.normalScale.set(1, -1);
+				//material.normalMap = texture;
 			}
+			if (tuple[3]) {
+				const texture = <any>await createTextureFromImage(`${tuple[0]}_specular.png`, 4);
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				material.specularMap = texture;
+			}
+			library[name] = material;
 
 			material.onBeforeCompile = (shader) => {
 				console.log('onbeforecompile');
@@ -174,37 +135,42 @@ namespace sketchup {
 			}
 			material.specular.set(0.1, 0.1, 0.1);
 			material.shininess = tuple[1] || 30;
-
-			if (tuple[2]) {
-				const map = createTextureFromImage(`${tuple[0]}_normal.png`, 1);
-				map.wrapS = map.wrapT = colorMap.wrapS;
-				material.normalMap = map;
-				material.normalScale.set(0.5, -0.5);
-			}
-			if (tuple[3]) {
-				const map = createTextureFromImage(`${tuple[0]}_specular.png`, 8);
-				map.wrapS = map.wrapT = colorMap.wrapS;
-				material.specularMap = map;
-			}
-			//if (tuple[4]) {
-			//	const map = textureLoader.load(`${tuple[0]}_aomap.png`);
-			//	material.aoMap = map;
-			//}
-			//if (tuple[5]) {
-			//	const map = textureLoader.load(`${tuple[0]}_alpha.png`);
-			//	material.alphaMap = map;
-			//}
-			if (tuple[4]) {
-				// console.log('material', name, 'is transparent');
-
-				material.transparent = true;
-				//material.side = THREE.DoubleSided; 
-				material.alphaTest = 0.9;
-			}
-			library[name] = material;
 		}
+	}
 
+	const downscale = true;
+
+	const createTextureFromImage = async (imageUrl, scale) => {
+
+		return new Promise(async resolve => {
+			if (!downscale)
+				return new THREE.TextureLoader().load(imageUrl);
+			else {
+				const canvas = document.createElement('canvas');
+				const ctx = canvas.getContext('2d')!;
+				const texture = new THREE.CanvasTexture(canvas);
+
+				await new THREE.ImageLoader().load(imageUrl, image => {
+
+					console.log('from', image.width, image.height, 'to', image.width / scale, image.height / scale);
+
+					canvas.width = image.width / scale;
+					canvas.height = image.height / scale;
+
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+					resolve(texture);
+				});
+			}
+		});
+	}
+
+	export async function boot() {
+		const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
+		await reload_textures();
 		await load_room();
+
 	}
 
 	function fix_sticker(material) {
@@ -219,19 +185,36 @@ namespace sketchup {
 
 	function adapt_from_materials_library(object, index) {
 		const current = index == -1 ? object.material : object.material[index];
-		const definition = library[current.name];
-		if (!definition)
+		const material = library[current.name];
+		if (!material)
 			return;
 		if (index == -1)
-			object.material = definition;
+			object.material.copy(material);
 		else
-			object.material[index] = definition;
-		activeMaterials.push(definition);
+			object.material[index].copy(material);
 		//if (definition.name.includes('sticker'))
 		//	fix_sticker(definition);
 	}
 
 	let levelGroup;
+
+	export function steal_from_library(scene) {
+
+		function traversal(object) {
+			if (object.material) {
+				if (!object.material.length) {
+					adapt_from_materials_library(object, -1);
+				}
+				else {
+					for (let index in object.material) {
+						adapt_from_materials_library(object, index);
+					}
+				}
+			}
+		}
+
+		scene.traverse(traversal);
+	}
 
 	export async function load_room() {
 
@@ -258,49 +241,28 @@ namespace sketchup {
 
 				const queue: props.prop[] = [];
 
-				function traversal(object) {
+				function find_make_props(object) {
 					object.castShadow = true;
 					object.receiveShadow = true;
-					if (object.material) {
-						if (!object.material.length) {
-							adapt_from_materials_library(object, -1);
-						}
-						else {
-							// console.warn(' multiple materials ');
-							for (let index in object.material) {
-								adapt_from_materials_library(object, index);
-							}
-						}
-					}
 					const prop = props.factory(object);
 					if (prop)
 						queue.push(prop);
 				}
 
-				scene.traverse(traversal);
+				scene.traverse(find_make_props);
+
+				steal_from_library(scene);
 
 				for (let prop of queue)
 					prop.complete();
 
-				const sceneHelper = new THREE.AxesHelper(1);
-				const helper = new THREE.AxesHelper(10.0 * garbage.inchMeter);
-
 				const group = new THREE.Group();
+				group.add(scene);
+				renderer.scene.add(group);
 
 				levelGroup = group;
 
-				group.add(scene);
-				group.add(sceneHelper);
-
-				scene.add(helper);
-
-				console.log('sketchup scene rotation', scene.rotation);
-
-				renderer.scene.add(group);
-
 				resolve(1);
-
-				garbage.dt = 0;
 			});
 		});
 	}

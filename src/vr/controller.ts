@@ -84,10 +84,18 @@ export class ctrlr {
 			this.userData.isSelecting = false;
 			if (floorIntersect) {
 				const offsetPosition = { x: - floorIntersect.x, y: - floorIntersect.y, z: - floorIntersect.z, w: 1 };
+
+				vr.position.copy(offsetPosition);
+
 				const offsetRotation = new THREE.Quaternion();
-				const transform = new XRRigidTransform(offsetPosition, offsetRotation);
-				const teleportSpaceOffset = vr.baseReferenceSpace.getOffsetReferenceSpace(transform);
-				renderer.renderer.xr.setReferenceSpace(teleportSpaceOffset);
+				const transform1 = new XRRigidTransform(offsetPosition, offsetRotation);
+
+				const teleport = vr.baseReferenceSpace.getOffsetReferenceSpace(transform1);
+				renderer.renderer.xr.setReferenceSpace(teleport);
+
+				//const transform = new XRRigidTransform(offsetPosition, offsetRotation);
+				//const teleportSpaceOffset = vr.baseReferenceSpace.getOffsetReferenceSpace(transform);
+				//renderer.renderer.xr.setReferenceSpace(teleportSpaceOffset);
 				floorIntersect = undefined;
 			}
 		}
@@ -126,7 +134,7 @@ export class ctrlr {
 
 		const axes = this.xrinputsource.data.gamepad.axes;
 
-		let thumbstick = pts.make(axes[2], axes[3]);
+		let thumbstick = pts.make(axes[2] || 0, axes[3] || 0);
 		thumbstick = pts.inv(thumbstick);
 		thumbstick = pts.mult(thumbstick, .1);
 

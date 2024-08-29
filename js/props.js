@@ -457,7 +457,7 @@ var props;
                 //lensflare1.opacity = 0.2;
                 //lensflare1.transparent = true;
                 const lensflare = new Lensflare();
-                const size = this.preset_.lensflareSize || 1;
+                const size = (this.preset_.lensflareSize || 1) * 100;
                 const element = new LensflareElement(lensflare1, 15 * size, 0, light.color);
                 const element2 = new LensflareElement(lensflare1, 10, 0.025 * size, light.color);
                 const element3 = new LensflareElement(lensflare1, 5, 0.07 * size, light.color);
@@ -500,6 +500,8 @@ var props;
             light.position.set(0, 0, 0);
             light.castShadow = this.preset_.shadow;
             light.shadow.camera.far = 1000;
+            light.shadow.mapSize.width = this.preset_.shadowMapSize || 512;
+            light.shadow.mapSize.height = this.preset_.shadowMapSize || 512;
             light.angle = this.preset_.angle || Math.PI / 3;
             light.penumbra = this.preset_.penumbra || 0.0;
             if (this.preset_.lensflare) {

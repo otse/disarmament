@@ -59,8 +59,8 @@ var vr;
         //app.loop();
     }
     function loop() {
-        //leftController.loop();
-        //rightController.loop();
+        leftController.loop();
+        rightController.loop();
     }
     vr.loop = loop;
 })(vr || (vr = {}));

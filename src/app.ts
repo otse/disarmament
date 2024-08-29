@@ -17,7 +17,6 @@ namespace app {
 	const mb = {}
 	var pos: vec2 = [0, 0]
 
-	export var mobile = false
 	export var wheel = 0
 
 	export function onkeys(event) {
@@ -39,11 +38,14 @@ namespace app {
 
 		console.log(' app boot ');
 
-		hooks.call('AppBoot', null);
+		hooks.call('appBoot', null);
+
+		if ('xr' in navigator)
+			await (navigator as any).xr.isSessionSupported( 'immersive-vr' ).then(x => glob.hasHeadset = x);
 
 		await garbage.boot();
 
-		mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+		glob.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 		function onmousemove(e) {
 			pos[0] = e.clientX;
@@ -100,7 +102,7 @@ namespace app {
 		function onerror(message) {
 			document.querySelectorAll('salvage-stats')[0].innerHTML = message;
 		}
-		if (mobile) {
+		if (glob.mobile) {
 			document.ontouchstart = ontouchstart;
 			document.ontouchmove = ontouchmove;
 			document.ontouchend = ontouchend;
@@ -113,7 +115,8 @@ namespace app {
 			document.onwheel = onwheel;
 		}
 		window.onerror = onerror;
-		blockable = trick_animation_frame(base_loop);
+		if (!glob.hasHeadset)
+			blockable = trick_animation_frame(base_loop);
 	}
 
 	function post_keys() {
@@ -165,12 +168,12 @@ namespace app {
 		};
 	}
 
-	export function fluke_set_innerhtml(selector, html) {
+	export function selector_innerhtml(selector, html) {
 		let element = document.querySelectorAll(selector)[0];
 		element.innerHTML = html;
 	}
 
-	export function fluke_set_style(selector, style, property) {
+	export function selector_style(selector, style, property) {
 		let element = document.querySelectorAll(selector)[0];
 		element.style[style] = property;
 	}

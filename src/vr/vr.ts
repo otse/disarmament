@@ -97,8 +97,8 @@ namespace vr {
 	}
 
 	export function loop() {
-		//leftController.loop();
-		//rightController.loop();
+		leftController.loop();
+		rightController.loop();
 	}
 }
 
