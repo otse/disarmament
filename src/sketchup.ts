@@ -62,7 +62,7 @@ namespace sketchup {
 			const existing = library[name];
 			const tuple = paths[name];
 			let randy = `?x=${Math.random()}`;
-			const texture = <any>await createTextureFromImage(`${tuple[0]}.png`, 4);
+			const texture = <any>await createTextureFromImage(`${tuple[0]}.png`, 8);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 			texture.minFilter = texture.magFilter = THREE.LinearFilter;
 			const material = new THREE.MeshPhongMaterial({
@@ -80,11 +80,9 @@ namespace sketchup {
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 				material.specularMap = texture;
 			}
-			library[name] = material;
-
 			material.onBeforeCompile = (shader) => {
-				console.log('onbeforecompile');
-				shader.defines = { SAT: '', REDUCE: '', RESAT: '', REREDUCE: ''  };
+				console.warn('onbeforecompile');
+				shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', REREDUCE: ''  };
 				shader.fragmentShader = shader.fragmentShader.replace(
 					`#include <tonemapping_fragment>`,
 					`#include <tonemapping_fragment>
@@ -135,6 +133,8 @@ namespace sketchup {
 			}
 			material.specular.set(0.1, 0.1, 0.1);
 			material.shininess = tuple[1] || 30;
+			library[name] = material;
+
 		}
 	}
 
@@ -170,7 +170,6 @@ namespace sketchup {
 		const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
 		await reload_textures();
 		await load_room();
-
 	}
 
 	function fix_sticker(material) {
@@ -189,11 +188,11 @@ namespace sketchup {
 		if (!material)
 			return;
 		if (index == -1)
-			object.material.copy(material);
+			object.material = material;
 		else
-			object.material[index].copy(material);
-		//if (definition.name.includes('sticker'))
-		//	fix_sticker(definition);
+			object.material[index] = material;
+		if (stickers.includes(current.name))
+			fix_sticker(material);
 	}
 
 	let levelGroup;
