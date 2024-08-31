@@ -4,34 +4,38 @@ import props from "./props.js";
 import renderer from "./renderer.js";
 var sketchup;
 (function (sketchup) {
+    // don't convert this to object literals
     const paths = {
-        'ebony': ['./assets/textures/black', 0, false, false],
-        'crete1': ['./assets/textures/crete1', 15, false, false],
-        'crete2': ['./assets/textures/crete2', 5, false, false],
-        'brick1': ['./assets/textures/brick1', 15, false, true],
-        'bulkhead1': ['./assets/textures/bulkhead1', 50, true, true, true],
-        'floor1': ['./assets/textures/floor1', 5, true],
-        'floor2': ['./assets/textures/floor2', 5, false],
-        'metrofloor1': ['./assets/textures/metrofloor1', 2, false],
-        'metal2': ['./assets/textures/metal2', 30, true, false, false],
-        'metal2b': ['./assets/textures/metal2b', 5, true, false, false],
-        'metal3': ['./assets/textures/metal3', 30, false, false, true],
-        'rust1': ['./assets/textures/rust1', 30, false, false, false],
-        'singletonewall': ['./assets/textures/singletonewall', 5, false, false],
-        'twotonewall': ['./assets/textures/twotonewall', 40, true, true],
-        'twotonewall_var': ['./assets/textures/twotonewall_var', 40, true, false],
-        'twotonewallb': ['./assets/textures/twotonewallb', 20, false, false],
-        'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
-        'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
-        'barrel1': ['./assets/textures/barrel1', 10, true, false],
-        'locker1': ['./assets/textures/locker1', 60, false, false],
-        'lockerssplat': ['./assets/textures/lockerssplat', 40, false, false],
-        'door1': ['./assets/textures/door1', 25, false, false],
-        'grate1': ['./assets/textures/grate1', 40, false, false, true],
-        'grate2': ['./assets/textures/grate2', 40, false, false, true],
+        'ebony': ['./assets/textures/black', 0.5, 0, 0, false, false],
+        'crete1': ['./assets/textures/crete1', 0.5, 0, 0, false, false],
+        'crete2': ['./assets/textures/crete2', 0.5, 0, 0, false, false],
+        'brick1': ['./assets/textures/brick1', 0.5, 0, 0, false, true],
+        'bulkhead1': ['./assets/textures/bulkhead1', 0.5, 0.3, 0.1, true, true, true],
+        'floor1': ['./assets/textures/floor1', 0.5, 0, 0, true],
+        'floor2': ['./assets/textures/floor2', 0.5, 0.8, 0, false],
+        'metrofloor1': ['./assets/textures/metrofloor1', 0.5, 2, 0, false],
+        'metal2': ['./assets/textures/metal2', 0.5, 0, 0, true, false, false],
+        'metal2b': ['./assets/textures/metal2b', 0.5, 0, 0, true, false, false],
+        'metal3': ['./assets/textures/metal3', 0.5, 0, 0, false, false, true],
+        'rust1': ['./assets/textures/rust1', 0.5, 0, 0, false, false, false],
+        'singletonewall': ['./assets/textures/singletonewall', 0.5, 5, 0, false, false],
+        'twotonewall': ['./assets/textures/twotonewall', 0.5, 0.6, 0, true, true],
+        'twotonewall_var': ['./assets/textures/twotonewall_var', 0.5, 0.6, 0, true, false],
+        'bunkerwall': ['./assets/textures/bunkerwall', 0.5, 0, 0.0, true, false],
+        'bunkerwall_var': ['./assets/textures/bunkerwall_var', 0.5, 0, 0.0, true, false],
+        'scrappyfloor': ['./assets/textures/scrappyfloor', 0.1, 0.0, 0.3, true, false],
+        'rustydoorframe': ['./assets/textures/rustydoorframe', 0.5, 0, 0, false, false],
+        'barrel1': ['./assets/textures/barrel1', 0.5, 0, 0, true, false],
+        'locker1': ['./assets/textures/locker1', 0.5, 0, 0, false, false],
+        'lockerssplat': ['./assets/textures/lockerssplat', 0.5, 0, 0, false, false],
+        'door1': ['./assets/textures/door1', 0.5, 0, 0, false, false],
+        'grate1': ['./assets/textures/grate1', 0.5, 0, 0, false, false, true],
+        'grate2': ['./assets/textures/grate2', 0.5, 0, 0, false, false, true],
+        'fakesun': ['./assets/textures/fakesun', 0.5, 0, 0, false, false, false, 'white'],
     };
     const stickers = ['lockerssplat'];
     const library = {};
+    var scaleToggle = true;
     async function loop() {
         if (glob.developer) {
             if (app.proompt('r') == 1) {
@@ -43,6 +47,11 @@ var sketchup;
                 renderer.scene.remove(levelGroup);
                 await props.boot();
                 await load_room();
+            }
+            if (app.proompt('f3') == 1) {
+                scaleToggle = !scaleToggle;
+                await reload_textures();
+                steal_from_library(levelGroup);
             }
             if (app.proompt('m') == 1) {
             }
@@ -57,20 +66,28 @@ var sketchup;
             const texture = await createTextureFromImage(`${tuple[0]}.png`, 8);
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             texture.minFilter = texture.magFilter = THREE.LinearFilter;
-            const material = new THREE.MeshPhongMaterial({
+            const material = new THREE.MeshPhysicalMaterial({
                 name: name,
                 map: texture
             });
-            if (tuple[2]) {
+            material.roughness = tuple[2];
+            material.metalness = tuple[3];
+            material.clearCoat = 0.5;
+            material.iridescence = 0.2;
+            if (tuple[7]) {
+                material.emissive = new THREE.Color('white');
+                console.log(' emissive ');
+            }
+            if (tuple[4]) {
                 const texture = await createTextureFromImage(`${tuple[0]}_normal.png`, 2);
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                material.normalScale.set(1, -1);
-                //material.normalMap = texture;
+                material.normalScale.set(tuple[1], -tuple[1]);
+                material.normalMap = texture;
             }
-            if (tuple[3]) {
+            if (tuple[5]) {
                 const texture = await createTextureFromImage(`${tuple[0]}_specular.png`, 4);
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                material.specularMap = texture;
+                //material.specularMap = texture;
             }
             material.onBeforeCompile = (shader) => {
                 console.warn('onbeforecompile');
@@ -80,7 +97,7 @@ var sketchup;
 					vec3 lumaWeights = vec3(.25,.50,.25);
 
 					vec3 grey;
-					float sat = 2.0;
+					float sat = 3.0;
 					float reduce = 100.0;
 					float resat = 2.0;
 					float rereduce = 100.0;
@@ -120,14 +137,16 @@ var sketchup;
             material.customProgramCacheKey = function () {
                 return 'clucked';
             };
-            material.specular.set(0.1, 0.1, 0.1);
-            material.shininess = tuple[1] || 30;
+            //material.specular?.set(0.1, 0.1, 0.1);
+            //material.shininess = tuple[1] || 30;
             library[name] = material;
         }
     }
     const downscale = true;
     const createTextureFromImage = async (imageUrl, scale) => {
         return new Promise(async (resolve) => {
+            if (!scaleToggle)
+                scale = 1;
             if (!downscale)
                 return new THREE.TextureLoader().load(imageUrl);
             else {

@@ -37,8 +37,10 @@ namespace renderer {
 		scene.add(propsGroup);
 		scene.background = new THREE.Color('#333');
 
-		//let helepr = new THREE.AxesHelper();
-		//scene.add(helepr);
+		RectAreaLightUniformsLib.init();
+		
+		let helepr = new THREE.AxesHelper();
+		scene.add(helepr);
 
 		scene.fog = new THREE.Fog(0x131c1d, 7, 20);
 

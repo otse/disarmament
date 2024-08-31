@@ -32,6 +32,9 @@ namespace props {
 			case 'spotlight':
 				prop = new pspotlight(object, {});
 				break;
+			case 'rectlight':
+				prop = new prectlight(object, {});
+				break;
 			case 'wall':
 			case 'ground':
 			case 'solid':
@@ -482,23 +485,6 @@ namespace props {
 			light.position.add(size);
 			// light.add(new THREE.AxesHelper(10));
 			this.group.add(light);
-
-			if (this.preset_.lensflare) {
-				lensflare1 ||= new THREE.TextureLoader().load('./assets/textures/flare1.png');
-				//lensflare1.opacity = 0.2;
-				//lensflare1.transparent = true;
-
-				const lensflare = new Lensflare();
-				const size = (this.preset_.lensflareSize || 1) * 100;
-				const element = new LensflareElement(lensflare1, 15 * size, 0, light.color);
-				const element2 = new LensflareElement(lensflare1, 10, 0.025 * size, light.color);
-				const element3 = new LensflareElement(lensflare1, 5, 0.07 * size, light.color);
-				lensflare.addElement(element);
-				lensflare.addElement(element2);
-				lensflare.addElement(element3);
-				// Add lens flare to the light
-				light.add(lensflare);
-			}
 		}
 		override _loop() {
 			this.behavior();
@@ -506,8 +492,6 @@ namespace props {
 		override _lod() {
 		}
 	}
-
-	let lensflare1;
 
 	export class pspotlight extends light {
 		spotlight
@@ -544,31 +528,6 @@ namespace props {
 			light.angle = this.preset_.angle || Math.PI / 3;
 			light.penumbra = this.preset_.penumbra || 0.0;
 
-			if (this.preset_.lensflare) {
-				lensflare1 ||= new THREE.TextureLoader().load('./assets/textures/flare1.png');
-				//lensflare1.opacity = 0.2;
-				//lensflare1.transparent = true;
-
-				const lensflare = new Lensflare();
-				const size = this.preset_.lensflareSize || 1;
-				const element = new LensflareElement(lensflare1, 15 * size, 0, light.color);
-				const element2 = new LensflareElement(lensflare1, 10, 0.025 * size, light.color);
-				const element3 = new LensflareElement(lensflare1, 5, 0.07 * size, light.color);
-				lensflare.addElement(element);
-				lensflare.addElement(element2);
-				lensflare.addElement(element3);
-				// Add lens flare to the light
-				light.add(lensflare);
-			}
-
-			/*const flareMaterial = new THREE.SpriteMaterial({ map: new THREE.TextureLoader().load('./assets/textures/flare1.png'), blending: THREE.AdditiveBlending, transparent: true });
-			const flareSprite = new THREE.Sprite(flareMaterial);
-			const newSize = 10; // Set the new size you want
-			flareSprite.scale.set(newSize, newSize, 1);
-			light.add(flareSprite);*/
-
-			//light.add(new THREE.AxesHelper(10));
-
 			if (this.preset_.target)
 				light.target.position.add(new THREE.Vector3().fromArray(this.preset_.target).multiplyScalar(4));
 			light.target.position.add(size);
@@ -582,6 +541,68 @@ namespace props {
 		}
 		override _loop() {
 			this.behavior();
+		}
+	}
+
+	export class prectlight extends light {
+		constructor(object, parameters) {
+			super(object, parameters);
+			this.type = 'prectlight';
+			this.array = lights;
+		}
+		override _finish() {
+			
+			this.preset_ = presets_from_json[this.preset || 'none'];
+			if (!this.preset_) {
+				console.log(' preset no def ', this.preset);
+				return;
+			}
+
+			this.object.visible = !this.preset_.hide;
+
+			// taken from correction for physics
+			const size = new THREE.Vector3();
+			this.aabb.getSize(size);
+			//size.divideScalar(2);
+			// because of parent transforms, the box is scaled by 0.0254
+			// bring it up to 1 / 0.0254 so we reenter render space
+			//size.multiplyScalar(garbage.spaceMultiply);
+			this.object.rotation.set(-Math.PI / 2, 0, 0);
+			
+
+			//size.divideScalar(2.0);
+			//size.multiplyScalar(garbage.spaceMultiply);
+
+			let light = new THREE.RectAreaLight(
+				this.preset_.color || 'white',
+				this.preset_.intensity || 5,
+				size.y,
+				size.z);
+			this.light = light;
+			light.power = 1;
+			light.intensity = 1;
+
+			size.divideScalar(2.0);
+			size.multiplyScalar(garbage.spaceMultiply);
+
+			const temp = new THREE.Vector3().copy(size);
+			size.z = temp.y;
+			size.y = temp.z;
+
+			//light.position.add(temp);
+			const boo = new THREE.Vector3(1, 0, 0);
+			const vec = new THREE.Vector3().copy(light.position).add(boo); // light.position;
+			
+			light.lookAt( vec );
+			this.group.add(light);
+
+			const helper = new RectAreaLightHelper( light );
+			light.add( helper ); // helper must be added as a child of the light
+		}
+		override _loop() {
+			this.behavior();
+		}
+		override _lod() {
 		}
 	}
 
