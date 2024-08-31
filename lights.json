@@ -167,7 +167,7 @@
 			"type": "shake",
 			"cycle": 4,
 			"base": 1,
-			"variance": 0.2
+			"variance": 1.0
 		}
 	},
 	"sllockers": {
@@ -178,7 +178,7 @@
 		"intensity": 0.5,
 		"angle": 1.2,
 		"penumbra": 0.1,
-		"distance": 3.25,
+		"distance": 3.2,
 		"decay": 1.0,
 		"shadow": true,
 		"shadowMapSize": 1024,
@@ -191,7 +191,7 @@
 			"type": "shake",
 			"cycle": 4,
 			"base": 1,
-			"variance": 0.2
+			"variance": 1.2
 		}
 	},
 	"lockersupperambient": {

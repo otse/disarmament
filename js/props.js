@@ -522,23 +522,10 @@ var props;
             // taken from correction for physics
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
-            //size.divideScalar(2);
-            // because of parent transforms, the box is scaled by 0.0254
-            // bring it up to 1 / 0.0254 so we reenter render space
-            //size.multiplyScalar(garbage.spaceMultiply);
-            this.object.rotation.set(-Math.PI / 2, 0, 0);
-            //size.divideScalar(2.0);
-            //size.multiplyScalar(garbage.spaceMultiply);
             let light = new THREE.RectAreaLight(this.preset_.color || 'white', this.preset_.intensity || 5, size.y, size.z);
             this.light = light;
-            light.power = 1;
-            light.intensity = 1;
             size.divideScalar(2.0);
             size.multiplyScalar(garbage.spaceMultiply);
-            const temp = new THREE.Vector3().copy(size);
-            size.z = temp.y;
-            size.y = temp.z;
-            //light.position.add(temp);
             const boo = new THREE.Vector3(1, 0, 0);
             const vec = new THREE.Vector3().copy(light.position).add(boo); // light.position;
             light.lookAt(vec);
