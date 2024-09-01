@@ -149,34 +149,30 @@
 		"decay": 0.5
 	},
 	"fakesun": {
-		"lensflare": false,
-		"lensflareSize": 0.5,
 		"hide": true,
-		"color": "white",
-		"intensity": 0.1,
+		"color": "lightblue",
+		"intensity": 0.6,
 		"distance": 3.0,
 		"decay": 1.0,
-		"shadow": false,
-		"shadowMapSize": 1024,
 		"target": [
-			-1.0,
+			1.0,
 			0.0,
 			0.0
 		],
 		"behavior": {
 			"type": "shake",
-			"cycle": 4,
-			"base": 1,
-			"variance": 1.0
+			"cycle": 5,
+			"base": 2,
+			"variance": 2
 		}
 	},
 	"sllockers": {
 		"lensflare": false,
-		"lensflareSize": 0.5,
+		"lensflareSize": 0.4,
 		"hide": true,
 		"color": "white",
-		"intensity": 0.5,
-		"angle": 1.2,
+		"intensity": 0.4,
+		"angle": 0.9,
 		"penumbra": 0.1,
 		"distance": 3.2,
 		"decay": 1.0,

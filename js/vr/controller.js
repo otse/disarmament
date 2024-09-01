@@ -102,7 +102,7 @@ export class ctrlr {
         const axes = this.xrinputsource.data.gamepad.axes;
         let thumbstick = pts.make(axes[2] || 0, axes[3] || 0);
         thumbstick = pts.inv(thumbstick);
-        thumbstick = pts.mult(thumbstick, .1);
+        thumbstick = pts.mult(thumbstick, .025);
         const arraycamera = renderer.renderer.xr.getCamera();
         // todo is there a shorter way to get xr yaw
         const quaternion = new THREE.Quaternion();

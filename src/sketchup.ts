@@ -17,46 +17,23 @@ namespace sketchup {
 		emissive?: string
 	]
 
-	// don't convert this to object literals
-
-	const paths: { [index: string]: tuple } = {
-		'ebony': ['./assets/textures/black', 0.5, 0, 0, false, false],
-		'crete1': ['./assets/textures/crete1', 0.5, 0, 0, false, false],
-		'crete2': ['./assets/textures/crete2', 0.5, 0, 0, false, false],
-		'brick1': ['./assets/textures/brick1', 0.5, 0, 0, false, true],
-		'bulkhead1': ['./assets/textures/bulkhead1', 0.5, 0.3, 0.1, true, true, true],
-		'floor1': ['./assets/textures/floor1', 0.5, 0, 0, true],
-		'floor2': ['./assets/textures/floor2', 0.5, 0.8, 0, false],
-		'metrofloor1': ['./assets/textures/metrofloor1', 0.5, 2, 0, false],
-		'metal2': ['./assets/textures/metal2', 0.5, 0, 0, true, false, false],
-		'metal2b': ['./assets/textures/metal2b', 0.5, 0, 0, true, false, false],
-		'metal3': ['./assets/textures/metal3', 0.5, 0, 0, false, false, true],
-		'rust1': ['./assets/textures/rust1', 0.5, 0, 0, false, false, false],
-		'singletonewall': ['./assets/textures/singletonewall', 0.5, 5, 0, false, false],
-		'twotonewall': ['./assets/textures/twotonewall', 1.0, 0.6, 0, true, true],
-		'twotonewall_var': ['./assets/textures/twotonewall_var', 1.0, 0.6, 0, true, false],
-		'bunkerwall': ['./assets/textures/bunkerwall', 0.5, 0, 0.0, true, false],
-		'bunkerwall_var': ['./assets/textures/bunkerwall_var', 0.5, 0, 0.0, true, false],
-		'scrappyfloor': ['./assets/textures/scrappyfloor', 0.1, 0.1, 0.1, true, false],
-		'rustydoorframe': ['./assets/textures/rustydoorframe', 0.5, 0, 0, false, false],
-		'barrel1': ['./assets/textures/barrel1', 0.5, 0, 0, true, false],
-		'locker1': ['./assets/textures/locker1', 0.5, 0, 0, false, false],
-		'lockerssplat': ['./assets/textures/lockerssplat', 0.5, 0, 0, false, false],
-		'door1': ['./assets/textures/door1', 0.5, 0, 0, false, false],
-		'grate1': ['./assets/textures/grate1', 0.5, 0, 0, false, false, true],
-		'grate2': ['./assets/textures/grate2', 0.5, 0, 0, false, false, true],
-		'fakesun': ['./assets/textures/fakesun', 0.5, 0, 0, false, false, false, 'white'],
-	}
-
 	const stickers = ['lockerssplat']
 
-	const library = {}
+	var mats = {}
 
 	var scaleToggle = true;
+
+	export async function get_mats() {
+		let url = 'mats.json';
+		let response = await fetch(url);
+		const arrSales = await response.json();
+		mats = arrSales;
+	}
 
 	export async function loop() {
 		if (glob.developer) {
 			if (app.proompt('r') == 1) {
+				await get_mats();
 				await reload_textures();
 				steal_from_library(levelGroup);
 			}
@@ -64,13 +41,20 @@ namespace sketchup {
 				props.clear();
 				renderer.scene.remove(levelGroup);
 				await props.boot();
+				await get_mats();
+				await reload_textures();
 				await load_room();
 			}
 			if (app.proompt('f3') == 1) {
 				scaleToggle = !scaleToggle;
+				await get_mats();
 				await reload_textures();
 				steal_from_library(levelGroup);
 
+				props.clear();
+				renderer.scene.remove(levelGroup);
+				await props.boot();
+				await load_room();
 			}
 			if (app.proompt('m') == 1) {
 
@@ -79,9 +63,9 @@ namespace sketchup {
 	}
 
 	async function reload_textures() {
-		for (let name in paths) {
-			const existing = library[name];
-			const tuple = paths[name];
+		for (let name in mats) {
+			const existing = mats[name];
+			const tuple = mats[name];
 			let randy = `?x=${Math.random()}`;
 			const texture = <any>await createTextureFromImage(`${tuple[0]}.png`, 8);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -163,7 +147,7 @@ namespace sketchup {
 			}
 			//material.specular?.set(0.1, 0.1, 0.1);
 			//material.shininess = tuple[1] || 30;
-			library[name] = material;
+			mats[name] = material;
 
 		}
 	}
@@ -200,6 +184,7 @@ namespace sketchup {
 
 	export async function boot() {
 		const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
+		await get_mats();
 		await reload_textures();
 		await load_room();
 	}
@@ -216,7 +201,7 @@ namespace sketchup {
 
 	function adapt_from_materials_library(object, index) {
 		const current = index == -1 ? object.material : object.material[index];
-		const material = library[current.name];
+		const material = mats[current.name];
 		if (!material)
 			return;
 		if (index == -1)

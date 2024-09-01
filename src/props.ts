@@ -569,6 +569,7 @@ namespace props {
 				this.preset_.intensity || 5,
 				size.y,
 				size.z);
+				light.power = 100;
 			this.light = light;
 
 			size.divideScalar(2.0);
@@ -577,7 +578,7 @@ namespace props {
 			const boo = new THREE.Vector3(1, 0, 0);
 			const vec = new THREE.Vector3().copy(light.position).add(boo); // light.position;
 			
-			light.lookAt( vec );
+			light.lookAt( new THREE.Vector3().fromArray(this.preset_.target) );
 			this.group.add(light);
 
 			const helper = new RectAreaLightHelper( light );
