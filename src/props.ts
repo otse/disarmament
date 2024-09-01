@@ -358,7 +358,7 @@ namespace props {
 		override _finish() {
 			this.preset_ = presets_from_json[this.preset || 'none'];
 			console.log('fan preset_', this.preset_, this.preset);
-			
+
 
 			//this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
 			const size = new THREE.Vector3();
@@ -551,7 +551,7 @@ namespace props {
 			this.array = lights;
 		}
 		override _finish() {
-			
+
 			this.preset_ = presets_from_json[this.preset || 'none'];
 			if (!this.preset_) {
 				console.log(' preset no def ', this.preset);
@@ -569,20 +569,22 @@ namespace props {
 				this.preset_.intensity || 5,
 				size.y,
 				size.z);
-				light.power = 100;
+			light.power = 100;
 			this.light = light;
 
 			size.divideScalar(2.0);
 			size.multiplyScalar(garbage.spaceMultiply);
 
+			//light.position.add(size);
+
 			const boo = new THREE.Vector3(1, 0, 0);
 			const vec = new THREE.Vector3().copy(light.position).add(boo); // light.position;
-			
-			light.lookAt( new THREE.Vector3().fromArray(this.preset_.target) );
+
+			light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
 			this.group.add(light);
 
-			const helper = new RectAreaLightHelper( light );
-			light.add( helper ); // helper must be added as a child of the light
+			const helper = new RectAreaLightHelper(light);
+			light.add(helper); // helper must be added as a child of the light
 		}
 		override _loop() {
 			this.behavior();

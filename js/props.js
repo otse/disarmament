@@ -527,6 +527,7 @@ var props;
             this.light = light;
             size.divideScalar(2.0);
             size.multiplyScalar(garbage.spaceMultiply);
+            //light.position.add(size);
             const boo = new THREE.Vector3(1, 0, 0);
             const vec = new THREE.Vector3().copy(light.position).add(boo); // light.position;
             light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
