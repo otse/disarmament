@@ -151,7 +151,7 @@
 	"fakesun": {
 		"hide": true,
 		"color": "lightblue",
-		"intensity": 0.6,
+		"intensity": 2.0,
 		"distance": 3.0,
 		"decay": 1.0,
 		"target": [
@@ -161,7 +161,7 @@
 		],
 		"behavior": {
 			"type": "shake",
-			"cycle": 5,
+			"cycle": 6,
 			"base": 2,
 			"variance": 2
 		}

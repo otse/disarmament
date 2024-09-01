@@ -194,7 +194,7 @@ class player {
 		}
 
 		this.camera.position.copy(this.cannon_body.position);
-		this.camera.position.add(new THREE.Vector3(0, 1.2, 0));
+		this.camera.position.add(new THREE.Vector3(0, 1.3, 0));
 	}
 }
 
