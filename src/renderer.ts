@@ -64,7 +64,7 @@ namespace renderer {
 		renderer.shadowMap.enabled = true;
 		renderer.xr.enabled = true;
 		//renderer.xr.cameraAutoUpdate = false;
-		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		renderer.shadowMap.type = THREE.BasicShadowMap;
 		//renderer.setClearColor(0xffffff, 0.0);
 
 		const percent = 1 / 100;

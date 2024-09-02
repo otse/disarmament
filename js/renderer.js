@@ -41,7 +41,7 @@ var renderer;
         renderer_1.renderer.shadowMap.enabled = true;
         renderer_1.renderer.xr.enabled = true;
         //renderer.xr.cameraAutoUpdate = false;
-        renderer_1.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer_1.renderer.shadowMap.type = THREE.BasicShadowMap;
         //renderer.setClearColor(0xffffff, 0.0);
         const percent = 1 / 100;
         renderer_1.ambiance = new THREE.AmbientLight(0xffffff, percent);
