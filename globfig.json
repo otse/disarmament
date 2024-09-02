@@ -1,0 +1,123 @@
+{
+	"fansw": {
+		"speed": 1
+	},
+	"plgeneric": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.1,
+		"distance": 5,
+		"decay": 0.1
+	},
+	"slsewerworld": {
+		"lensflare": true,
+		"lensflareSize": 3,
+		"hide": true,
+		"color": "lightblue",
+		"angle": 0.47,
+		"intensity": 1.0,
+		"distance": 20.0,
+		"penumbra": 0.1,
+		"decay": 1.0,
+		"shadow": true,
+		"shadowMapSize": 256,
+		"target": [
+			0,
+			1,
+			0
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 5,
+			"base": 1.0,
+			"variance": 2.0
+		}
+	},
+	"slsewerworldlockers": {
+		"lensflare": true,
+		"lensflareSize": 3,
+		"hide": true,
+		"color": "lightblue",
+		"angle": 0.5,
+		"intensity": 1.0,
+		"distance": 20.0,
+		"penumbra": 0.1,
+		"decay": 1.0,
+		"shadow": true,
+		"shadowMapSize": 256,
+		"target": [
+			0,
+			1,
+			0
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 3,
+			"base": 1.0,
+			"variance": 1.0
+		}
+	},
+	"slribs": {
+		"lensflare": false,
+		"hide": true,
+		"color": "#a4c3a8",
+		"angle": 1.2,
+		"intensity": 0.1,
+		"distance": 4,
+		"penumbra": 1.0,
+		"decay": 0.1,
+		"shadow": false,
+		"target": [
+			0,
+			0,
+			-1
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 3,
+			"base": 1,
+			"variance": 0.1
+		}
+	},
+	"skirt": {
+		"hide": true,
+		"color": "#668d66",
+		"intensity": 0.1,
+		"distance": 2,
+		"decay": 1.4,
+		"shadow": false
+	},
+	"radio": {
+		"disabled": true,
+		"name": "alien_cycletone",
+		"volume": 0.4,
+		"loop": true,
+		"distance": 3,
+		"delay": [
+			0,
+			1
+		]
+	},
+	"swedge": {
+		"disabled": true,
+		"name": "ambience6",
+		"volume": 0.4,
+		"loop": true,
+		"distance": 3,
+		"delay": [
+			0,
+			1
+		]
+	},
+	"envlockers": {
+		"disabled": false,
+		"name": "quiet_cellblock_amb",
+		"volume": 0.1,
+		"loop": true,
+		"distance": 3,
+		"delay": [
+			0,
+			1
+		]
+	}
+}

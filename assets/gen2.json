@@ -1,0 +1,60 @@
+{
+	"plbend": {
+		"hide": true,
+		"color": "mintcream",
+		"intensity": 0.3,
+		"distance": 3.75,
+		"decay": 1.0,
+		"shadow": true
+	},
+	"slbend": {
+		"lensflare": false,
+		"hide": true,
+		"color": "lightblue",
+		"angle": 1.2,
+		"intensity": 0.7,
+		"distance": 2,
+		"penumbra": 0.8,
+		"decay": 1.5,
+		"shadow": false,
+		"target": [
+			0,
+			0,
+			-1
+		],
+		"xbehavior": {
+			"type": "shake",
+			"cycle": 3,
+			"base": 1,
+			"variance": 0.2
+		}
+	},
+	"lockersrect": {
+		"hide": true,
+		"color": "lightblue",
+		"intensity": 2.0,
+		"distance": 3.0,
+		"decay": 1.0,
+		"target": [
+			1.0,
+			0.0,
+			0.0
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 6,
+			"base": 2,
+			"variance": 2
+		}
+	},
+	"pllockers": {
+		"disabled": true,
+		"hide": true,
+		"color": "cyan",
+		"intensity": 0.0,
+		"distance": 4.0,
+		"decay": 3.0,
+		"shadow": true,
+		"shadowMapSize": 128
+	}
+}

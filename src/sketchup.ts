@@ -24,7 +24,7 @@ namespace sketchup {
 	var scaleToggle = true;
 
 	export async function get_mats() {
-		let url = 'mats.json';
+		let url = 'figs/mats.json';
 		let response = await fetch(url);
 		const arrSales = await response.json();
 		mats = arrSales;
@@ -43,18 +43,16 @@ namespace sketchup {
 				await props.boot();
 				await get_mats();
 				await reload_textures();
-				await load_room();
+				await load_level();
 			}
 			if (app.proompt('f3') == 1) {
 				scaleToggle = !scaleToggle;
-				await get_mats();
-				await reload_textures();
-				steal_from_library(levelGroup);
-
 				props.clear();
 				renderer.scene.remove(levelGroup);
 				await props.boot();
-				await load_room();
+				await get_mats();
+				await reload_textures();
+				await load_level();
 			}
 			if (app.proompt('m') == 1) {
 
@@ -201,7 +199,7 @@ namespace sketchup {
 		const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
 		await get_mats();
 		await reload_textures();
-		await load_room();
+		await load_level();
 	}
 
 	function fix_sticker(material) {
@@ -247,55 +245,64 @@ namespace sketchup {
 		scene.traverse(traversal);
 	}
 
-	export async function load_room() {
+	export async function load_level_config(name) {
+		let url = `./assets/${name}.json`;		
+		let response = await fetch(url);
+		const arrSales = await response.json();
+		return arrSales;
+	}
 
-		return new Promise(async (resolve, reject) => {
+	export async function load_level() {
 
-			await new Promise(resolve => setTimeout(resolve, 200));
+		const name = glob.level;
 
-			const loadingManager = new THREE.LoadingManager(function () {
-			});
+		//await new Promise(resolve => setTimeout(resolve, 200));
 
-			const colladaLoader = new ColladaLoader(loadingManager);
-
-			colladaLoader.load('./assets/gen.dae', function (collada) {
-
-				const scene = collada.scene;
-
-				scene.updateMatrix();
-				scene.updateMatrixWorld(); // without this everything explodes
-
-				console.log(' collada scene ', scene);
-
-				//scene.scale.set(1, 1, 1);
-				//scene.position.set(-garbage.inch, 0, 0);
-
-				const queue: props.prop[] = [];
-
-				function find_make_props(object) {
-					object.castShadow = true;
-					object.receiveShadow = true;
-					const prop = props.factory(object);
-					if (prop)
-						queue.push(prop);
-				}
-
-				scene.traverse(find_make_props);
-
-				steal_from_library(scene);
-
-				for (let prop of queue)
-					prop.complete();
-
-				const group = new THREE.Group();
-				group.add(scene);
-				renderer.scene.add(group);
-
-				levelGroup = group;
-
-				resolve(1);
-			});
+		const loadingManager = new THREE.LoadingManager(function () {
 		});
+
+		const colladaLoader = new ColladaLoader(loadingManager);
+
+		const levelConfig = await load_level_config(name);
+
+		props.presets = Object.assign(props.presets, levelConfig);
+
+		await colladaLoader.loadAsync(`./assets/${name}.dae`).then( (collada) => {
+
+			const scene = collada.scene;
+
+			scene.updateMatrix();
+			scene.updateMatrixWorld(); // without this everything explodes
+
+			console.log(' collada scene ', scene);
+
+			//scene.scale.set(1, 1, 1);
+			//scene.position.set(-garbage.inch, 0, 0);
+
+			const queue: props.prop[] = [];
+
+			function find_make_props(object) {
+				object.castShadow = true;
+				object.receiveShadow = true;
+				const prop = props.factory(object);
+				if (prop)
+					queue.push(prop);
+			}
+
+			scene.traverse(find_make_props);
+
+			steal_from_library(scene);
+
+			for (let prop of queue)
+				prop.complete();
+
+			const group = new THREE.Group();
+			group.add(scene);
+			renderer.scene.add(group);
+
+			levelGroup = group;
+		});
+
 	}
 }
 

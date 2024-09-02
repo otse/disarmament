@@ -30,7 +30,7 @@ var props;
                 prop = new pspotlight(object, {});
                 break;
             case 'rectlight':
-                prop = new prectlight(object, {});
+                prop = new prectlight(object, { axis: hint });
                 break;
             case 'wall':
             case 'ground':
@@ -98,11 +98,11 @@ var props;
     }
     props.take_collada_prop = take_collada_prop;
     async function boot() {
-        let url = 'lights.json';
+        let url = 'globfig.json';
         let response = await fetch(url);
         const arrSales = await response.json();
-        props.presets_from_json = arrSales;
-        console.log(props.presets_from_json);
+        props.presets = arrSales;
+        console.log(props.presets);
         return arrSales;
     }
     props.boot = boot;
@@ -112,7 +112,7 @@ var props;
     props.sounds = [];
     props.boxes = [];
     props.lights = [];
-    props.presets_from_json = {};
+    props.presets = {};
     class prop {
         object;
         parameters;
@@ -302,7 +302,7 @@ var props;
             };
             hooks.register('audioGestured', (x) => {
                 console.warn('late playing', this.preset);
-                const preset = props.presets_from_json[this.preset];
+                const preset = props.presets[this.preset];
                 if (!preset)
                     return;
                 if (preset.delay)
@@ -321,7 +321,7 @@ var props;
         _play() {
             if (!audio.allDone)
                 return;
-            const preset = props.presets_from_json[this.preset];
+            const preset = props.presets[this.preset];
             if (!preset)
                 return;
             if (preset.disabled)
@@ -345,7 +345,7 @@ var props;
             this.type = 'pfan';
         }
         _finish() {
-            this.preset_ = props.presets_from_json[this.preset || 'none'];
+            this.preset_ = props.presets[this.preset || 'none'];
             console.log('fan preset_', this.preset_, this.preset);
             //this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
             const size = new THREE.Vector3();
@@ -438,7 +438,7 @@ var props;
         }
         _finish() {
             //this.object.visible = false;
-            this.preset_ = props.presets_from_json[this.preset || 'none'];
+            this.preset_ = props.presets[this.preset || 'none'];
             if (!this.preset_) {
                 console.log(' preset no def ', this.preset);
                 return;
@@ -450,6 +450,7 @@ var props;
             size.multiplyScalar(garbage.spaceMultiply);
             let light = new THREE.PointLight(this.preset_.color || 'white', this.preset_.intensity || 1, this.preset_.distance || 3, this.preset_.decay || 1);
             this.light = light;
+            light.visible = !this.preset_.disabled;
             light.castShadow = this.preset_.shadow;
             //light.position.fromArray(preset.offset || [0, 0, 0]);
             light.position.add(size);
@@ -471,7 +472,7 @@ var props;
             this.array = props.lights;
         }
         _finish() {
-            this.preset_ = props.presets_from_json[this.preset || 'none'];
+            this.preset_ = props.presets[this.preset || 'none'];
             if (!this.preset_) {
                 console.warn(' preset no def ');
                 return;
@@ -482,15 +483,15 @@ var props;
             size.divideScalar(2.0);
             size.multiplyScalar(garbage.spaceMultiply);
             //console.log('light size, center', size, center);
-            let light = new THREE.SpotLight(this.preset_.color, this.preset_.intensity, this.preset_.distance, this.preset_.decay);
+            let light = new THREE.SpotLight(this.preset_.color, this.preset_.intensity, this.preset_.distance, this.preset_.angle, this.preset_.penumbra, this.preset_.decay);
             this.light = light;
+            light.visible = !this.preset_.disabled;
             light.position.set(0, 0, 0);
             light.castShadow = this.preset_.shadow;
             light.shadow.camera.far = 1000;
             light.shadow.mapSize.width = this.preset_.shadowMapSize || 512;
             light.shadow.mapSize.height = this.preset_.shadowMapSize || 512;
             light.angle = this.preset_.angle || Math.PI / 3;
-            light.penumbra = this.preset_.penumbra || 0.0;
             if (this.preset_.target)
                 light.target.position.add(new THREE.Vector3().fromArray(this.preset_.target).multiplyScalar(4));
             light.target.position.add(size);
@@ -513,23 +514,22 @@ var props;
             this.array = props.lights;
         }
         _finish() {
-            this.preset_ = props.presets_from_json[this.preset || 'none'];
+            this.preset_ = props.presets[this.preset || 'none'];
             if (!this.preset_) {
                 console.log(' preset no def ', this.preset);
                 return;
             }
             this.object.visible = !this.preset_.hide;
-            // taken from correction for physics
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
-            let light = new THREE.RectAreaLight(this.preset_.color || 'white', this.preset_.intensity || 5, size.y, size.z);
+            let width = 1, height = 1;
+            if (this.parameters.axis == 'z') {
+                height = size.z;
+                width = size.y;
+            }
+            const light = new THREE.RectAreaLight(this.preset_.color || 'white', this.preset_.intensity || 5, width, height);
             light.power = 100;
             this.light = light;
-            size.divideScalar(2.0);
-            size.multiplyScalar(garbage.spaceMultiply);
-            //light.position.add(size);
-            const boo = new THREE.Vector3(1, 0, 0);
-            const vec = new THREE.Vector3().copy(light.position).add(boo); // light.position;
             light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
             this.group.add(light);
             const helper = new RectAreaLightHelper(light);

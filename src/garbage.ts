@@ -36,7 +36,7 @@ namespace garbage {
 		locker = document.querySelector('salvage-instructions')! as HTMLElement;
 		main = document.querySelector('salvage-body');
 
-		points.add([0, 0], [1, 1]);
+		glob.level = 'gen2';
 
 		physics.boot();
 		props.boot();

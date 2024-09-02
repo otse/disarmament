@@ -456,7 +456,8 @@ namespace physics {
 			hingedBody.linearDamping = 0.4;
 			world.addBody(hingedBody);
 
-			rotateBodyAroundPoint(hingedBody, resultVec, -1.0); // Example: Rotate by 45 degrees
+			// oh no
+			// rotateBodyAroundPoint(hingedBody, resultVec, -1.0); // Example: Rotate by 45 degrees
 
 			const halfExtents2 = new CANNON.Vec3(0.06, 0.06, 0.06);
 			const staticShape = new CANNON.Box(halfExtents2);
