@@ -45,40 +45,49 @@ var sketchup;
     }
     sketchup.loop = loop;
     async function reload_textures() {
+        /* this uses the magic of promises
+
+           it loads all textures at once, whilst at the same time,
+           asynchronously waiting for each of them before continuing
+        */
+        const funcs = [];
         for (let name in mats) {
-            const existing = mats[name];
-            const tuple = mats[name];
-            let randy = `?x=${Math.random()}`;
-            const texture = await createTextureFromImage(`${tuple[0]}.png`, 8);
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.minFilter = texture.magFilter = THREE.LinearFilter;
-            const material = new THREE.MeshPhysicalMaterial({
-                name: name,
-                map: texture
-            });
-            material.roughness = tuple[2];
-            material.metalness = tuple[3];
-            material.clearCoat = 0.5;
-            material.iridescence = 0.2;
-            if (tuple[7]) {
-                material.emissive = new THREE.Color('white');
-                console.log(' emissive ');
-            }
-            if (tuple[4]) {
-                const texture = await createTextureFromImage(`${tuple[0]}_normal.png`, 2);
+            const func = async (name) => {
+                console.log('func', name);
+                const existing = mats[name];
+                const tuple = mats[name];
+                let randy = `?x=${Math.random()}`;
+                const texture = await createTextureFromImage(`${tuple[0]}.png`, 8);
+                console.log('done', name);
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                material.normalScale.set(tuple[1], -tuple[1]);
-                material.normalMap = texture;
-            }
-            if (tuple[5]) {
-                const texture = await createTextureFromImage(`${tuple[0]}_specular.png`, 4);
-                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                //material.specularMap = texture;
-            }
-            material.onBeforeCompile = (shader) => {
-                console.warn('onbeforecompile');
-                shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', REREDUCE: '' };
-                shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
+                texture.minFilter = texture.magFilter = THREE.LinearFilter;
+                const material = new THREE.MeshPhysicalMaterial({
+                    name: name,
+                    map: texture
+                });
+                material.roughness = tuple[2];
+                material.metalness = tuple[3];
+                material.clearCoat = 0.5;
+                material.iridescence = 0.2;
+                if (tuple[7]) {
+                    material.emissive = new THREE.Color('white');
+                    console.log(' emissive ');
+                }
+                if (tuple[4]) {
+                    const texture = await createTextureFromImage(`${tuple[0]}_normal.png`, 2);
+                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                    material.normalScale.set(tuple[1], -tuple[1]);
+                    material.normalMap = texture;
+                }
+                if (tuple[5]) {
+                    const texture = await createTextureFromImage(`${tuple[0]}_specular.png`, 4);
+                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                    //material.specularMap = texture;
+                }
+                material.onBeforeCompile = (shader) => {
+                    console.warn('onbeforecompile');
+                    shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', REREDUCE: '' };
+                    shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
 
 					vec3 lumaWeights = vec3(.25,.50,.25);
 
@@ -119,14 +128,18 @@ var sketchup;
 					// when at tone mapping pass
 					gl_FragColor.rgb = diffuse.rgb;
 					`);
+                };
+                material.customProgramCacheKey = function () {
+                    return 'clucked';
+                };
+                //material.specular?.set(0.1, 0.1, 0.1);
+                //material.shininess = tuple[1] || 30;
+                mats[name] = material;
             };
-            material.customProgramCacheKey = function () {
-                return 'clucked';
-            };
-            //material.specular?.set(0.1, 0.1, 0.1);
-            //material.shininess = tuple[1] || 30;
-            mats[name] = material;
+            const promise = /*await*/ func(name);
+            funcs.push(promise);
         }
+        return Promise.all(funcs);
     }
     const downscale = true;
     const createTextureFromImage = async (imageUrl, scale) => {
@@ -134,12 +147,12 @@ var sketchup;
             if (!scaleToggle)
                 scale = 1;
             if (!downscale)
-                return new THREE.TextureLoader().load(imageUrl);
+                resolve(await new THREE.TextureLoader().loadAsync(imageUrl));
             else {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const texture = new THREE.CanvasTexture(canvas);
-                await new THREE.ImageLoader().load(imageUrl, image => {
+                new THREE.ImageLoader().loadAsync(imageUrl).then((image) => {
                     console.log('from', image.width, image.height, 'to', image.width / scale, image.height / scale);
                     canvas.width = image.width / scale;
                     canvas.height = image.height / scale;
