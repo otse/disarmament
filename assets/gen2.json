@@ -1,0 +1,105 @@
+{
+	"plbend": {
+		"hide": true,
+		"color": "mintcream",
+		"intensity": 0.4,
+		"distance": 3.0,
+		"decay": 1.0,
+		"shadow": true
+	},
+	"slbend": {
+		"lensflare": false,
+		"hide": true,
+		"color": "lightblue",
+		"angle": 1.2,
+		"intensity": 0.7,
+		"distance": 2,
+		"penumbra": 0.8,
+		"decay": 1.5,
+		"shadow": false,
+		"target": [
+			0,
+			0,
+			-1
+		],
+		"xbehavior": {
+			"type": "shake",
+			"cycle": 3,
+			"base": 1,
+			"variance": 0.2
+		}
+	},
+	"lockersrect": {
+		"hide": true,
+		"color": "lightblue",
+		"intensity": 2.0,
+		"distance": 3.0,
+		"decay": 1.0,
+		"target": [
+			1.0,
+			0.0,
+			0.0
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 5,
+			"base": 1,
+			"variance": 1
+		}
+	},
+	"pllockers": {
+		"disabled": true,
+		"hide": true,
+		"color": "cyan",
+		"intensity": 0.15,
+		"distance": 4.0,
+		"decay": 3.0,
+		"shadow": true,
+		"shadowMapSize": 128
+	},
+	"rlskylight": {
+		"hide": true,
+		"color": "lightblue",
+		"intensity": 3.0,
+		"distance": 3.0,
+		"decay": 1.0,
+		"target": [
+			0.0,
+			0.0,
+			-1.0
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 5,
+			"base": 1,
+			"variance": 1
+		}
+	},
+	"fandorm": {
+		"speed": 1
+	},
+	"sldormfan": {
+		"hide": true,
+		"lensflare": true,
+		"lensflareSize": 3,
+		"color": "lightblue",
+		"intensity": 0.1,
+		"distance": 8.0,
+		"angle": 0.5,
+		"penumbra": 2.0,
+		"decay": 1.0,
+		"shadow": true,
+		"shadowMapSize": 1024,
+		"target": [
+			-1,
+			0,
+			0
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 3,
+			"base": 1.0,
+			"variance": 1.0
+		}
+	}
+}

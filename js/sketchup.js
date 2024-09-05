@@ -4,37 +4,20 @@ import props from "./props.js";
 import renderer from "./renderer.js";
 var sketchup;
 (function (sketchup) {
-    const paths = {
-        'ebony': ['./assets/textures/black', 0, false, false],
-        'crete1': ['./assets/textures/crete1', 15, false, false],
-        'crete2': ['./assets/textures/crete2', 5, false, false],
-        'brick1': ['./assets/textures/brick1', 15, false, true],
-        'bulkhead1': ['./assets/textures/bulkhead1', 50, true, true, true],
-        'floor1': ['./assets/textures/floor1', 5, true],
-        'floor2': ['./assets/textures/floor2', 5, false],
-        'metrofloor1': ['./assets/textures/metrofloor1', 2, false],
-        'metal2': ['./assets/textures/metal2', 30, true, false, false],
-        'metal2b': ['./assets/textures/metal2b', 5, true, false, false],
-        'metal3': ['./assets/textures/metal3', 30, false, false, true],
-        'rust1': ['./assets/textures/rust1', 30, false, false, false],
-        'singletonewall': ['./assets/textures/singletonewall', 5, false, false],
-        'twotonewall': ['./assets/textures/twotonewall', 40, true, true],
-        'twotonewall_var': ['./assets/textures/twotonewall_var', 40, true, false],
-        'twotonewallb': ['./assets/textures/twotonewallb', 20, false, false],
-        'scrappyfloor': ['./assets/textures/scrappyfloor', 20, true, false],
-        'rustydoorframe': ['./assets/textures/rustydoorframe', 30, false, false],
-        'barrel1': ['./assets/textures/barrel1', 10, true, false],
-        'locker1': ['./assets/textures/locker1', 60, false, false],
-        'lockerssplat': ['./assets/textures/lockerssplat', 40, false, false],
-        'door1': ['./assets/textures/door1', 25, false, false],
-        'grate1': ['./assets/textures/grate1', 40, false, false, true],
-        'grate2': ['./assets/textures/grate2', 40, false, false, true],
-    };
     const stickers = ['lockerssplat'];
-    const library = {};
+    var mats = {};
+    var scaleToggle = true;
+    async function get_mats() {
+        let url = 'figs/mats.json';
+        let response = await fetch(url);
+        const arrSales = await response.json();
+        mats = arrSales;
+    }
+    sketchup.get_mats = get_mats;
     async function loop() {
         if (glob.developer) {
             if (app.proompt('r') == 1) {
+                await get_mats();
                 await reload_textures();
                 steal_from_library(levelGroup);
             }
@@ -42,7 +25,18 @@ var sketchup;
                 props.clear();
                 renderer.scene.remove(levelGroup);
                 await props.boot();
-                await load_room();
+                await get_mats();
+                await reload_textures();
+                await load_level();
+            }
+            if (app.proompt('f3') == 1) {
+                scaleToggle = !scaleToggle;
+                props.clear();
+                renderer.scene.remove(levelGroup);
+                await props.boot();
+                await get_mats();
+                await reload_textures();
+                await load_level();
             }
             if (app.proompt('m') == 1) {
             }
@@ -50,37 +44,54 @@ var sketchup;
     }
     sketchup.loop = loop;
     async function reload_textures() {
-        for (let name in paths) {
-            const existing = library[name];
-            const tuple = paths[name];
-            let randy = `?x=${Math.random()}`;
-            const texture = await createTextureFromImage(`${tuple[0]}.png`, 8);
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.minFilter = texture.magFilter = THREE.LinearFilter;
-            const material = new THREE.MeshPhongMaterial({
-                name: name,
-                map: texture
-            });
-            if (tuple[2]) {
-                const texture = await createTextureFromImage(`${tuple[0]}_normal.png`, 2);
+        /* this uses the magic of promises
+
+           it loads all textures at once, whilst at the same time,
+           asynchronously waiting for each of them before continuing
+        */
+        const funcs = [];
+        for (let name in mats) {
+            const func = async (name) => {
+                console.log('func', name);
+                const existing = mats[name];
+                const tuple = mats[name];
+                const salt = `?x=same`;
+                const texture = await createTextureFromImage(`${tuple[0]}.png${salt}`, 8);
+                console.log('done', name);
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                material.normalScale.set(1, -1);
-                //material.normalMap = texture;
-            }
-            if (tuple[3]) {
-                const texture = await createTextureFromImage(`${tuple[0]}_specular.png`, 4);
-                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                material.specularMap = texture;
-            }
-            material.onBeforeCompile = (shader) => {
-                console.warn('onbeforecompile');
-                shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', REREDUCE: '' };
-                shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
+                texture.minFilter = texture.magFilter = THREE.LinearFilter;
+                const material = new THREE.MeshPhysicalMaterial({
+                    name: name,
+                    map: texture
+                });
+                material.roughness = tuple[2];
+                material.metalness = tuple[3];
+                material.clearCoat = 0.5;
+                material.iridescence = 0.15;
+                if (tuple[7]) {
+                    material.emissive = new THREE.Color('white');
+                    console.log(' emissive ');
+                }
+                if (tuple[4]) {
+                    const texture = await createTextureFromImage(`${tuple[0]}_normal.png${salt}`, 2);
+                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                    material.normalScale.set(tuple[1], -tuple[1]);
+                    material.normalMap = texture;
+                }
+                if (tuple[5]) {
+                    const texture = await createTextureFromImage(`${tuple[0]}_specular.png${salt}`, 4);
+                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                    //material.specularMap = texture;
+                }
+                material.onBeforeCompile = (shader) => {
+                    console.warn('onbeforecompile');
+                    shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', REREDUCE: '' };
+                    shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
 
 					vec3 lumaWeights = vec3(.25,.50,.25);
 
 					vec3 grey;
-					float sat = 2.0;
+					float sat = 3.0;
 					float reduce = 100.0;
 					float resat = 2.0;
 					float rereduce = 100.0;
@@ -116,25 +127,31 @@ var sketchup;
 					// when at tone mapping pass
 					gl_FragColor.rgb = diffuse.rgb;
 					`);
+                };
+                material.customProgramCacheKey = function () {
+                    return 'clucked';
+                };
+                //material.specular?.set(0.1, 0.1, 0.1);
+                //material.shininess = tuple[1] || 30;
+                mats[name] = material;
             };
-            material.customProgramCacheKey = function () {
-                return 'clucked';
-            };
-            material.specular.set(0.1, 0.1, 0.1);
-            material.shininess = tuple[1] || 30;
-            library[name] = material;
+            const promise = /*await*/ func(name);
+            funcs.push(promise);
         }
+        return Promise.all(funcs);
     }
     const downscale = true;
     const createTextureFromImage = async (imageUrl, scale) => {
         return new Promise(async (resolve) => {
+            if (!scaleToggle)
+                scale = 1;
             if (!downscale)
-                return new THREE.TextureLoader().load(imageUrl);
+                resolve(await new THREE.TextureLoader().loadAsync(imageUrl));
             else {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const texture = new THREE.CanvasTexture(canvas);
-                await new THREE.ImageLoader().load(imageUrl, image => {
+                new THREE.ImageLoader().loadAsync(imageUrl).then((image) => {
                     console.log('from', image.width, image.height, 'to', image.width / scale, image.height / scale);
                     canvas.width = image.width / scale;
                     canvas.height = image.height / scale;
@@ -147,8 +164,9 @@ var sketchup;
     };
     async function boot() {
         const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
+        await get_mats();
         await reload_textures();
-        await load_room();
+        await load_level();
     }
     sketchup.boot = boot;
     function fix_sticker(material) {
@@ -161,7 +179,7 @@ var sketchup;
     }
     function adapt_from_materials_library(object, index) {
         const current = index == -1 ? object.material : object.material[index];
-        const material = library[current.name];
+        const material = mats[current.name];
         if (!material)
             return;
         if (index == -1)
@@ -188,39 +206,46 @@ var sketchup;
         scene.traverse(traversal);
     }
     sketchup.steal_from_library = steal_from_library;
-    async function load_room() {
-        return new Promise(async (resolve, reject) => {
-            await new Promise(resolve => setTimeout(resolve, 200));
-            const loadingManager = new THREE.LoadingManager(function () {
-            });
-            const colladaLoader = new ColladaLoader(loadingManager);
-            colladaLoader.load('./assets/gen.dae', function (collada) {
-                const scene = collada.scene;
-                scene.updateMatrix();
-                scene.updateMatrixWorld(); // without this everything explodes
-                console.log(' collada scene ', scene);
-                //scene.scale.set(1, 1, 1);
-                //scene.position.set(-garbage.inch, 0, 0);
-                const queue = [];
-                function find_make_props(object) {
-                    object.castShadow = true;
-                    object.receiveShadow = true;
-                    const prop = props.factory(object);
-                    if (prop)
-                        queue.push(prop);
-                }
-                scene.traverse(find_make_props);
-                steal_from_library(scene);
-                for (let prop of queue)
-                    prop.complete();
-                const group = new THREE.Group();
-                group.add(scene);
-                renderer.scene.add(group);
-                levelGroup = group;
-                resolve(1);
-            });
+    async function load_level_config(name) {
+        let url = `./assets/${name}.json`;
+        let response = await fetch(url);
+        const arrSales = await response.json();
+        return arrSales;
+    }
+    sketchup.load_level_config = load_level_config;
+    async function load_level() {
+        const name = glob.level;
+        //await new Promise(resolve => setTimeout(resolve, 200));
+        const loadingManager = new THREE.LoadingManager(function () {
+        });
+        const colladaLoader = new ColladaLoader(loadingManager);
+        const levelConfig = await load_level_config(name);
+        props.presets = Object.assign(props.presets, levelConfig);
+        await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
+            const scene = collada.scene;
+            scene.updateMatrix();
+            scene.updateMatrixWorld(); // without this everything explodes
+            console.log(' collada scene ', scene);
+            //scene.scale.set(1, 1, 1);
+            //scene.position.set(-garbage.inch, 0, 0);
+            const queue = [];
+            function find_make_props(object) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+                const prop = props.factory(object);
+                if (prop)
+                    queue.push(prop);
+            }
+            scene.traverse(find_make_props);
+            steal_from_library(scene);
+            for (let prop of queue)
+                prop.complete();
+            const group = new THREE.Group();
+            group.add(scene);
+            renderer.scene.add(group);
+            levelGroup = group;
         });
     }
-    sketchup.load_room = load_room;
+    sketchup.load_level = load_level;
 })(sketchup || (sketchup = {}));
 export default sketchup;

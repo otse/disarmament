@@ -1,13 +1,12 @@
 import glob from "./lib/glob.js";
 import app from "./app.js";
+import vr from "./vr/vr.js";
 var renderer;
 (function (renderer_1) {
     // set up three.js here
     renderer_1.dt = 0;
-    renderer_1.sunOffset = [0, 10, -0]; // [1.0, 10, -1.0]
-    // reduce
-    renderer_1.lets_pulse = false;
-    renderer_1.animate_bounce_hdr = false;
+    renderer_1.sunOffset = [-2, 30, -2];
+    renderer_1.headacheMode = false;
     renderer_1.statsEnabled = false;
     function boot() {
         window['renderer'] = this;
@@ -15,38 +14,42 @@ var renderer;
         THREE.ColorManagement.enabled = true;
         renderer_1.clock = new THREE.Clock();
         renderer_1.propsGroup = new THREE.Group();
-        renderer_1.propsGroup.updateMatrix();
-        renderer_1.propsGroup.updateMatrixWorld();
+        renderer_1.cameraGroup = new THREE.Group();
         renderer_1.scene = new THREE.Scene();
         renderer_1.scene.add(renderer_1.propsGroup);
+        renderer_1.scene.add(renderer_1.cameraGroup);
         renderer_1.scene.background = new THREE.Color('#333');
-        //let helepr = new THREE.AxesHelper();
-        //scene.add(helepr);
+        RectAreaLightUniformsLib.init();
+        let helepr = new THREE.AxesHelper();
+        renderer_1.scene.add(helepr);
         renderer_1.scene.fog = new THREE.Fog(0x131c1d, 7, 20);
         renderer_1.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        renderer_1.camera.rotation.y = -Math.PI / 2;
+        renderer_1.cameraGroup.rotation.y = -Math.PI / 2;
+        renderer_1.cameraGroup.updateMatrix();
         //camera.position.set(5, 0, 0);
         renderer_1.renderer = new THREE.WebGLRenderer({
             antialias: true
         });
         //renderer.autoClear = false;
+        //cameraGroup.add(renderer.xr.getCamera());
+        renderer_1.cameraGroup.add(renderer_1.camera);
         renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer_1.renderer.toneMappingExposure = 4.5;
         renderer_1.renderer.setPixelRatio(window.devicePixelRatio);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
         if (glob.hasHeadset)
             renderer_1.renderer.setAnimationLoop(app.base_loop);
-        renderer_1.renderer.xr.setFramebufferScaleFactor(1); // :x
+        renderer_1.renderer.xr.setFramebufferScaleFactor(1);
         renderer_1.renderer.shadowMap.enabled = true;
         renderer_1.renderer.xr.enabled = true;
-        //renderer.xr.cameraAutoUpdate = false;
-        renderer_1.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        //renderer.setClearColor(0xffffff, 0.0);
+        renderer_1.renderer.xr.cameraAutoUpdate = false;
+        renderer_1.renderer.shadowMap.type = THREE.BasicShadowMap;
+        // renderer.setClearColor(0xffffff, 0.0);
         const percent = 1 / 100;
         renderer_1.ambiance = new THREE.AmbientLight(0xffffff, percent);
         renderer_1.scene.add(renderer_1.ambiance);
-        renderer_1.sun = new THREE.DirectionalLight(0xd0d69b, 0.7);
-        //sun.castShadow = true;
+        renderer_1.sun = new THREE.DirectionalLight("pink", 0.5);
+        renderer_1.sun.castShadow = false;
         renderer_1.sun.shadow.mapSize.width = 2048;
         renderer_1.sun.shadow.mapSize.height = 2048;
         renderer_1.sun.shadow.radius = 2;
@@ -56,8 +59,8 @@ var renderer;
         renderer_1.sun.shadow.camera.left = renderer_1.sun.shadow.camera.bottom = -15;
         renderer_1.sun.shadow.camera.right = renderer_1.sun.shadow.camera.top = 15;
         renderer_1.sun.position.fromArray(renderer_1.sunOffset);
-        //scene.add(sun);
-        //scene.add(sun.target);
+        // scene.add(sun);
+        // scene.add(sun.target);
         // scene.add(new THREE.CameraHelper(sun.shadow.camera));
         if (glob.hasHeadset) {
             renderer_1.statsEnabled = true;
@@ -80,18 +83,6 @@ var renderer;
             renderer_1.statsEnabled = !renderer_1.statsEnabled;
             app.selector_style('salvage-stats', 'visibility', renderer_1.statsEnabled ? 'visible' : 'hidden');
         }
-        /*
-        const jump_sun_every = 1;
-        let xz = [camera.position.x, camera.position.z] as vec2;
-        let div = pts.divide(xz, jump_sun_every);
-        xz = pts.mult(pts.floor(div), jump_sun_every);
-        //xz = pts.mult(xz, hunt.inchMeter);
-    
-        //console.log('zx', xz);
-    
-        sun.position.fromArray([xz[0] + sunOffset[0], sunOffset[1], xz[1] + sunOffset[2]]);
-        sun.target.position.fromArray([xz[0], 0, xz[1]]);
-        */
         renderer_1.dt = renderer_1.clock.getDelta();
         const min_dt = 1.0 / 10.0;
         renderer_1.dt = renderer_1.dt > min_dt ? min_dt : renderer_1.dt;
@@ -104,10 +95,15 @@ var renderer;
             if (renderer_1.statsEnabled) {
                 app.selector_innerhtml('salvage-stats', `
 					fps: ${renderer_1.fps.toFixed(1)}<br />
-					bounce hdr: ${(renderer_1.animate_bounce_hdr)}<br />
+					bounce hdr: ${(renderer_1.headacheMode)}<br />
 			`);
             }
         }
+        renderer_1.cameraGroup.updateMatrix();
+        renderer_1.cameraGroup.updateMatrixWorld(true);
+        renderer_1.cameraGroup.updateWorldMatrix(false, true);
+        vr.loop();
+        renderer_1.renderer.xr.updateCamera(renderer_1.camera);
         renderer_1.renderer.render(renderer_1.scene, renderer_1.camera);
     }
     renderer_1.loop_and_render = loop_and_render;

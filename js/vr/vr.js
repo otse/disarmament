@@ -11,6 +11,7 @@ var vr;
     function boot() {
         ctrlr.boot();
         vr.position = new THREE.Vector3();
+        vr.rotation = new THREE.Quaternion();
         let button = VRButton.createButton(renderer.renderer);
         console.log(' button ', button);
         document.body.appendChild(button);

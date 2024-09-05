@@ -13,6 +13,8 @@ declare var XRControllerModelFactory: any
 declare var XRHandModelFactory: any
 
 declare var PositionalAudioHelper: any
+declare var RectAreaLightUniformsLib: any
+declare var RectAreaLightHelper: any
 
 declare var BufferGeometryUtils: any
 declare var Lensflare: any

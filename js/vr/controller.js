@@ -45,14 +45,14 @@ export class ctrlr {
         this.grip = renderer.renderer.xr.getControllerGrip(index);
         this.grip.add(controllerModelFactory.createControllerModel(this.grip));
         //console.log(' ctrlr grip', this.grip);
-        renderer.scene.add(this.grip);
+        renderer.cameraGroup.add(this.grip);
         this.grip.addEventListener("connected", (e) => {
             //console.warn(' hunt vr gamepad', e.data.gamepad)
             //console.warn(' axes', this.grip.data.gamepad.axes[3]);
         });
-        this.hand = renderer.renderer.xr.getHand(index);
+        //this.hand = renderer.renderer.xr.getHand(index);
         ///this.hand.add(handModelFactory.createHandModel(this.hand));
-        renderer.scene.add(this.hand);
+        //renderer.scene.add(this.hand);
         this.controller.addEventListener('selectstart', onSelectStart);
         this.controller.addEventListener('selectend', onSelectEnd);
         this.controller.addEventListener('squeeze', onSqueeze);
@@ -64,11 +64,14 @@ export class ctrlr {
             this.userData.isSelecting = false;
             if (floorIntersect) {
                 const offsetPosition = { x: -floorIntersect.x, y: -floorIntersect.y, z: -floorIntersect.z, w: 1 };
-                vr.position.copy(offsetPosition);
+                renderer.cameraGroup.position.copy(offsetPosition);
+                /*
                 const offsetRotation = new THREE.Quaternion();
                 const transform1 = new XRRigidTransform(offsetPosition, offsetRotation);
+
                 const teleport = vr.baseReferenceSpace.getOffsetReferenceSpace(transform1);
                 renderer.renderer.xr.setReferenceSpace(teleport);
+                */
                 //const transform = new XRRigidTransform(offsetPosition, offsetRotation);
                 //const teleportSpaceOffset = vr.baseReferenceSpace.getOffsetReferenceSpace(transform);
                 //renderer.renderer.xr.setReferenceSpace(teleportSpaceOffset);
@@ -96,35 +99,69 @@ export class ctrlr {
             vr.marker.position.copy(floorIntersect);
         vr.marker.visible = floorIntersect !== undefined;
     }
+    snapping = false;
+    thumstick_snap_turn() {
+        if (!this.xrinputsource)
+            return;
+        const axes = this.xrinputsource.data.gamepad.axes;
+        const buttons = this.xrinputsource.data.gamepad.buttons;
+        let snap = false;
+        // if (Math.abs(axes[2]) > 0.9 && !this.snapping) {
+        if (buttons[0].touched && !this.snapping) {
+            let quarterTurn = new THREE.Quaternion();
+            const turn = Math.PI / 4;
+            quarterTurn.setFromAxisAngle(new THREE.Vector3(0, 1, 0), turn);
+            renderer.cameraGroup.quaternion.multiply(quarterTurn);
+            //renderer.cameraGroup.rotation.y = turn;
+            renderer.cameraGroup.updateMatrix();
+            renderer.cameraGroup._onChangeCallback(); // this is a hack
+            this.snapping = true;
+        }
+        else if (!buttons[0].touched && this.snapping) {
+            this.snapping = false;
+        }
+        return;
+        if (snap) {
+            const offsetPosition = new THREE.Vector3();
+            const offsetRotation = new THREE.Quaternion();
+            const transform = new XRRigidTransform(renderer.cameraGroup.position, offsetRotation);
+            const thumbstickSpace = vr.baseReferenceSpace.getOffsetReferenceSpace(transform);
+            renderer.renderer.xr.setReferenceSpace(thumbstickSpace);
+        }
+    }
     thumstick_move() {
         if (!this.xrinputsource)
             return;
         const axes = this.xrinputsource.data.gamepad.axes;
         let thumbstick = pts.make(axes[2] || 0, axes[3] || 0);
-        thumbstick = pts.inv(thumbstick);
-        thumbstick = pts.mult(thumbstick, .1);
-        const arraycamera = renderer.renderer.xr.getCamera();
-        // todo is there a shorter way to get xr yaw
-        const quaternion = new THREE.Quaternion();
-        quaternion.copy(arraycamera.quaternion);
+        thumbstick = pts.mult(thumbstick, .025);
+        const arrayCamera = renderer.renderer.xr.getCamera();
+        let quaternion = new THREE.Quaternion();
+        quaternion.copy(arrayCamera.quaternion);
+        //quaternion.copy(renderer.cameraGroup.quaternion);
         const euler = new THREE.Euler(0, 0, 0, 'YXZ');
         euler.setFromQuaternion(quaternion);
         euler.x = 0;
         euler.z = 0;
         quaternion.setFromEuler(euler);
         const vector = new THREE.Vector3();
-        vector.set(thumbstick[0], 0, thumbstick[1]);
+        vector.set(thumbstick[1], 0, thumbstick[0]);
         vector.applyQuaternion(quaternion);
-        vr.position.add(vector);
+        renderer.cameraGroup.position.add(vector);
+        return;
+        const offsetPosition = new THREE.Vector3();
         const offsetRotation = new THREE.Quaternion();
-        const transform = new XRRigidTransform(vr.position, offsetRotation);
+        const transform = new XRRigidTransform(offsetPosition, offsetRotation);
         const thumbstickSpace = vr.baseReferenceSpace.getOffsetReferenceSpace(transform);
         renderer.renderer.xr.setReferenceSpace(thumbstickSpace);
     }
     loop() {
-        this.teleport();
         if (this.index == 0) {
+            //this.teleport();
             this.thumstick_move();
+        }
+        if (this.index == 1) {
+            this.thumstick_snap_turn();
         }
         //console.log(this.grip.data.gamepad);
     }

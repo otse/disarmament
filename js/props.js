@@ -29,6 +29,9 @@ var props;
             case 'spotlight':
                 prop = new pspotlight(object, {});
                 break;
+            case 'rectlight':
+                prop = new prectlight(object, { axis: hint });
+                break;
             case 'wall':
             case 'ground':
             case 'solid':
@@ -95,11 +98,11 @@ var props;
     }
     props.take_collada_prop = take_collada_prop;
     async function boot() {
-        let url = 'lights.json';
+        let url = './figs/glob.json';
         let response = await fetch(url);
         const arrSales = await response.json();
-        props.presets_from_json = arrSales;
-        console.log(props.presets_from_json);
+        props.presets = arrSales;
+        console.log(props.presets);
         return arrSales;
     }
     props.boot = boot;
@@ -109,7 +112,7 @@ var props;
     props.sounds = [];
     props.boxes = [];
     props.lights = [];
-    props.presets_from_json = {};
+    props.presets = {};
     class prop {
         object;
         parameters;
@@ -299,7 +302,7 @@ var props;
             };
             hooks.register('audioGestured', (x) => {
                 console.warn('late playing', this.preset);
-                const preset = props.presets_from_json[this.preset];
+                const preset = props.presets[this.preset];
                 if (!preset)
                     return;
                 if (preset.delay)
@@ -318,7 +321,7 @@ var props;
         _play() {
             if (!audio.allDone)
                 return;
-            const preset = props.presets_from_json[this.preset];
+            const preset = props.presets[this.preset];
             if (!preset)
                 return;
             if (preset.disabled)
@@ -342,7 +345,7 @@ var props;
             this.type = 'pfan';
         }
         _finish() {
-            this.preset_ = props.presets_from_json[this.preset || 'none'];
+            this.preset_ = props.presets[this.preset || 'none'];
             console.log('fan preset_', this.preset_, this.preset);
             //this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
             const size = new THREE.Vector3();
@@ -435,7 +438,7 @@ var props;
         }
         _finish() {
             //this.object.visible = false;
-            this.preset_ = props.presets_from_json[this.preset || 'none'];
+            this.preset_ = props.presets[this.preset || 'none'];
             if (!this.preset_) {
                 console.log(' preset no def ', this.preset);
                 return;
@@ -447,26 +450,12 @@ var props;
             size.multiplyScalar(garbage.spaceMultiply);
             let light = new THREE.PointLight(this.preset_.color || 'white', this.preset_.intensity || 1, this.preset_.distance || 3, this.preset_.decay || 1);
             this.light = light;
+            light.visible = !this.preset_.disabled;
             light.castShadow = this.preset_.shadow;
             //light.position.fromArray(preset.offset || [0, 0, 0]);
             light.position.add(size);
             // light.add(new THREE.AxesHelper(10));
             this.group.add(light);
-            if (this.preset_.lensflare) {
-                lensflare1 ||= new THREE.TextureLoader().load('./assets/textures/flare1.png');
-                //lensflare1.opacity = 0.2;
-                //lensflare1.transparent = true;
-                const lensflare = new Lensflare();
-                const size = (this.preset_.lensflareSize || 1) * 100;
-                const element = new LensflareElement(lensflare1, 15 * size, 0, light.color);
-                const element2 = new LensflareElement(lensflare1, 10, 0.025 * size, light.color);
-                const element3 = new LensflareElement(lensflare1, 5, 0.07 * size, light.color);
-                lensflare.addElement(element);
-                lensflare.addElement(element2);
-                lensflare.addElement(element3);
-                // Add lens flare to the light
-                light.add(lensflare);
-            }
         }
         _loop() {
             this.behavior();
@@ -475,7 +464,6 @@ var props;
         }
     }
     props.ppointlight = ppointlight;
-    let lensflare1;
     class pspotlight extends light {
         spotlight;
         constructor(object, parameters) {
@@ -484,7 +472,7 @@ var props;
             this.array = props.lights;
         }
         _finish() {
-            this.preset_ = props.presets_from_json[this.preset || 'none'];
+            this.preset_ = props.presets[this.preset || 'none'];
             if (!this.preset_) {
                 console.warn(' preset no def ');
                 return;
@@ -495,36 +483,15 @@ var props;
             size.divideScalar(2.0);
             size.multiplyScalar(garbage.spaceMultiply);
             //console.log('light size, center', size, center);
-            let light = new THREE.SpotLight(this.preset_.color, this.preset_.intensity, this.preset_.distance, this.preset_.decay);
+            let light = new THREE.SpotLight(this.preset_.color, this.preset_.intensity, this.preset_.distance, this.preset_.angle, this.preset_.penumbra, this.preset_.decay);
             this.light = light;
+            light.visible = !this.preset_.disabled;
             light.position.set(0, 0, 0);
             light.castShadow = this.preset_.shadow;
             light.shadow.camera.far = 1000;
             light.shadow.mapSize.width = this.preset_.shadowMapSize || 512;
             light.shadow.mapSize.height = this.preset_.shadowMapSize || 512;
             light.angle = this.preset_.angle || Math.PI / 3;
-            light.penumbra = this.preset_.penumbra || 0.0;
-            if (this.preset_.lensflare) {
-                lensflare1 ||= new THREE.TextureLoader().load('./assets/textures/flare1.png');
-                //lensflare1.opacity = 0.2;
-                //lensflare1.transparent = true;
-                const lensflare = new Lensflare();
-                const size = this.preset_.lensflareSize || 1;
-                const element = new LensflareElement(lensflare1, 15 * size, 0, light.color);
-                const element2 = new LensflareElement(lensflare1, 10, 0.025 * size, light.color);
-                const element3 = new LensflareElement(lensflare1, 5, 0.07 * size, light.color);
-                lensflare.addElement(element);
-                lensflare.addElement(element2);
-                lensflare.addElement(element3);
-                // Add lens flare to the light
-                light.add(lensflare);
-            }
-            /*const flareMaterial = new THREE.SpriteMaterial({ map: new THREE.TextureLoader().load('./assets/textures/flare1.png'), blending: THREE.AdditiveBlending, transparent: true });
-            const flareSprite = new THREE.Sprite(flareMaterial);
-            const newSize = 10; // Set the new size you want
-            flareSprite.scale.set(newSize, newSize, 1);
-            light.add(flareSprite);*/
-            //light.add(new THREE.AxesHelper(10));
             if (this.preset_.target)
                 light.target.position.add(new THREE.Vector3().fromArray(this.preset_.target).multiplyScalar(4));
             light.target.position.add(size);
@@ -540,6 +507,45 @@ var props;
         }
     }
     props.pspotlight = pspotlight;
+    class prectlight extends light {
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'prectlight';
+            this.array = props.lights;
+        }
+        _finish() {
+            this.preset_ = props.presets[this.preset || 'none'];
+            if (!this.preset_) {
+                console.log(' preset no def ', this.preset);
+                return;
+            }
+            this.object.visible = !this.preset_.hide;
+            const size = new THREE.Vector3();
+            this.aabb.getSize(size);
+            let width = 1, height = 1;
+            if (this.parameters.axis == 'z') {
+                width = size.y;
+                height = size.z;
+            }
+            if (this.parameters.axis == 'y') {
+                width = size.z;
+                height = size.x;
+            }
+            const light = new THREE.RectAreaLight(this.preset_.color || 'white', this.preset_.intensity || 1, width, height);
+            light.power = 100;
+            this.light = light;
+            light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
+            this.group.add(light);
+            const helper = new RectAreaLightHelper(light);
+            light.add(helper); // helper must be added as a child of the light
+        }
+        _loop() {
+            this.behavior();
+        }
+        _lod() {
+        }
+    }
+    props.prectlight = prectlight;
     class pmarker extends prop {
         constructor(object, parameters) {
             super(object, parameters);

@@ -1,0 +1,100 @@
+{
+	"fansw": {
+		"speed": 1
+	},
+	"plgeneric": {
+		"hide": true,
+		"color": "mintcream",
+		"intensity": 0.2,
+		"distance": 2,
+		"decay": 0.01
+	},
+	"plsconce": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.25,
+		"distance": 2,
+		"decay": 1.0
+	},
+	"slsewerworld": {
+		"hide": true,
+		"lensflare": true,
+		"lensflareSize": 3,
+		"color": "lightblue",
+		"angle": 0.47,
+		"intensity": 1.0,
+		"distance": 20.0,
+		"penumbra": 0.1,
+		"decay": 1.0,
+		"shadow": true,
+		"shadowMapSize": 256,
+		"target": [
+			0,
+			1,
+			0
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 5,
+			"base": 1.0,
+			"variance": 2.0
+		}
+	},
+	"slsewerworldlockers": {
+		"hide": true,
+		"lensflare": true,
+		"lensflareSize": 3,
+		"color": "lightblue",
+		"angle": 0.5,
+		"intensity": 1.0,
+		"distance": 20.0,
+		"penumbra": 0.1,
+		"decay": 1.0,
+		"shadow": true,
+		"shadowMapSize": 256,
+		"target": [
+			0,
+			1,
+			0
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 3,
+			"base": 1.0,
+			"variance": 1.0
+		}
+	},
+	"radio": {
+		"disabled": true,
+		"name": "alien_cycletone",
+		"volume": 0.4,
+		"loop": true,
+		"distance": 3,
+		"delay": [
+			0,
+			1
+		]
+	},
+	"swedge": {
+		"disabled": true,
+		"name": "ambience6",
+		"volume": 0.4,
+		"loop": true,
+		"distance": 3,
+		"delay": [
+			0,
+			1
+		]
+	},
+	"envlockers": {
+		"disabled": false,
+		"name": "quiet_cellblock_amb",
+		"volume": 0.1,
+		"loop": true,
+		"distance": 3,
+		"delay": [
+			0,
+			1
+		]
+	}
+}
