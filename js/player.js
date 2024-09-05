@@ -107,7 +107,7 @@ class player {
             camera.position.copy(position);
         }
     }
-    physics_move(delta) {
+    physics_move(delta, direction = { x: 0, y: 0 }) {
         let x = 0, z = 0;
         if (app.proompt(' ') && this.can_jump) {
             this.body_velocity.y = 10;

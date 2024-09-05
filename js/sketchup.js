@@ -55,8 +55,8 @@ var sketchup;
                 console.log('func', name);
                 const existing = mats[name];
                 const tuple = mats[name];
-                let randy = `?x=${Math.random()}`;
-                const texture = await createTextureFromImage(`${tuple[0]}.png`, 8);
+                const salt = `?x=same`;
+                const texture = await createTextureFromImage(`${tuple[0]}.png${salt}`, 8);
                 console.log('done', name);
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                 texture.minFilter = texture.magFilter = THREE.LinearFilter;
@@ -67,19 +67,19 @@ var sketchup;
                 material.roughness = tuple[2];
                 material.metalness = tuple[3];
                 material.clearCoat = 0.5;
-                material.iridescence = 0.2;
+                material.iridescence = 0.15;
                 if (tuple[7]) {
                     material.emissive = new THREE.Color('white');
                     console.log(' emissive ');
                 }
                 if (tuple[4]) {
-                    const texture = await createTextureFromImage(`${tuple[0]}_normal.png`, 2);
+                    const texture = await createTextureFromImage(`${tuple[0]}_normal.png${salt}`, 2);
                     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                     material.normalScale.set(tuple[1], -tuple[1]);
                     material.normalMap = texture;
                 }
                 if (tuple[5]) {
-                    const texture = await createTextureFromImage(`${tuple[0]}_specular.png`, 4);
+                    const texture = await createTextureFromImage(`${tuple[0]}_specular.png${salt}`, 4);
                     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                     //material.specularMap = texture;
                 }

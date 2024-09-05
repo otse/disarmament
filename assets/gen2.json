@@ -2,8 +2,8 @@
 	"plbend": {
 		"hide": true,
 		"color": "mintcream",
-		"intensity": 0.3,
-		"distance": 3.75,
+		"intensity": 0.4,
+		"distance": 3.0,
 		"decay": 1.0,
 		"shadow": true
 	},
@@ -42,19 +42,64 @@
 		],
 		"behavior": {
 			"type": "shake",
-			"cycle": 6,
-			"base": 2,
-			"variance": 2
+			"cycle": 5,
+			"base": 1,
+			"variance": 1
 		}
 	},
 	"pllockers": {
 		"disabled": true,
 		"hide": true,
 		"color": "cyan",
-		"intensity": 0.0,
+		"intensity": 0.15,
 		"distance": 4.0,
 		"decay": 3.0,
 		"shadow": true,
 		"shadowMapSize": 128
+	},
+	"rlskylight": {
+		"hide": true,
+		"color": "lightblue",
+		"intensity": 3.0,
+		"distance": 3.0,
+		"decay": 1.0,
+		"target": [
+			0.0,
+			0.0,
+			-1.0
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 5,
+			"base": 1,
+			"variance": 1
+		}
+	},
+	"fandorm": {
+		"speed": 1
+	},
+	"sldormfan": {
+		"hide": true,
+		"lensflare": true,
+		"lensflareSize": 3,
+		"color": "lightblue",
+		"intensity": 0.1,
+		"distance": 8.0,
+		"angle": 0.5,
+		"penumbra": 2.0,
+		"decay": 1.0,
+		"shadow": true,
+		"shadowMapSize": 1024,
+		"target": [
+			-1,
+			0,
+			0
+		],
+		"behavior": {
+			"type": "shake",
+			"cycle": 3,
+			"base": 1.0,
+			"variance": 1.0
+		}
 	}
 }

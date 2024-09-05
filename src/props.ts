@@ -111,7 +111,7 @@ namespace props {
 	}
 
 	export async function boot() {
-		let url = 'globfig.json';
+		let url = './figs/glob.json';
 		let response = await fetch(url);
 		const arrSales = await response.json();
 		presets = arrSales;
@@ -569,13 +569,17 @@ namespace props {
 			let width = 1, height = 1;
 
 			if (this.parameters.axis == 'z') {
-				height = size.z;
 				width = size.y;
+				height = size.z;
+			}
+			if (this.parameters.axis == 'y') {
+				width = size.z;
+				height = size.x;
 			}
 
 			const light = new THREE.RectAreaLight(
 				this.preset_.color || 'white',
-				this.preset_.intensity || 5,
+				this.preset_.intensity || 1,
 				width,
 				height);
 			light.power = 100;

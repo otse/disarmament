@@ -28,7 +28,7 @@ class player {
 
 		this.controls.enabled = true;
 
-		this.camera = this.controls.camera;		
+		this.camera = this.controls.camera;
 
 		console.log('player camera object ', this.camera.position);
 
@@ -149,7 +149,7 @@ class player {
 		}
 	}
 
-	physics_move(delta) {
+	physics_move(delta, direction = { x: 0, y: 0 }) {
 		let x = 0, z = 0;
 		if (app.proompt(' ') && this.can_jump) {
 			this.body_velocity.y = 10;

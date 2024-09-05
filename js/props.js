@@ -98,7 +98,7 @@ var props;
     }
     props.take_collada_prop = take_collada_prop;
     async function boot() {
-        let url = 'globfig.json';
+        let url = './figs/glob.json';
         let response = await fetch(url);
         const arrSales = await response.json();
         props.presets = arrSales;
@@ -524,10 +524,14 @@ var props;
             this.aabb.getSize(size);
             let width = 1, height = 1;
             if (this.parameters.axis == 'z') {
-                height = size.z;
                 width = size.y;
+                height = size.z;
             }
-            const light = new THREE.RectAreaLight(this.preset_.color || 'white', this.preset_.intensity || 5, width, height);
+            if (this.parameters.axis == 'y') {
+                width = size.z;
+                height = size.x;
+            }
+            const light = new THREE.RectAreaLight(this.preset_.color || 'white', this.preset_.intensity || 1, width, height);
             light.power = 100;
             this.light = light;
             light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));

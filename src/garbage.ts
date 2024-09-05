@@ -63,7 +63,7 @@ namespace garbage {
 		physics.loop(garbage.timeStep);
 		props.loop();
 		await sketchup.loop();
-		vr.loop();
+		// vr.loop();
 		renderer.loop_and_render();
 	}
 }
