@@ -12,7 +12,7 @@ namespace vr {
 
 	let controllerGrip1, controllerGrip2;
 
-	export var position, rotation;
+	// export var position, rotation;
 
 	let INTERSECTION;
 	export let floor, marker;
@@ -20,10 +20,7 @@ namespace vr {
 	export function boot() {
 
 		ctrlr.boot();
-
-		position = new THREE.Vector3();
-		rotation = new THREE.Quaternion();
-
+		
 		let button = VRButton.createButton(renderer.renderer);
 
 		console.log(' button ', button);

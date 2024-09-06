@@ -99,7 +99,7 @@ export class ctrlr {
             vr.marker.position.copy(floorIntersect);
         vr.marker.visible = floorIntersect !== undefined;
     }
-    snapping = false;
+    turned = false;
     thumstick_snap_turn() {
         if (!this.xrinputsource)
             return;
@@ -107,18 +107,18 @@ export class ctrlr {
         const buttons = this.xrinputsource.data.gamepad.buttons;
         let snap = false;
         // if (Math.abs(axes[2]) > 0.9 && !this.snapping) {
-        if (buttons[0].touched && !this.snapping) {
+        if (buttons[0].touched && !this.turned) {
             let quarterTurn = new THREE.Quaternion();
             const turn = Math.PI / 4;
             quarterTurn.setFromAxisAngle(new THREE.Vector3(0, 1, 0), turn);
-            renderer.cameraGroup.quaternion.multiply(quarterTurn);
-            //renderer.cameraGroup.rotation.y = turn;
+            //renderer.cameraGroup.quaternion.multiply(quarterTurn);
+            renderer.cameraGroup.rotation.y = turn;
             renderer.cameraGroup.updateMatrix();
             renderer.cameraGroup._onChangeCallback(); // this is a hack
-            this.snapping = true;
+            this.turned = true;
         }
-        else if (!buttons[0].touched && this.snapping) {
-            this.snapping = false;
+        else if (!buttons[0].touched && this.turned) {
+            this.turned = false;
         }
         return;
         if (snap) {
