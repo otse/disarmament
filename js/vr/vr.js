@@ -7,11 +7,10 @@ var vr;
     let rightController;
     let leftController;
     let controllerGrip1, controllerGrip2;
+    // export var position, rotation;
     let INTERSECTION;
     function boot() {
         ctrlr.boot();
-        vr.position = new THREE.Vector3();
-        vr.rotation = new THREE.Quaternion();
         let button = VRButton.createButton(renderer.renderer);
         console.log(' button ', button);
         document.body.appendChild(button);

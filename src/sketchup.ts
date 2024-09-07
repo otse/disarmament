@@ -35,7 +35,7 @@ namespace sketchup {
 			if (app.proompt('r') == 1) {
 				await get_mats();
 				await reload_textures();
-				steal_from_library(levelGroup);
+				steal_from_the_library(levelGroup);
 			}
 			if (app.proompt('t') == 1) {
 				props.clear();
@@ -212,41 +212,46 @@ namespace sketchup {
 		material.needsUpdate = true;
 	}
 
-	function adapt_from_materials_library(object, index) {
+	export function adapt_color(color) {
+		for (const i in mats) {
+			const mat = mats[i];
+			mat.color = new THREE.Color(color);
+		}
+	}
+
+	function object_takes_mat(object, index) {
 		const current = index == -1 ? object.material : object.material[index];
-		const material = mats[current.name];
-		if (!material)
+		const mat = mats[current.name];
+		if (!mat)
 			return;
 		if (index == -1)
-			object.material = material;
+			object.material = mat;
 		else
-			object.material[index] = material;
+			object.material[index] = mat;
 		if (stickers.includes(current.name))
-			fix_sticker(material);
+			fix_sticker(mat);
 	}
 
 	let levelGroup;
 
-	export function steal_from_library(scene) {
-
+	export function steal_from_the_library(scene) {
 		function traversal(object) {
 			if (object.material) {
 				if (!object.material.length) {
-					adapt_from_materials_library(object, -1);
+					object_takes_mat(object, -1);
 				}
 				else {
 					for (let index in object.material) {
-						adapt_from_materials_library(object, index);
+						object_takes_mat(object, index);
 					}
 				}
 			}
 		}
-
 		scene.traverse(traversal);
 	}
 
 	export async function load_level_config(name) {
-		let url = `./assets/${name}.json`;		
+		let url = `./assets/${name}.json`;
 		let response = await fetch(url);
 		const arrSales = await response.json();
 		return arrSales;
@@ -267,7 +272,7 @@ namespace sketchup {
 
 		props.presets = Object.assign(props.presets, levelConfig);
 
-		await colladaLoader.loadAsync(`./assets/${name}.dae`).then( (collada) => {
+		await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
 
 			const scene = collada.scene;
 
@@ -291,7 +296,7 @@ namespace sketchup {
 
 			scene.traverse(find_make_props);
 
-			steal_from_library(scene);
+			steal_from_the_library(scene);
 
 			for (let prop of queue)
 				prop.complete();
