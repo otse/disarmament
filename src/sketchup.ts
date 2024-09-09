@@ -23,7 +23,7 @@ namespace sketchup {
 
 	var scaleToggle = true;
 
-	export async function get_mats() {
+	export async function get_matsfig() {
 		let url = 'figs/mats.json';
 		let response = await fetch(url);
 		const arrSales = await response.json();
@@ -33,16 +33,16 @@ namespace sketchup {
 	export async function loop() {
 		if (glob.developer) {
 			if (app.proompt('r') == 1) {
-				await get_mats();
-				await reload_textures();
-				steal_from_the_library(levelGroup);
+				await get_matsfig();
+				await make_materials();
+				level_takes_new_mats(levelGroup);
 			}
 			if (app.proompt('t') == 1) {
 				props.clear();
 				renderer.scene.remove(levelGroup);
 				await props.boot();
-				await get_mats();
-				await reload_textures();
+				await get_matsfig();
+				await make_materials();
 				await load_level();
 			}
 			if (app.proompt('f3') == 1) {
@@ -50,8 +50,8 @@ namespace sketchup {
 				props.clear();
 				renderer.scene.remove(levelGroup);
 				await props.boot();
-				await get_mats();
-				await reload_textures();
+				await get_matsfig();
+				await make_materials();
 				await load_level();
 			}
 			if (app.proompt('m') == 1) {
@@ -60,12 +60,9 @@ namespace sketchup {
 		}
 	}
 
-	async function reload_textures() {
+	async function make_materials() {
 
-		/* this uses the magic of promises
-
-		   it loads all textures at once, whilst at the same time,
-		   asynchronously waiting for each of them before continuing
+		/* promises - nero
 		*/
 		const funcs: any[] = [];
 
@@ -96,10 +93,10 @@ namespace sketchup {
 					material.emissive = new THREE.Color('white');
 					console.log(' emissive ');
 				}
-				if (tuple[4] && false) {
+				if (tuple[4] && true) {
 					const texture = await <any>createTextureFromImage(`${tuple[0]}_normal.png${salt}`, 2);
 					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-					material.normalScale.set(tuple[1], -tuple[1]!);
+					material.normalScale.set(tuple[1], -tuple[1]);
 					material.normalMap = texture;
 				}
 				if (tuple[5] && false) {
@@ -198,8 +195,8 @@ namespace sketchup {
 
 	export async function boot() {
 		const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
-		await get_mats();
-		await reload_textures();
+		await get_matsfig();
+		await make_materials();
 		await load_level();
 	}
 
@@ -235,7 +232,7 @@ namespace sketchup {
 
 	let levelGroup;
 
-	export function steal_from_the_library(scene) {
+	export function level_takes_new_mats(scene) {
 		function traversal(object) {
 			if (object.material) {
 				if (!object.material.length) {
@@ -291,9 +288,10 @@ await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
 			queue.push(prop);
 	}
 
+	level_takes_new_mats(scene);
+
 	scene.traverse(find_make_props);
 
-	steal_from_the_library(scene);
 
 	for (let prop of queue)
 		prop.complete();

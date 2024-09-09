@@ -13,10 +13,10 @@ var renderer;
         THREE.ColorManagement.enabled = true;
         renderer_1.clock = new THREE.Clock();
         renderer_1.propsGroup = new THREE.Group();
-        renderer_1.cameraGroup = new THREE.Group();
+        renderer_1.yawGroup = new THREE.Group();
         renderer_1.scene = new THREE.Scene();
         renderer_1.scene.add(renderer_1.propsGroup);
-        renderer_1.scene.add(renderer_1.cameraGroup);
+        renderer_1.scene.add(renderer_1.yawGroup);
         renderer_1.scene.background = new THREE.Color('#333');
         RectAreaLightUniformsLib.init();
         let helepr = new THREE.AxesHelper();
@@ -24,12 +24,12 @@ var renderer;
         renderer_1.scene.fog = new THREE.Fog(0x131c1d, 7, 20);
         renderer_1.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         renderer_1.camera.rotation.y = -Math.PI / 2;
-        renderer_1.cameraGroup.add(renderer_1.camera);
-        renderer_1.cameraGroup.add(new THREE.AxesHelper());
+        renderer_1.yawGroup.add(renderer_1.camera);
+        renderer_1.yawGroup.add(new THREE.AxesHelper());
         // cameraGroup.add(renderer.xr.getCamera());
-        renderer_1.cameraGroup.updateMatrix();
+        renderer_1.yawGroup.updateMatrix();
         glob.camera = renderer_1.camera;
-        glob.cameraGroup = renderer_1.cameraGroup;
+        glob.yawGroup = renderer_1.yawGroup;
         renderer_1.renderer = new THREE.WebGLRenderer({
             antialias: true
         });
@@ -99,9 +99,9 @@ var renderer;
 			`);
             }
         }
-        renderer_1.cameraGroup.updateMatrix();
-        renderer_1.cameraGroup.updateMatrixWorld(true);
-        renderer_1.cameraGroup.updateWorldMatrix(false, true);
+        renderer_1.yawGroup.updateMatrix();
+        renderer_1.yawGroup.updateMatrixWorld(true);
+        renderer_1.yawGroup.updateWorldMatrix(false, true);
         renderer_1.renderer.xr.updateCamera(renderer_1.camera);
         renderer_1.renderer.render(renderer_1.scene, renderer_1.camera);
     }

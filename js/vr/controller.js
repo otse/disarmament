@@ -46,7 +46,7 @@ export class ctrlr {
         this.grip = renderer.renderer.xr.getControllerGrip(index);
         this.grip.add(controllerModelFactory.createControllerModel(this.grip));
         //console.log(' ctrlr grip', this.grip);
-        renderer.cameraGroup.add(this.grip);
+        renderer.yawGroup.add(this.grip);
         this.grip.addEventListener("connected", (e) => {
             //console.warn(' hunt vr gamepad', e.data.gamepad)
             //console.warn(' axes', this.grip.data.gamepad.axes[3]);
@@ -65,7 +65,7 @@ export class ctrlr {
             this.userData.isSelecting = false;
             if (floorIntersect) {
                 const offsetPosition = { x: -floorIntersect.x, y: -floorIntersect.y, z: -floorIntersect.z, w: 1 };
-                renderer.cameraGroup.position.copy(offsetPosition);
+                renderer.yawGroup.position.copy(offsetPosition);
                 /*
                 const offsetRotation = new THREE.Quaternion();
                 const transform1 = new XRRigidTransform(offsetPosition, offsetRotation);
@@ -110,7 +110,7 @@ export class ctrlr {
         if (Math.abs(axes[2]) > 0.9 && !this.turned) {
             let quarterTurn = new THREE.Quaternion();
             const turn = axes[2] < 0.5 ? Math.PI / 4 : -Math.PI / 4;
-            renderer.cameraGroup.rotation.y += turn;
+            renderer.yawGroup.rotation.y += turn;
             //renderer.cameraGroup.updateMatrix();
             //renderer.cameraGroup._onChangeCallback(); // this is a hack
             this.turned = true;
@@ -122,7 +122,7 @@ export class ctrlr {
         if (snap) {
             const offsetPosition = new THREE.Vector3();
             const offsetRotation = new THREE.Quaternion();
-            const transform = new XRRigidTransform(renderer.cameraGroup.position, offsetRotation);
+            const transform = new XRRigidTransform(renderer.yawGroup.position, offsetRotation);
             const thumbstickSpace = vr.baseReferenceSpace.getOffsetReferenceSpace(transform);
             renderer.renderer.xr.setReferenceSpace(thumbstickSpace);
         }
@@ -148,7 +148,7 @@ export class ctrlr {
         const vector = new THREE.Vector3();
         vector.set(thumbstick[0], 0, thumbstick[1]);
         vector.applyQuaternion(quaternion);
-        renderer.cameraGroup.position.add(vector);
+        renderer.yawGroup.position.add(vector);
         return;
         const offsetPosition = new THREE.Vector3();
         const offsetRotation = new THREE.Quaternion();

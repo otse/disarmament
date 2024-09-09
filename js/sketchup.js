@@ -7,26 +7,26 @@ var sketchup;
     const stickers = ['lockerssplat'];
     var mats = {};
     var scaleToggle = true;
-    async function get_mats() {
+    async function get_matsfig() {
         let url = 'figs/mats.json';
         let response = await fetch(url);
         const arrSales = await response.json();
         mats = arrSales;
     }
-    sketchup.get_mats = get_mats;
+    sketchup.get_matsfig = get_matsfig;
     async function loop() {
         if (glob.developer) {
             if (app.proompt('r') == 1) {
-                await get_mats();
-                await reload_textures();
-                steal_from_the_library(levelGroup);
+                await get_matsfig();
+                await make_materials();
+                level_takes_new_mats(levelGroup);
             }
             if (app.proompt('t') == 1) {
                 props.clear();
                 renderer.scene.remove(levelGroup);
                 await props.boot();
-                await get_mats();
-                await reload_textures();
+                await get_matsfig();
+                await make_materials();
                 await load_level();
             }
             if (app.proompt('f3') == 1) {
@@ -34,8 +34,8 @@ var sketchup;
                 props.clear();
                 renderer.scene.remove(levelGroup);
                 await props.boot();
-                await get_mats();
-                await reload_textures();
+                await get_matsfig();
+                await make_materials();
                 await load_level();
             }
             if (app.proompt('m') == 1) {
@@ -43,11 +43,8 @@ var sketchup;
         }
     }
     sketchup.loop = loop;
-    async function reload_textures() {
-        /* this uses the magic of promises
-
-           it loads all textures at once, whilst at the same time,
-           asynchronously waiting for each of them before continuing
+    async function make_materials() {
+        /* promises - nero
         */
         const funcs = [];
         for (let name in mats) {
@@ -72,7 +69,7 @@ var sketchup;
                     material.emissive = new THREE.Color('white');
                     console.log(' emissive ');
                 }
-                if (tuple[4] && false) {
+                if (tuple[4] && true) {
                     const texture = await createTextureFromImage(`${tuple[0]}_normal.png${salt}`, 2);
                     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                     material.normalScale.set(tuple[1], -tuple[1]);
@@ -164,8 +161,8 @@ var sketchup;
     };
     async function boot() {
         const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
-        await get_mats();
-        await reload_textures();
+        await get_matsfig();
+        await make_materials();
         await load_level();
     }
     sketchup.boot = boot;
@@ -197,7 +194,7 @@ var sketchup;
             fix_sticker(mat);
     }
     let levelGroup;
-    function steal_from_the_library(scene) {
+    function level_takes_new_mats(scene) {
         function traversal(object) {
             if (object.material) {
                 if (!object.material.length) {
@@ -212,7 +209,7 @@ var sketchup;
         }
         scene.traverse(traversal);
     }
-    sketchup.steal_from_the_library = steal_from_the_library;
+    sketchup.level_takes_new_mats = level_takes_new_mats;
     async function load_level_config(name) {
         let url = `./assets/${name}.json`;
         let response = await fetch(url);
@@ -241,8 +238,8 @@ var sketchup;
                 if (prop)
                     queue.push(prop);
             }
+            level_takes_new_mats(scene);
             scene.traverse(find_make_props);
-            steal_from_the_library(scene);
             for (let prop of queue)
                 prop.complete();
             const group = new THREE.Group();

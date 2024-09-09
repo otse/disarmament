@@ -76,7 +76,7 @@ class player {
         if (app.proompt('v') == 1) {
             this.noclip = !this.noclip;
             if (!this.noclip) {
-                this.cannon_body.position.set(glob.cameraGroup.position.x, glob.cameraGroup.position.y, glob.cameraGroup.position.z);
+                this.cannon_body.position.set(glob.yawGroup.position.x, glob.yawGroup.position.y, glob.yawGroup.position.z);
             }
             //this.cannonBody.collisionResponse = this.noclip ? true : 0;
         }
@@ -101,7 +101,7 @@ class player {
             x *= 0.02 * 165 * delta;
             const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(this.camera.quaternion);
             const quat = new THREE.Quaternion().setFromEuler(euler);
-            glob.cameraGroup.position.add(new THREE.Vector3(x, 0, z).applyQuaternion(quat));
+            glob.yawGroup.position.add(new THREE.Vector3(x, 0, z).applyQuaternion(quat));
         }
     }
     physics_move(delta, direction = { x: 0, y: 0 }) {
@@ -139,10 +139,10 @@ class player {
             this.body_velocity.x += velocity.x;
             this.body_velocity.z += velocity.z;
         }
-        glob.cameraGroup.position.copy(this.cannon_body.position);
-        glob.cameraGroup.position.add(new THREE.Vector3(0, -plyRadius, 0));
-        //if (!glob.xr)
-        //	glob.cameraGroup.position.add(new THREE.Vector3(0, 1.8, 0));
+        glob.yawGroup.position.copy(this.cannon_body.position);
+        glob.yawGroup.position.add(new THREE.Vector3(0, -plyRadius, 0));
+        if (!glob.xr)
+            glob.yawGroup.position.add(new THREE.Vector3(0, 1.8, 0));
     }
 }
 export default player;
