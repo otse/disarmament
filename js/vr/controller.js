@@ -1,3 +1,4 @@
+import glob from "../lib/glob.js";
 import pts from "../lib/pts.js";
 import renderer from "../renderer.js";
 import vr from "./vr.js";
@@ -106,18 +107,15 @@ export class ctrlr {
         const axes = this.xrinputsource.data.gamepad.axes;
         const buttons = this.xrinputsource.data.gamepad.buttons;
         let snap = false;
-        // if (Math.abs(axes[2]) > 0.9 && !this.snapping) {
-        if (buttons[0].touched && !this.turned) {
+        if (Math.abs(axes[2]) > 0.9 && !this.turned) {
             let quarterTurn = new THREE.Quaternion();
-            const turn = Math.PI / 4;
-            quarterTurn.setFromAxisAngle(new THREE.Vector3(0, 1, 0), turn);
-            //renderer.cameraGroup.quaternion.multiply(quarterTurn);
-            renderer.cameraGroup.rotation.y = turn;
-            renderer.cameraGroup.updateMatrix();
-            renderer.cameraGroup._onChangeCallback(); // this is a hack
+            const turn = axes[2] < 0.5 ? Math.PI / 4 : -Math.PI / 4;
+            renderer.cameraGroup.rotation.y += turn;
+            //renderer.cameraGroup.updateMatrix();
+            //renderer.cameraGroup._onChangeCallback(); // this is a hack
             this.turned = true;
         }
-        else if (!buttons[0].touched && this.turned) {
+        else if (Math.abs(axes[2]) < 0.2 && this.turned) {
             this.turned = false;
         }
         return;
@@ -135,17 +133,20 @@ export class ctrlr {
         const axes = this.xrinputsource.data.gamepad.axes;
         let thumbstick = pts.make(axes[2] || 0, axes[3] || 0);
         thumbstick = pts.mult(thumbstick, .025);
-        const arrayCamera = renderer.renderer.xr.getCamera();
-        let quaternion = new THREE.Quaternion();
-        quaternion.copy(arrayCamera.quaternion);
         //quaternion.copy(renderer.cameraGroup.quaternion);
+        const position = new THREE.Vector3();
+        const quaternion = new THREE.Quaternion();
+        const scale = new THREE.Vector3();
+        glob.camera.matrixWorld.decompose(position, quaternion, scale);
+        // const arrayCamera = renderer.renderer.xr.getCamera();
+        // quaternion.copy(arrayCamera.quaternion);
         const euler = new THREE.Euler(0, 0, 0, 'YXZ');
         euler.setFromQuaternion(quaternion);
         euler.x = 0;
         euler.z = 0;
         quaternion.setFromEuler(euler);
         const vector = new THREE.Vector3();
-        vector.set(thumbstick[1], 0, thumbstick[0]);
+        vector.set(thumbstick[0], 0, thumbstick[1]);
         vector.applyQuaternion(quaternion);
         renderer.cameraGroup.position.add(vector);
         return;

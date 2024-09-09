@@ -57,7 +57,7 @@ var sketchup;
                 const tuple = mats[name];
                 const salt = `?x=same`;
                 const texture = await createTextureFromImage(`${tuple[0]}.png${salt}`, 8);
-                console.log('done', name);
+                console.log('name mats', name);
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                 texture.minFilter = texture.magFilter = THREE.LinearFilter;
                 const material = new THREE.MeshPhysicalMaterial({
@@ -72,13 +72,13 @@ var sketchup;
                     material.emissive = new THREE.Color('white');
                     console.log(' emissive ');
                 }
-                if (tuple[4]) {
+                if (tuple[4] && false) {
                     const texture = await createTextureFromImage(`${tuple[0]}_normal.png${salt}`, 2);
                     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                     material.normalScale.set(tuple[1], -tuple[1]);
                     material.normalMap = texture;
                 }
-                if (tuple[5]) {
+                if (tuple[5] && false) {
                     const texture = await createTextureFromImage(`${tuple[0]}_specular.png${salt}`, 4);
                     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                     //material.specularMap = texture;
@@ -233,8 +233,6 @@ var sketchup;
             scene.updateMatrix();
             scene.updateMatrixWorld(); // without this everything explodes
             console.log(' collada scene ', scene);
-            //scene.scale.set(1, 1, 1);
-            //scene.position.set(-garbage.inch, 0, 0);
             const queue = [];
             function find_make_props(object) {
                 object.castShadow = true;

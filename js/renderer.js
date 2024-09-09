@@ -1,6 +1,5 @@
 import glob from "./lib/glob.js";
 import app from "./app.js";
-import vr from "./vr/vr.js";
 var renderer;
 (function (renderer_1) {
     // set up three.js here
@@ -24,15 +23,16 @@ var renderer;
         renderer_1.scene.add(helepr);
         renderer_1.scene.fog = new THREE.Fog(0x131c1d, 7, 20);
         renderer_1.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        renderer_1.cameraGroup.rotation.y = -Math.PI / 2;
+        renderer_1.camera.rotation.y = -Math.PI / 2;
+        renderer_1.cameraGroup.add(renderer_1.camera);
+        renderer_1.cameraGroup.add(new THREE.AxesHelper());
+        // cameraGroup.add(renderer.xr.getCamera());
         renderer_1.cameraGroup.updateMatrix();
-        //camera.position.set(5, 0, 0);
+        glob.camera = renderer_1.camera;
+        glob.cameraGroup = renderer_1.cameraGroup;
         renderer_1.renderer = new THREE.WebGLRenderer({
             antialias: true
         });
-        //renderer.autoClear = false;
-        //cameraGroup.add(renderer.xr.getCamera());
-        renderer_1.cameraGroup.add(renderer_1.camera);
         renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer_1.renderer.toneMappingExposure = 4.5;
         renderer_1.renderer.setPixelRatio(window.devicePixelRatio);
@@ -102,7 +102,6 @@ var renderer;
         renderer_1.cameraGroup.updateMatrix();
         renderer_1.cameraGroup.updateMatrixWorld(true);
         renderer_1.cameraGroup.updateWorldMatrix(false, true);
-        vr.loop();
         renderer_1.renderer.xr.updateCamera(renderer_1.camera);
         renderer_1.renderer.render(renderer_1.scene, renderer_1.camera);
     }

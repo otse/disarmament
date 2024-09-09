@@ -9,6 +9,8 @@ import renderer from "./renderer.js";
 
 // https://github.com/mrdoob/three.js/blob/master/examples/jsm/controls/PointerLockControls.js
 
+const plyRadius = 0.4
+
 class player {
 	camera
 	active = true
@@ -29,8 +31,6 @@ class player {
 		this.controls.enabled = true;
 
 		this.camera = this.controls.camera;
-
-		console.log('player camera object ', this.camera.position);
 
 		garbage.locker.addEventListener('click', () =>
 			this.controls.lock()
@@ -56,8 +56,7 @@ class player {
 
 	make_physics() {
 		// Create a sphere
-		const radius = 0.4;
-		var sphereShape = new CANNON.Sphere(radius);
+		var sphereShape = new CANNON.Sphere(plyRadius);
 		var sphereBody = new CANNON.Body({ mass: 1, material: physics.materials.player });
 		sphereBody.addShape(sphereShape);
 		sphereBody.position.set(-1, 1, 0);
@@ -111,9 +110,9 @@ class player {
 
 			if (!this.noclip) {
 				this.cannon_body.position.set(
-					this.camera.position.x,
-					this.camera.position.y,
-					this.camera.position.z);
+					glob.cameraGroup.position.x,
+					glob.cameraGroup.position.y,
+					glob.cameraGroup.position.z);
 			}
 
 			//this.cannonBody.collisionResponse = this.noclip ? true : 0;
@@ -141,11 +140,9 @@ class player {
 			z *= 0.02 * 165 * delta;
 			x *= 0.02 * 165 * delta;
 
-			const camera = this.camera;
-			const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
-			const position = new THREE.Vector3();
-			position.copy(camera.position).add(new THREE.Vector3(x, 0, z).applyQuaternion(new THREE.Quaternion().setFromEuler(euler)));
-			camera.position.copy(position);
+			const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(this.camera.quaternion);
+			const quat = new THREE.Quaternion().setFromEuler(euler);
+			glob.cameraGroup.position.add(new THREE.Vector3(x, 0, z).applyQuaternion(quat));
 		}
 	}
 
@@ -170,8 +167,7 @@ class player {
 
 		//console.log('');
 
-		const camera = this.camera;
-		const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(camera.quaternion);
+		const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(this.camera.quaternion);
 
 		// set our pitch to 0 which is forward 
 		// else our forward speed is 0 when looking down or up
@@ -193,8 +189,10 @@ class player {
 			this.body_velocity.z += velocity.z;
 		}
 
-		this.camera.position.copy(this.cannon_body.position);
-		this.camera.position.add(new THREE.Vector3(0, 1.3, 0));
+		glob.cameraGroup.position.copy(this.cannon_body.position);
+		glob.cameraGroup.position.add(new THREE.Vector3(0, -plyRadius, 0));
+		//if (!glob.xr)
+		//	glob.cameraGroup.position.add(new THREE.Vector3(0, 1.8, 0));
 	}
 }
 

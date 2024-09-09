@@ -45,17 +45,18 @@ namespace renderer {
 		scene.fog = new THREE.Fog(0x131c1d, 7, 20);
 
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		cameraGroup.rotation.y = -Math.PI / 2;
+		camera.rotation.y = -Math.PI / 2;
+		cameraGroup.add(camera);
+		cameraGroup.add(new THREE.AxesHelper());
+		// cameraGroup.add(renderer.xr.getCamera());
 		cameraGroup.updateMatrix();
-
-		//camera.position.set(5, 0, 0);
+		
+		glob.camera = camera;
+		glob.cameraGroup = cameraGroup;
 
 		renderer = new THREE.WebGLRenderer({
 			antialias: true
 		});
-		//renderer.autoClear = false;
-		//cameraGroup.add(renderer.xr.getCamera());
-		cameraGroup.add(camera);
 
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
 		renderer.toneMappingExposure = 4.5;
@@ -142,8 +143,6 @@ namespace renderer {
 		cameraGroup.updateMatrix();
 		cameraGroup.updateMatrixWorld(true);
 		cameraGroup.updateWorldMatrix(false, true);
-
-		vr.loop();
 
 		renderer.xr.updateCamera(camera);
 		

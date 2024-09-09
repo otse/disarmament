@@ -78,10 +78,11 @@ namespace sketchup {
 				const salt = `?x=same`;
 				const texture = await <any>createTextureFromImage(`${tuple[0]}.png${salt}`, 8);
 
-				console.log('done', name);
+				console.log('name mats', name);
 
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 				texture.minFilter = texture.magFilter = THREE.LinearFilter;
+
 				const material = new THREE.MeshPhysicalMaterial({
 					name: name,
 					map: texture
@@ -95,13 +96,13 @@ namespace sketchup {
 					material.emissive = new THREE.Color('white');
 					console.log(' emissive ');
 				}
-				if (tuple[4]) {
+				if (tuple[4] && false) {
 					const texture = await <any>createTextureFromImage(`${tuple[0]}_normal.png${salt}`, 2);
 					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 					material.normalScale.set(tuple[1], -tuple[1]!);
 					material.normalMap = texture;
 				}
-				if (tuple[5]) {
+				if (tuple[5] && false) {
 					const texture = await <any>createTextureFromImage(`${tuple[0]}_specular.png${salt}`, 4);
 					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 					//material.specularMap = texture;
@@ -266,47 +267,44 @@ namespace sketchup {
 		const loadingManager = new THREE.LoadingManager(function () {
 		});
 
-		const colladaLoader = new ColladaLoader(loadingManager);
+const colladaLoader = new ColladaLoader(loadingManager);
+const levelConfig = await load_level_config(name);
 
-		const levelConfig = await load_level_config(name);
+props.presets = Object.assign(props.presets, levelConfig);
 
-		props.presets = Object.assign(props.presets, levelConfig);
+await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
 
-		await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
+	const scene = collada.scene;
 
-			const scene = collada.scene;
+	scene.updateMatrix();
+	scene.updateMatrixWorld(); // without this everything explodes
 
-			scene.updateMatrix();
-			scene.updateMatrixWorld(); // without this everything explodes
+	console.log(' collada scene ', scene);
 
-			console.log(' collada scene ', scene);
+	const queue: props.prop[] = [];
 
-			//scene.scale.set(1, 1, 1);
-			//scene.position.set(-garbage.inch, 0, 0);
+	function find_make_props(object) {
+		object.castShadow = true;
+		object.receiveShadow = true;
+		const prop = props.factory(object);
+		if (prop)
+			queue.push(prop);
+	}
 
-			const queue: props.prop[] = [];
+	scene.traverse(find_make_props);
 
-			function find_make_props(object) {
-				object.castShadow = true;
-				object.receiveShadow = true;
-				const prop = props.factory(object);
-				if (prop)
-					queue.push(prop);
-			}
+	steal_from_the_library(scene);
 
-			scene.traverse(find_make_props);
+	for (let prop of queue)
+		prop.complete();
 
-			steal_from_the_library(scene);
+	const group = new THREE.Group();
+	group.add(scene);
 
-			for (let prop of queue)
-				prop.complete();
+	renderer.scene.add(group);
 
-			const group = new THREE.Group();
-			group.add(scene);
-			renderer.scene.add(group);
-
-			levelGroup = group;
-		});
+	levelGroup = group;
+});
 
 	}
 }
