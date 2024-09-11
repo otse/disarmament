@@ -26,8 +26,8 @@ var sketchup;
                 props.clear();
                 renderer.scene.remove(levelGroup);
                 await props.boot();
-                await get_matsfig();
-                await make_materials();
+                //await get_matsfig();
+                //await make_materials();
                 await load_level();
             }
             if (app.proompt('f3') == 1) {

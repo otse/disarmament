@@ -15,6 +15,7 @@
     "twotonewall": ["./assets/textures/twotonewall", 0.2, 0.2, 0, true, true],
     "twotonewall_var": ["./assets/textures/twotonewall_var", 0.2, 0.2, 0, true, false],
     "bunkerwall": ["./assets/textures/bunkerwall", 0.2, 0.26, 0.0, true, false],
+    "bunkerwall_var": ["./assets/textures/bunkerwall_var", 0.2, 0.26, 0.0, true, false],
     "rustydoorframe": ["./assets/textures/rustydoorframe", 0.5, 0, 0, false, false],
     "barrel1": ["./assets/textures/barrel1", 0.5, 0, 0, true, false],
     "locker1": ["./assets/textures/locker1", 0.5, 0.2, 0.05, false, false],
