@@ -41,8 +41,8 @@ var app;
     async function boot(version) {
         console.log(' app boot ');
         hooks.call('appBoot', null);
-        if ('xr' in navigator)
-            await navigator.xr.isSessionSupported('immersive-vr').then(x => glob.hasHeadset = x);
+        //if ('xr' in navigator)
+        //	await (navigator as any).xr.isSessionSupported( 'immersive-vr' ).then(x => glob.hasHeadset = x);
         await garbage.boot();
         glob.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         function onmousemove(e) {
@@ -72,7 +72,7 @@ var app;
             pos[0] = e.pageX;
             pos[1] = e.pageY;
             if (!mb[0])
-                mb[0] = KEY.PRESSED;
+                mb[0] = MB.DOWN;
             e.preventDefault();
             return false;
         }

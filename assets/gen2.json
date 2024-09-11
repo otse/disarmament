@@ -2,18 +2,19 @@
 	"plbend": {
 		"hide": true,
 		"color": "mintcream",
-		"intensity": 0.4,
-		"distance": 3.0,
+		"intensity": 1.0,
+		"distance": 0.1,
 		"decay": 1.0,
 		"shadow": true
 	},
 	"slbend": {
+		"disabled": false,
 		"lensflare": false,
 		"hide": true,
 		"color": "lightblue",
 		"angle": 1.2,
 		"intensity": 0.7,
-		"distance": 2,
+		"distance": 5,
 		"penumbra": 0.8,
 		"decay": 1.5,
 		"shadow": false,
@@ -25,7 +26,7 @@
 		"xbehavior": {
 			"type": "shake",
 			"cycle": 3,
-			"base": 1,
+			"base": 10,
 			"variance": 0.2
 		}
 	},
@@ -40,7 +41,7 @@
 			0.0,
 			0.0
 		],
-		"behavior": {
+		"xbehavior": {
 			"type": "shake",
 			"cycle": 5,
 			"base": 1,
@@ -52,7 +53,7 @@
 		"hide": true,
 		"color": "cyan",
 		"intensity": 0.15,
-		"distance": 4.0,
+		"distance": 0.1,
 		"decay": 3.0,
 		"shadow": true,
 		"shadowMapSize": 128
@@ -68,7 +69,7 @@
 			0.0,
 			-1.0
 		],
-		"behavior": {
+		"xbehavior": {
 			"type": "shake",
 			"cycle": 5,
 			"base": 1,
@@ -95,11 +96,43 @@
 			0,
 			0
 		],
-		"behavior": {
+		"xbehavior": {
 			"type": "shake",
 			"cycle": 3,
 			"base": 1.0,
 			"variance": 1.0
+		}
+	},
+	"rlcarnage": {
+		"hide": true,
+		"color": "cadetblue",
+		"intensity": 3.0,
+		"target": [
+			0.0,
+			0.0,
+			-1.0
+		],
+		"xbehavior": {
+			"type": "shake",
+			"cycle": 5,
+			"base": 1.0,
+			"variance": 0
+		}
+	},
+	"rlcarnagevert": {
+		"hide": true,
+		"color": "FloralWhite",
+		"intensity": 3.0,
+		"target": [
+			0.0,
+			1.0,
+			0.0
+		],
+		"behavior": {
+			"type": "bounce",
+			"cycle": 3,
+			"base": 1.0,
+			"variance": 0.3
 		}
 	}
 }

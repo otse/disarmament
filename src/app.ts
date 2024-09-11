@@ -40,8 +40,8 @@ namespace app {
 
 		hooks.call('appBoot', null);
 
-		if ('xr' in navigator)
-			await (navigator as any).xr.isSessionSupported( 'immersive-vr' ).then(x => glob.hasHeadset = x);
+		//if ('xr' in navigator)
+		//	await (navigator as any).xr.isSessionSupported( 'immersive-vr' ).then(x => glob.hasHeadset = x);
 
 		await garbage.boot();
 
@@ -79,7 +79,7 @@ namespace app {
 			pos[0] = e.pageX;
 			pos[1] = e.pageY;
 			if (!mb[0])
-				mb[0] = KEY.PRESSED;
+				mb[0] = MB.DOWN;
 			e.preventDefault();
 			return false;
 		}

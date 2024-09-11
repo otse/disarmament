@@ -9,7 +9,7 @@ namespace renderer {
 
 	export var scene, camera, renderer, ambiance, clock;
 
-	export var cameraGroup;
+	export var yawGroup;
 
 	export var dt = 0;
 
@@ -30,11 +30,11 @@ namespace renderer {
 		clock = new THREE.Clock();
 
 		propsGroup = new THREE.Group();
-		cameraGroup = new THREE.Group();
+		yawGroup = new THREE.Group();
 		
 		scene = new THREE.Scene();
 		scene.add(propsGroup);
-		scene.add(cameraGroup);
+		scene.add(yawGroup);
 		scene.background = new THREE.Color('#333');
 
 		RectAreaLightUniformsLib.init();
@@ -45,17 +45,18 @@ namespace renderer {
 		scene.fog = new THREE.Fog(0x131c1d, 7, 20);
 
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		cameraGroup.rotation.y = -Math.PI / 2;
-		cameraGroup.updateMatrix();
-
-		//camera.position.set(5, 0, 0);
+		camera.rotation.y = -Math.PI / 2;
+		yawGroup.add(camera);
+		yawGroup.add(new THREE.AxesHelper());
+		// cameraGroup.add(renderer.xr.getCamera());
+		yawGroup.updateMatrix();
+		
+		glob.camera = camera;
+		glob.yawGroup = yawGroup;
 
 		renderer = new THREE.WebGLRenderer({
 			antialias: true
 		});
-		//renderer.autoClear = false;
-		//cameraGroup.add(renderer.xr.getCamera());
-		cameraGroup.add(camera);
 
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
 		renderer.toneMappingExposure = 4.5;
@@ -139,11 +140,9 @@ namespace renderer {
 			}
 		}
 
-		cameraGroup.updateMatrix();
-		cameraGroup.updateMatrixWorld(true);
-		cameraGroup.updateWorldMatrix(false, true);
-
-		vr.loop();
+		yawGroup.updateMatrix();
+		yawGroup.updateMatrixWorld(true);
+		yawGroup.updateWorldMatrix(false, true);
 
 		renderer.xr.updateCamera(camera);
 		

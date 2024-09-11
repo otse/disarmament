@@ -23,7 +23,7 @@ namespace sketchup {
 
 	var scaleToggle = true;
 
-	export async function get_mats() {
+	export async function get_matsfig() {
 		let url = 'figs/mats.json';
 		let response = await fetch(url);
 		const arrSales = await response.json();
@@ -33,16 +33,17 @@ namespace sketchup {
 	export async function loop() {
 		if (glob.developer) {
 			if (app.proompt('r') == 1) {
-				await get_mats();
-				await reload_textures();
-				steal_from_the_library(levelGroup);
+				await get_matsfig();
+				await make_materials();
+				level_takes_new_mats(levelGroup);
 			}
 			if (app.proompt('t') == 1) {
+				console.log('[t]');
 				props.clear();
 				renderer.scene.remove(levelGroup);
 				await props.boot();
-				await get_mats();
-				await reload_textures();
+				//await get_matsfig();
+				//await make_materials();
 				await load_level();
 			}
 			if (app.proompt('f3') == 1) {
@@ -50,8 +51,8 @@ namespace sketchup {
 				props.clear();
 				renderer.scene.remove(levelGroup);
 				await props.boot();
-				await get_mats();
-				await reload_textures();
+				await get_matsfig();
+				await make_materials();
 				await load_level();
 			}
 			if (app.proompt('m') == 1) {
@@ -60,32 +61,30 @@ namespace sketchup {
 		}
 	}
 
-	async function reload_textures() {
+	async function make_materials() {
 
-		/* this uses the magic of promises
-
-		   it loads all textures at once, whilst at the same time,
-		   asynchronously waiting for each of them before continuing
+		/* promises - nero
 		*/
 		const funcs: any[] = [];
 
 		for (let name in mats) {
 			const func = async (name) => {
-				console.log('func', name);
+				//console.log('func', name);
 
-				const existing = mats[name];
 				const tuple = mats[name];
 				const salt = `?x=same`;
 				const texture = await <any>createTextureFromImage(`${tuple[0]}.png${salt}`, 8);
 
-				console.log('done', name);
+				//console.log('name mats', name);
 
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 				texture.minFilter = texture.magFilter = THREE.LinearFilter;
+
 				const material = new THREE.MeshPhysicalMaterial({
 					name: name,
 					map: texture
 				});
+				// material.clearcoat = 1.0;
 				material.roughness = tuple[2];
 				material.metalness = tuple[3];
 				material.clearCoat = 0.5;
@@ -95,13 +94,13 @@ namespace sketchup {
 					material.emissive = new THREE.Color('white');
 					console.log(' emissive ');
 				}
-				if (tuple[4]) {
+				if (tuple[4] && true) {
 					const texture = await <any>createTextureFromImage(`${tuple[0]}_normal.png${salt}`, 2);
 					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-					material.normalScale.set(tuple[1], -tuple[1]!);
+					material.normalScale.set(tuple[1], -tuple[1]);
 					material.normalMap = texture;
 				}
-				if (tuple[5]) {
+				if (tuple[5] && false) {
 					const texture = await <any>createTextureFromImage(`${tuple[0]}_specular.png${salt}`, 4);
 					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 					//material.specularMap = texture;
@@ -197,8 +196,8 @@ namespace sketchup {
 
 	export async function boot() {
 		const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
-		await get_mats();
-		await reload_textures();
+		await get_matsfig();
+		await make_materials();
 		await load_level();
 	}
 
@@ -234,7 +233,7 @@ namespace sketchup {
 
 	let levelGroup;
 
-	export function steal_from_the_library(scene) {
+	export function level_takes_new_mats(scene) {
 		function traversal(object) {
 			if (object.material) {
 				if (!object.material.length) {
@@ -266,47 +265,44 @@ namespace sketchup {
 		const loadingManager = new THREE.LoadingManager(function () {
 		});
 
-		const colladaLoader = new ColladaLoader(loadingManager);
+const colladaLoader = new ColladaLoader(loadingManager);
+const levelConfig = await load_level_config(name);
 
-		const levelConfig = await load_level_config(name);
+props.presets = Object.assign(props.presets, levelConfig);
 
-		props.presets = Object.assign(props.presets, levelConfig);
+await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
 
-		await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
+	const scene = collada.scene;
 
-			const scene = collada.scene;
+	scene.updateMatrix();
+	scene.updateMatrixWorld(); // without this everything explodes
 
-			scene.updateMatrix();
-			scene.updateMatrixWorld(); // without this everything explodes
+	console.log(' collada scene ', scene);
 
-			console.log(' collada scene ', scene);
+	const queue: props.prop[] = [];
 
-			//scene.scale.set(1, 1, 1);
-			//scene.position.set(-garbage.inch, 0, 0);
+	function find_make_props(object) {
+		object.castShadow = true;
+		object.receiveShadow = true;
+		const prop = props.factory(object);
+		if (prop)
+			queue.push(prop);
+	}
 
-			const queue: props.prop[] = [];
+	scene.traverse(find_make_props);
 
-			function find_make_props(object) {
-				object.castShadow = true;
-				object.receiveShadow = true;
-				const prop = props.factory(object);
-				if (prop)
-					queue.push(prop);
-			}
+	level_takes_new_mats(scene);
 
-			scene.traverse(find_make_props);
+	for (let prop of queue)
+		prop.complete();
 
-			steal_from_the_library(scene);
+	const group = new THREE.Group();
+	group.add(scene);
 
-			for (let prop of queue)
-				prop.complete();
+	renderer.scene.add(group);
 
-			const group = new THREE.Group();
-			group.add(scene);
-			renderer.scene.add(group);
-
-			levelGroup = group;
-		});
+	levelGroup = group;
+});
 
 	}
 }
