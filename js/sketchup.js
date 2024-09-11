@@ -22,6 +22,7 @@ var sketchup;
                 level_takes_new_mats(levelGroup);
             }
             if (app.proompt('t') == 1) {
+                console.log('[t]');
                 props.clear();
                 renderer.scene.remove(levelGroup);
                 await props.boot();
@@ -49,18 +50,18 @@ var sketchup;
         const funcs = [];
         for (let name in mats) {
             const func = async (name) => {
-                console.log('func', name);
-                const existing = mats[name];
+                //console.log('func', name);
                 const tuple = mats[name];
                 const salt = `?x=same`;
                 const texture = await createTextureFromImage(`${tuple[0]}.png${salt}`, 8);
-                console.log('name mats', name);
+                //console.log('name mats', name);
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                 texture.minFilter = texture.magFilter = THREE.LinearFilter;
                 const material = new THREE.MeshPhysicalMaterial({
                     name: name,
                     map: texture
                 });
+                // material.clearcoat = 1.0;
                 material.roughness = tuple[2];
                 material.metalness = tuple[3];
                 material.clearCoat = 0.5;
@@ -238,8 +239,8 @@ var sketchup;
                 if (prop)
                     queue.push(prop);
             }
-            level_takes_new_mats(scene);
             scene.traverse(find_make_props);
+            level_takes_new_mats(scene);
             for (let prop of queue)
                 prop.complete();
             const group = new THREE.Group();

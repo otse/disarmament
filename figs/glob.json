@@ -2,6 +2,14 @@
 	"fansw": {
 		"speed": 1
 	},
+	"plsmall4000k": {
+		"hide": true,
+		"color": "cyan",
+		"intensity": 0.1,
+		"distance": 2.0,
+		"decay": 2.0,
+		"shadow": true
+	},
 	"plgeneric": {
 		"hide": true,
 		"color": "mintcream",

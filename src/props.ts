@@ -447,7 +447,7 @@ namespace props {
 						return 1;
 				}
 			})()
-			intensity = (behavior.base || .5) + value * (behavior.variance || .5);
+			intensity = behavior.base + value * behavior.variance;			
 			this.light.intensity = this.preset_.intensity * intensity;
 			this.light.needsUpdate = true;
 		}
@@ -573,17 +573,25 @@ namespace props {
 				height = size.z;
 			}
 			if (this.parameters.axis == 'y') {
-				width = size.z;
-				height = size.x;
+				width = size.x;
+				height = size.z;
+			}
+			if (this.parameters.axis == 'x') {
+				width = size.x;
+				height = size.y;
 			}
 
 			const light = new THREE.RectAreaLight(
-				this.preset_.color || 'white',
-				this.preset_.intensity || 1,
+				this.preset_.color,
+				this.preset_.intensity,
 				width,
 				height);
 			light.power = 100;
+			light.intensity = this.preset_.intensity;
+			light.needsUpdate = true;
 
+			console.log('rectlight preset', this.preset_, 'intensity', this.preset_.intensity);
+			
 			this.light = light;
 
 			light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
