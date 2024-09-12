@@ -105,8 +105,8 @@
 	},
 	"rlcarnage": {
 		"xdisabled": true,
-		"hide": true,
-		"color": "white",
+		"hide": false,
+		"color": "cyan",
 		"intensity": 1.0,
 		"target": [
 			0.0,
@@ -121,7 +121,7 @@
 		}
 	},
 	"rlcarnagevert": {
-		"hide": true,
+		"hide": false,
 		"color": "azure",
 		"intensity": 3.0,
 		"target": [
@@ -129,7 +129,7 @@
 			1.0,
 			0.0
 		],
-		"behavior": {
+		"xbehavior": {
 			"type": "bounce",
 			"cycle": 3,
 			"base": 1.0,

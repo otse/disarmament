@@ -112,7 +112,7 @@ var sketchup;
 					vec3 lumaWeights = vec3(.25,.50,.25);
 
 					vec3 grey;
-					float sat = 3.0;
+					float sat = 2.0;
 					float reduce = 100.0;
 					float resat = 2.0;
 					float rereduce = 100.0;

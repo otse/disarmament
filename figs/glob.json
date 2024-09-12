@@ -9,12 +9,19 @@
 			0,
 			1
 		],
-		"behavior": {
+		"xbehavior": {
 			"type": "bounce",
 			"cycle": 6,
 			"base": 1.0,
 			"variance": 0.15
 		}
+	},
+	"plgendim": {
+		"xdisabled": true,
+		"hide": true,
+		"color": "cadetblue",
+		"intensity": 0.2,
+		"distance": 2
 	},
 	"fansw": {
 		"speed": 1

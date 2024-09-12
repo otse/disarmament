@@ -447,7 +447,7 @@ namespace props {
 						return 1;
 				}
 			})()
-			intensity = behavior.base + value * behavior.variance;			
+			intensity = behavior.base + value * behavior.variance;
 			this.light.intensity = this.preset_.intensity * intensity;
 			this.light.needsUpdate = true;
 		}
@@ -592,18 +592,26 @@ namespace props {
 			light.needsUpdate = true;
 
 			console.log('rectlight preset', this.preset_, 'intensity', this.preset_.intensity);
-			
+
 			this.light = light;
 
 			light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
 			this.group.add(light);
-
+			
+			const temp = new THREE.Vector3(size.x, size.z, size.y);
+			temp.multiplyScalar(garbage.spaceMultiply);
+			this.object.position.sub(temp.divideScalar(2));
+			
 			size.divideScalar(2);
 			size.z = -size.z;
 			this.group.position.add(size);
 
-			const helper = new RectAreaLightHelper(light);
-			light.add(helper); // helper must be added as a child of the light
+
+			const hasHelper = this.preset_.helper;
+			if (hasHelper) {
+				const helper = new RectAreaLightHelper(light);
+				light.add(helper); // helper must be added as a child of the light
+			}
 		}
 		override _loop() {
 			this.behavior();
