@@ -1,6 +1,7 @@
 {
 	"rlmossy": {
 		"xdisabled": true,
+		"xhelper": true,
 		"hide": true,
 		"color": "chartreuse",
 		"intensity": 0.007,
@@ -20,7 +21,7 @@
 		"xdisabled": true,
 		"hide": true,
 		"color": "cadetblue",
-		"intensity": 0.2,
+		"intensity": 0.15,
 		"distance": 2
 	},
 	"fansw": {
