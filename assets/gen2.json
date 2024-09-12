@@ -104,9 +104,10 @@
 		}
 	},
 	"rlcarnage": {
+		"xdisabled": true,
 		"hide": true,
-		"color": "cadetblue",
-		"intensity": 3.0,
+		"color": "white",
+		"intensity": 1.0,
 		"target": [
 			0.0,
 			0.0,
@@ -121,7 +122,7 @@
 	},
 	"rlcarnagevert": {
 		"hide": true,
-		"color": "FloralWhite",
+		"color": "azure",
 		"intensity": 3.0,
 		"target": [
 			0.0,

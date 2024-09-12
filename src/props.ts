@@ -586,6 +586,7 @@ namespace props {
 				this.preset_.intensity,
 				width,
 				height);
+			light.visible = !this.preset_.disabled;
 			light.power = 100;
 			light.intensity = this.preset_.intensity;
 			light.needsUpdate = true;
@@ -596,6 +597,10 @@ namespace props {
 
 			light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
 			this.group.add(light);
+
+			size.divideScalar(2);
+			size.z = -size.z;
+			this.group.position.add(size);
 
 			const helper = new RectAreaLightHelper(light);
 			light.add(helper); // helper must be added as a child of the light

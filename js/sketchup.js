@@ -5,13 +5,14 @@ import renderer from "./renderer.js";
 var sketchup;
 (function (sketchup) {
     const stickers = ['lockerssplat'];
+    var matsfig = {};
     var mats = {};
     var scaleToggle = true;
     async function get_matsfig() {
         let url = 'figs/mats.json';
         let response = await fetch(url);
         const arrSales = await response.json();
-        mats = arrSales;
+        matsfig = arrSales;
     }
     sketchup.get_matsfig = get_matsfig;
     async function loop() {
@@ -39,49 +40,71 @@ var sketchup;
                 await make_materials();
                 await load_level();
             }
-            if (app.proompt('m') == 1) {
+            if (app.proompt('n') == 1) {
+                await toggle_normalmap();
             }
         }
     }
     sketchup.loop = loop;
+    var normalToggle = true;
+    async function toggle_normalmap() {
+        normalToggle = !normalToggle;
+        const funcs = [];
+        for (let name in matsfig) {
+            const func = async (name) => {
+                const tuple = matsfig[name];
+                const mat = mats[name];
+                if (!normalToggle)
+                    mat.normalScale.set(0, 0);
+                else
+                    mat.normalScale.set(tuple[1], -tuple[1]);
+            };
+            const promise = /*await*/ func(name);
+            funcs.push(promise);
+        }
+        return Promise.all(funcs);
+    }
     async function make_materials() {
         /* promises - nero
         */
         const funcs = [];
-        for (let name in mats) {
+        for (let name in matsfig) {
             const func = async (name) => {
                 //console.log('func', name);
-                const tuple = mats[name];
+                const tuple = matsfig[name];
                 const salt = `?x=same`;
                 const texture = await createTextureFromImage(`${tuple[0]}.png${salt}`, 8);
                 //console.log('name mats', name);
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                 texture.minFilter = texture.magFilter = THREE.LinearFilter;
-                const material = new THREE.MeshPhysicalMaterial({
+                const mat = new THREE.MeshPhysicalMaterial({
                     name: name,
                     map: texture
                 });
                 // material.clearcoat = 1.0;
-                material.roughness = tuple[2];
-                material.metalness = tuple[3];
-                material.clearCoat = 0.5;
-                material.iridescence = 0.15;
+                mat.roughness = tuple[2];
+                mat.metalness = tuple[3];
+                mat.clearCoat = 0.5;
+                mat.iridescence = 0.15;
                 if (tuple[7]) {
-                    material.emissive = new THREE.Color('white');
+                    mat.emissive = new THREE.Color('white');
                     console.log(' emissive ');
                 }
                 if (tuple[4] && true) {
                     const texture = await createTextureFromImage(`${tuple[0]}_normal.png${salt}`, 2);
                     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                    material.normalScale.set(tuple[1], -tuple[1]);
-                    material.normalMap = texture;
+                    if (!normalToggle)
+                        mat.normalScale.set(0, 0);
+                    else
+                        mat.normalScale.set(tuple[1], -tuple[1]);
+                    mat.normalMap = texture;
                 }
                 if (tuple[5] && false) {
                     const texture = await createTextureFromImage(`${tuple[0]}_specular.png${salt}`, 4);
                     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
                     //material.specularMap = texture;
                 }
-                material.onBeforeCompile = (shader) => {
+                mat.onBeforeCompile = (shader) => {
                     console.warn('onbeforecompile');
                     shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', REREDUCE: '' };
                     shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
@@ -126,12 +149,12 @@ var sketchup;
 					gl_FragColor.rgb = diffuse.rgb;
 					`);
                 };
-                material.customProgramCacheKey = function () {
+                mat.customProgramCacheKey = function () {
                     return 'clucked';
                 };
                 //material.specular?.set(0.1, 0.1, 0.1);
                 //material.shininess = tuple[1] || 30;
-                mats[name] = material;
+                mats[name] = mat;
             };
             const promise = /*await*/ func(name);
             funcs.push(promise);

@@ -19,6 +19,7 @@ namespace sketchup {
 
 	const stickers = ['lockerssplat']
 
+	var matsfig = {}
 	var mats = {}
 
 	var scaleToggle = true;
@@ -27,7 +28,7 @@ namespace sketchup {
 		let url = 'figs/mats.json';
 		let response = await fetch(url);
 		const arrSales = await response.json();
-		mats = arrSales;
+		matsfig = arrSales;
 	}
 
 	export async function loop() {
@@ -55,10 +56,30 @@ namespace sketchup {
 				await make_materials();
 				await load_level();
 			}
-			if (app.proompt('m') == 1) {
+			if (app.proompt('n') == 1) {
+				await toggle_normalmap();
 
 			}
 		}
+	}
+
+	var normalToggle = true;
+	async function toggle_normalmap() {
+		normalToggle = !normalToggle;
+		const funcs: any[] = [];
+		for (let name in matsfig) {
+			const func = async (name) => {
+				const tuple = matsfig[name];
+				const mat = mats[name];
+				if (!normalToggle)
+					mat.normalScale.set(0, 0);
+				else
+					mat.normalScale.set(tuple[1], -tuple[1]);
+			}
+			const promise = /*await*/ func(name)
+			funcs.push(promise);
+		}
+		return Promise.all(funcs);
 	}
 
 	async function make_materials() {
@@ -67,11 +88,11 @@ namespace sketchup {
 		*/
 		const funcs: any[] = [];
 
-		for (let name in mats) {
+		for (let name in matsfig) {
 			const func = async (name) => {
 				//console.log('func', name);
 
-				const tuple = mats[name];
+				const tuple = matsfig[name];
 				const salt = `?x=same`;
 				const texture = await <any>createTextureFromImage(`${tuple[0]}.png${salt}`, 8);
 
@@ -80,32 +101,35 @@ namespace sketchup {
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 				texture.minFilter = texture.magFilter = THREE.LinearFilter;
 
-				const material = new THREE.MeshPhysicalMaterial({
+				const mat = new THREE.MeshPhysicalMaterial({
 					name: name,
 					map: texture
 				});
 				// material.clearcoat = 1.0;
-				material.roughness = tuple[2];
-				material.metalness = tuple[3];
-				material.clearCoat = 0.5;
-				material.iridescence = 0.15;
+				mat.roughness = tuple[2];
+				mat.metalness = tuple[3];
+				mat.clearCoat = 0.5;
+				mat.iridescence = 0.15;
 
 				if (tuple[7]) {
-					material.emissive = new THREE.Color('white');
+					mat.emissive = new THREE.Color('white');
 					console.log(' emissive ');
 				}
 				if (tuple[4] && true) {
 					const texture = await <any>createTextureFromImage(`${tuple[0]}_normal.png${salt}`, 2);
 					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-					material.normalScale.set(tuple[1], -tuple[1]);
-					material.normalMap = texture;
+					if (!normalToggle)
+						mat.normalScale.set(0, 0);
+					else
+						mat.normalScale.set(tuple[1], -tuple[1]);
+					mat.normalMap = texture;
 				}
 				if (tuple[5] && false) {
 					const texture = await <any>createTextureFromImage(`${tuple[0]}_specular.png${salt}`, 4);
 					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 					//material.specularMap = texture;
 				}
-				material.onBeforeCompile = (shader) => {
+				mat.onBeforeCompile = (shader) => {
 					console.warn('onbeforecompile');
 					shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', REREDUCE: '' };
 					shader.fragmentShader = shader.fragmentShader.replace(
@@ -153,12 +177,12 @@ namespace sketchup {
 					`
 					);
 				}
-				material.customProgramCacheKey = function () {
+				mat.customProgramCacheKey = function () {
 					return 'clucked';
 				}
 				//material.specular?.set(0.1, 0.1, 0.1);
 				//material.shininess = tuple[1] || 30;
-				mats[name] = material;
+				mats[name] = mat;
 			};
 			const promise = /*await*/ func(name)
 			funcs.push(promise);
@@ -265,44 +289,44 @@ namespace sketchup {
 		const loadingManager = new THREE.LoadingManager(function () {
 		});
 
-const colladaLoader = new ColladaLoader(loadingManager);
-const levelConfig = await load_level_config(name);
+		const colladaLoader = new ColladaLoader(loadingManager);
+		const levelConfig = await load_level_config(name);
 
-props.presets = Object.assign(props.presets, levelConfig);
+		props.presets = Object.assign(props.presets, levelConfig);
 
-await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
+		await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
 
-	const scene = collada.scene;
+			const scene = collada.scene;
 
-	scene.updateMatrix();
-	scene.updateMatrixWorld(); // without this everything explodes
+			scene.updateMatrix();
+			scene.updateMatrixWorld(); // without this everything explodes
 
-	console.log(' collada scene ', scene);
+			console.log(' collada scene ', scene);
 
-	const queue: props.prop[] = [];
+			const queue: props.prop[] = [];
 
-	function find_make_props(object) {
-		object.castShadow = true;
-		object.receiveShadow = true;
-		const prop = props.factory(object);
-		if (prop)
-			queue.push(prop);
-	}
+			function find_make_props(object) {
+				object.castShadow = true;
+				object.receiveShadow = true;
+				const prop = props.factory(object);
+				if (prop)
+					queue.push(prop);
+			}
 
-	scene.traverse(find_make_props);
+			scene.traverse(find_make_props);
 
-	level_takes_new_mats(scene);
+			level_takes_new_mats(scene);
 
-	for (let prop of queue)
-		prop.complete();
+			for (let prop of queue)
+				prop.complete();
 
-	const group = new THREE.Group();
-	group.add(scene);
+			const group = new THREE.Group();
+			group.add(scene);
 
-	renderer.scene.add(group);
+			renderer.scene.add(group);
 
-	levelGroup = group;
-});
+			levelGroup = group;
+		});
 
 	}
 }
