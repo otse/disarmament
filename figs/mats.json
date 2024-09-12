@@ -15,6 +15,7 @@
     "rust1": ["./assets/textures/rust1", 0.5, 0, 0, false, false, false],
     "twotonewall": ["./assets/textures/twotonewall", 0.2, 0.2, 0, true, true],
     "twotonewall_var": ["./assets/textures/twotonewall_var", 0.2, 0.2, 0, true, false],
+    "officehall": ["./assets/textures/officehall", 0.15, 0.3, 0.0, false, false],
     "bunkerwall": ["./assets/textures/bunkerwall", 0.15, 0.3, 0.0, true, false],
     "bunkerwall_var": ["./assets/textures/bunkerwall_var", 0.15, 0.3, 0.0, true, false],
     "rustydoorframe": ["./assets/textures/rustydoorframe", 0.5, 0, 0, false, false],
