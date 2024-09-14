@@ -22,6 +22,8 @@ class player {
 		this.make_physics();
 
 		hooks.register('xrStart', () => this.xr_takes_over());
+
+		glob.move = { x: 0, z: 0 };
 	}
 
 	setup() {
@@ -51,7 +53,7 @@ class player {
 	xr_takes_over() {
 		console.warn('player xr takes over');
 		this.controls.disconnect();
-		this.active = false;
+		//this.active = false;
 	}
 
 	make_physics() {
@@ -96,13 +98,10 @@ class player {
 
 	loop(delta: number) {
 
-		if (this.controls.enabled === false)
-			return;
+		//if (this.controls.enabled === false)
+		//	return;
 
 		if (!this.active)
-			return;
-
-		if (glob.xr)
 			return;
 
 		if (app.proompt('v') == 1) {
@@ -123,7 +122,8 @@ class player {
 	}
 
 	noclip_move(delta) {
-		let x = 0, z = 0;
+		let { x, z } = glob.move;
+
 		if (app.proompt('w') && !app.proompt('s'))
 			z = -1;
 		if (app.proompt('s') && !app.proompt('w'))
@@ -140,18 +140,20 @@ class player {
 			z *= 0.02 * 165 * delta;
 			x *= 0.02 * 165 * delta;
 
-			const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(this.camera.quaternion);
+			const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(renderer.camera.quaternion);
 			const quat = new THREE.Quaternion().setFromEuler(euler);
 			glob.yawGroup.position.add(new THREE.Vector3(x, 0, z).applyQuaternion(quat));
 		}
 	}
 
-	physics_move(delta, direction = { x: 0, y: 0 }) {
-		let x = 0, z = 0;
+	physics_move(delta) {
+		let { x, z } = glob.move;
+
 		if (app.proompt(' ') && this.can_jump) {
 			this.body_velocity.y = 10;
 			this.can_jump = false;
 		}
+
 		if (app.proompt('w') && !app.proompt('s'))
 			z = -1;
 		if (app.proompt('s') && !app.proompt('w'))
@@ -165,9 +167,7 @@ class player {
 			x *= 2.0;
 		}
 
-		//console.log('');
-
-		const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(this.camera.quaternion);
+		const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(renderer.camera.quaternion);
 
 		// set our pitch to 0 which is forward 
 		// else our forward speed is 0 when looking down or up
@@ -184,6 +184,7 @@ class player {
 
 			let velocity = new THREE.Vector3(x, 0, z);
 			let quat = new THREE.Quaternion().setFromEuler(euler);
+			quat.multiply(renderer.yawGroup.quaternion);
 			velocity.applyQuaternion(quat);
 			this.body_velocity.x += velocity.x;
 			this.body_velocity.z += velocity.z;
@@ -191,8 +192,10 @@ class player {
 
 		glob.yawGroup.position.copy(this.cannon_body.position);
 		glob.yawGroup.position.add(new THREE.Vector3(0, -plyRadius, 0));
-		if (!glob.xr)
+		if (!glob.hasHeadset)
 			glob.yawGroup.position.add(new THREE.Vector3(0, 1.8, 0));
+		//else
+		//	glob.yawGroup.position.add(new THREE.Vector3(0, 1.0, 0));
 	}
 }
 

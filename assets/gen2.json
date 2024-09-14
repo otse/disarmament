@@ -31,6 +31,7 @@
 		}
 	},
 	"lockersrect": {
+		"helper": true,
 		"hide": true,
 		"color": "lightblue",
 		"intensity": 2.0,
@@ -121,7 +122,8 @@
 		}
 	},
 	"rlcarnagevert": {
-		"hide": false,
+		"helper": true,
+		"hide": true,
 		"color": "azure",
 		"intensity": 3.0,
 		"target": [

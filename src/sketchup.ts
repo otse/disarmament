@@ -22,7 +22,7 @@ namespace sketchup {
 	var matsfig = {}
 	var mats = {}
 
-	var scaleToggle = true;
+	var loresToggle = false;
 
 	export async function get_matsfig() {
 		let url = 'figs/mats.json';
@@ -48,7 +48,7 @@ namespace sketchup {
 				await load_level();
 			}
 			if (app.proompt('f3') == 1) {
-				scaleToggle = !scaleToggle;
+				loresToggle = !loresToggle;
 				props.clear();
 				renderer.scene.remove(levelGroup);
 				await props.boot();
@@ -124,10 +124,13 @@ namespace sketchup {
 						mat.normalScale.set(tuple[1], -tuple[1]);
 					mat.normalMap = texture;
 				}
-				if (tuple[5] && false) {
-					const texture = await <any>createTextureFromImage(`${tuple[0]}_specular.png${salt}`, 4);
+				if (tuple[5] && true) {
+					const texture = await <any>createTextureFromImage(`${tuple[0]}_emissive.png${salt}`, 4);
 					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-					//material.specularMap = texture;
+					mat.emissiveMap = texture;
+					mat.emissive.set('#82834a');
+					console.warn(' you wot ');
+					
 				}
 				mat.onBeforeCompile = (shader) => {
 					console.warn('onbeforecompile');
@@ -194,7 +197,7 @@ namespace sketchup {
 
 	const createTextureFromImage = async (imageUrl, scale) => {
 		return new Promise(async resolve => {
-			if (!scaleToggle)
+			if (!loresToggle)
 				scale = 1;
 			if (!downscale)
 				resolve(await new THREE.TextureLoader().loadAsync(imageUrl));

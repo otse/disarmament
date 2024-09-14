@@ -40,8 +40,8 @@ namespace app {
 
 		hooks.call('appBoot', null);
 
-		//if ('xr' in navigator)
-		//	await (navigator as any).xr.isSessionSupported( 'immersive-vr' ).then(x => glob.hasHeadset = x);
+		if ('xr' in navigator)
+			await (navigator as any).xr.isSessionSupported( 'immersive-vr' ).then(x => glob.hasHeadset = x);
 
 		await garbage.boot();
 
