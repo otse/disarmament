@@ -605,8 +605,7 @@ namespace props {
 			size.divideScalar(2);
 			size.z = -size.z;
 			this.group.position.add(size);
-
-
+			
 			const hasHelper = this.preset_.helper;
 			if (hasHelper) {
 				const helper = new RectAreaLightHelper(light);
