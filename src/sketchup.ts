@@ -109,7 +109,7 @@ namespace sketchup {
 				mat.roughness = tuple[2];
 				mat.metalness = tuple[3];
 				mat.clearCoat = 0.5;
-				mat.iridescence = 0.15;
+				mat.iridescence = 0.2;
 
 				if (tuple[7]) {
 					mat.emissive = new THREE.Color('white');
@@ -130,11 +130,11 @@ namespace sketchup {
 					mat.emissiveMap = texture;
 					mat.emissive.set('#82834a');
 					console.warn(' you wot ');
-					
+
 				}
 				mat.onBeforeCompile = (shader) => {
 					console.warn('onbeforecompile');
-					shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', REREDUCE: '' };
+					shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
 					shader.fragmentShader = shader.fragmentShader.replace(
 						`#include <tonemapping_fragment>`,
 						`#include <tonemapping_fragment>
@@ -142,7 +142,7 @@ namespace sketchup {
 					vec3 lumaWeights = vec3(.25,.50,.25);
 
 					vec3 grey;
-					float sat = 2.0;
+					float sat = 3.0;
 					float reduce = 100.0;
 					float resat = 2.0;
 					float rereduce = 100.0;
@@ -263,14 +263,12 @@ namespace sketchup {
 	export function level_takes_new_mats(scene) {
 		function traversal(object) {
 			if (object.material) {
-				if (!object.material.length) {
+				if (!object.material.length)
 					object_takes_mat(object, -1);
-				}
-				else {
-					for (let index in object.material) {
+
+				else
+					for (let index in object.material)
 						object_takes_mat(object, index);
-					}
-				}
 			}
 		}
 		scene.traverse(traversal);
