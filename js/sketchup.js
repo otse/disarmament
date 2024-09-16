@@ -5,14 +5,14 @@ import renderer from "./renderer.js";
 var sketchup;
 (function (sketchup) {
     const stickers = ['lockerssplat'];
-    var figsmats = {};
+    var figsMats = {};
     const mats = {};
     var loresToggle = false;
     async function get_matsfig() {
         let url = 'figs/mats.json';
         let response = await fetch(url);
         const arrSales = await response.json();
-        figsmats = arrSales;
+        figsMats = arrSales;
     }
     sketchup.get_matsfig = get_matsfig;
     async function loop() {
@@ -50,9 +50,9 @@ var sketchup;
     async function toggle_normalmap() {
         normalToggle = !normalToggle;
         const funcs = [];
-        for (let name in figsmats) {
+        for (let name in figsMats) {
             const func = async (name) => {
-                const tuple = figsmats[name];
+                const tuple = figsMats[name];
                 const mat = mats[name];
                 if (!normalToggle)
                     mat.normalScale.set(0, 0);
@@ -64,7 +64,9 @@ var sketchup;
         }
         return Promise.all(funcs);
     }
-    async function make_material(name, tuple) {
+    async function bake_material_from_tuple(name, tuple) {
+        /* misnomer!
+         */
         console.log('make material', name, tuple);
         const salt = `?x=same`;
         let texture;
@@ -92,7 +94,7 @@ var sketchup;
                 mat.normalScale.set(tuple[2], -tuple[2]);
             mat.normalMap = texture;
         }
-        if (tuple[8] && true) {
+        if (tuple[6] && true) {
             mat.emissive = new THREE.Color('white');
             const texture = await createTextureFromImage(`${tuple[1]}_emissive.png${salt}`, 4);
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -148,21 +150,18 @@ var sketchup;
         mat.customProgramCacheKey = function () {
             return 'clucked';
         };
-        console.log('mats[name] = mat');
         mats[name] = mat;
-        //return mat;
-        //material.specular?.set(0.1, 0.1, 0.1);
-        //material.shininess = tuple[1] || 30;
     }
     async function make_figs_mats() {
         /* promises - nero
         */
         const funcs = [];
-        for (let name in figsmats) {
-            const tuple = figsmats[name];
-            const promise = /*await*/ make_material(name, tuple);
+        for (let name in figsMats) {
+            const tuple = figsMats[name];
+            const promise = /*await*/ bake_material_from_tuple(name, tuple);
             funcs.push(promise);
         }
+        // wait for all of them
         return Promise.all(funcs);
     }
     const downscale = true;
@@ -188,7 +187,6 @@ var sketchup;
         });
     };
     async function boot() {
-        const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
         await get_matsfig();
         await make_figs_mats();
         await load_level();
@@ -214,7 +212,7 @@ var sketchup;
         let mat;
         mat = mats[current.name];
         if (!mat)
-            await make_material(current.name, [current.color, '', 1]);
+            await bake_material_from_tuple(current.name, [current.color, '', 1]);
         mat = mats[current.name];
         if (index == -1)
             object.material = mat;
