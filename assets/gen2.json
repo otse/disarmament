@@ -31,6 +31,7 @@
 		}
 	},
 	"lockersrect": {
+		"helper": true,
 		"hide": true,
 		"color": "lightblue",
 		"intensity": 2.0,
@@ -104,9 +105,10 @@
 		}
 	},
 	"rlcarnage": {
-		"hide": true,
-		"color": "cadetblue",
-		"intensity": 3.0,
+		"xdisabled": true,
+		"hide": false,
+		"color": "cyan",
+		"intensity": 1.0,
 		"target": [
 			0.0,
 			0.0,
@@ -120,19 +122,37 @@
 		}
 	},
 	"rlcarnagevert": {
+		"helper": true,
 		"hide": true,
-		"color": "FloralWhite",
+		"color": "azure",
 		"intensity": 3.0,
 		"target": [
 			0.0,
 			1.0,
 			0.0
 		],
-		"behavior": {
+		"xbehavior": {
 			"type": "bounce",
 			"cycle": 3,
 			"base": 1.0,
 			"variance": 0.3
+		}
+	},
+	"rlofficehall1": {
+		"helper": true,
+		"hide": true,
+		"color": "lavender",
+		"intensity": 20.0,
+		"target": [
+			0.0,
+			-1.0,
+			0.0
+		],
+		"xbehavior": {
+			"type": "shake",
+			"cycle": 2,
+			"base": 1.0,
+			"variance": 0.1
 		}
 	}
 }

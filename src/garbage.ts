@@ -59,11 +59,11 @@ namespace garbage {
 			garbage.locker.style.display = 'none';
 		}
 
+		vr.loop();
 		gplayer?.loop(delta);
 		physics.loop(garbage.timeStep);
 		props.loop();
 		await sketchup.loop();
-		vr.loop();
 		renderer.loop_and_render();
 	}
 }

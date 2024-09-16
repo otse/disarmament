@@ -1,13 +1,38 @@
 {
+	"rlmossy": {
+		"xdisabled": true,
+		"xhelper": true,
+		"hide": true,
+		"color": "chartreuse",
+		"intensity": 0.004,
+		"target": [
+			0,
+			0,
+			1
+		],
+		"xbehavior": {
+			"type": "bounce",
+			"cycle": 6,
+			"base": 1.0,
+			"variance": 0.15
+		}
+	},
+	"plgendim": {
+		"xdisabled": true,
+		"hide": true,
+		"color": "cadetblue",
+		"intensity": 0.15,
+		"distance": 2
+	},
 	"fansw": {
 		"speed": 1
 	},
 	"plsmall4000k": {
 		"hide": true,
-		"color": "cyan",
+		"color": "mintcream",
 		"intensity": 0.1,
-		"distance": 2.0,
-		"decay": 2.0,
+		"distance": 2.5,
+		"decay": 1.0,
 		"shadow": true
 	},
 	"plgeneric": {

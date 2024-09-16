@@ -44,11 +44,11 @@ var garbage;
         if (app.proompt('f2')) {
             garbage.locker.style.display = 'none';
         }
+        vr.loop();
         garbage.gplayer?.loop(delta);
         physics.loop(garbage.timeStep);
         props.loop();
         await sketchup.loop();
-        vr.loop();
         renderer.loop_and_render();
     }
     garbage.loop = loop;

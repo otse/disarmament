@@ -1,3 +1,4 @@
+import garbage from "../garbage.js";
 import glob from "../lib/glob.js";
 import pts from "../lib/pts.js";
 import renderer from "../renderer.js";
@@ -169,7 +170,7 @@ export class ctrlr {
 		const axes = this.xrinputsource.data.gamepad.axes;
 
 		let thumbstick = pts.make(axes[2] || 0, axes[3] || 0);
-		thumbstick = pts.mult(thumbstick, .025);
+		//thumbstick = pts.mult(thumbstick, .025);
 
 		//quaternion.copy(renderer.cameraGroup.quaternion);
 		
@@ -192,7 +193,11 @@ export class ctrlr {
 		vector.set(thumbstick[0], 0, thumbstick[1]);
 		vector.applyQuaternion(quaternion);
 
-		renderer.yawGroup.position.add(vector);
+		//renderer.yawGroup.position.add(vector);
+
+		glob.move = { x: thumbstick[0], z: thumbstick[1] };
+		
+		//garbage.gplayer?.physics_move(garbage.dt, { x: thumbstick[0], z: thumbstick[1] }); // gay
 
 		return
 

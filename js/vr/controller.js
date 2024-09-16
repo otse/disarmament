@@ -132,7 +132,7 @@ export class ctrlr {
             return;
         const axes = this.xrinputsource.data.gamepad.axes;
         let thumbstick = pts.make(axes[2] || 0, axes[3] || 0);
-        thumbstick = pts.mult(thumbstick, .025);
+        //thumbstick = pts.mult(thumbstick, .025);
         //quaternion.copy(renderer.cameraGroup.quaternion);
         const position = new THREE.Vector3();
         const quaternion = new THREE.Quaternion();
@@ -148,7 +148,9 @@ export class ctrlr {
         const vector = new THREE.Vector3();
         vector.set(thumbstick[0], 0, thumbstick[1]);
         vector.applyQuaternion(quaternion);
-        renderer.yawGroup.position.add(vector);
+        //renderer.yawGroup.position.add(vector);
+        glob.move = { x: thumbstick[0], z: thumbstick[1] };
+        //garbage.gplayer?.physics_move(garbage.dt, { x: thumbstick[0], z: thumbstick[1] }); // gay
         return;
         const offsetPosition = new THREE.Vector3();
         const offsetRotation = new THREE.Quaternion();
