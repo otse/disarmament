@@ -5,22 +5,22 @@ import renderer from "./renderer.js";
 var sketchup;
 (function (sketchup) {
     const stickers = ['lockerssplat'];
-    var matsfig = {};
-    var mats = {};
+    var figsmats = {};
+    const mats = {};
     var loresToggle = false;
     async function get_matsfig() {
         let url = 'figs/mats.json';
         let response = await fetch(url);
         const arrSales = await response.json();
-        matsfig = arrSales;
+        figsmats = arrSales;
     }
     sketchup.get_matsfig = get_matsfig;
     async function loop() {
         if (glob.developer) {
             if (app.proompt('r') == 1) {
                 await get_matsfig();
-                await make_materials();
-                level_takes_new_mats(levelGroup);
+                await make_figs_mats();
+                level_takes_figs_mats(levelGroup);
             }
             if (app.proompt('t') == 1) {
                 console.log('[t]');
@@ -37,7 +37,7 @@ var sketchup;
                 renderer.scene.remove(levelGroup);
                 await props.boot();
                 await get_matsfig();
-                await make_materials();
+                await make_figs_mats();
                 await load_level();
             }
             if (app.proompt('n') == 1) {
@@ -50,9 +50,9 @@ var sketchup;
     async function toggle_normalmap() {
         normalToggle = !normalToggle;
         const funcs = [];
-        for (let name in matsfig) {
+        for (let name in figsmats) {
             const func = async (name) => {
-                const tuple = matsfig[name];
+                const tuple = figsmats[name];
                 const mat = mats[name];
                 if (!normalToggle)
                     mat.normalScale.set(0, 0);
@@ -64,101 +64,103 @@ var sketchup;
         }
         return Promise.all(funcs);
     }
-    async function make_materials() {
+    async function make_material(name, tuple) {
+        console.log('make material', name, tuple);
+        const salt = `?x=same`;
+        let texture;
+        if (tuple[1]) {
+            texture = await createTextureFromImage(`${tuple[1]}.png${salt}`, 8);
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            texture.minFilter = texture.magFilter = THREE.LinearFilter;
+        }
+        const mat = new THREE.MeshPhysicalMaterial({
+            name: name,
+            color: tuple[0],
+            map: texture
+        });
+        // material.clearcoat = 1.0;
+        mat.roughness = tuple[3] || 0.5;
+        mat.metalness = tuple[4] || 0;
+        mat.clearCoat = 0.5;
+        mat.iridescence = 0.2;
+        if (tuple[5] && true) {
+            const texture = await createTextureFromImage(`${tuple[1]}_normal.png${salt}`, 2);
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            if (!normalToggle)
+                mat.normalScale.set(0, 0);
+            else
+                mat.normalScale.set(tuple[2], -tuple[2]);
+            mat.normalMap = texture;
+        }
+        if (tuple[8] && true) {
+            mat.emissive = new THREE.Color('white');
+            const texture = await createTextureFromImage(`${tuple[1]}_emissive.png${salt}`, 4);
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            mat.emissiveMap = texture;
+            mat.emissive.set('#82834a');
+            console.warn(' emis ');
+        }
+        mat.onBeforeCompile = (shader) => {
+            console.warn('onbeforecompile');
+            shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
+            shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
+
+			vec3 lumaWeights = vec3(.25,.50,.25);
+
+			vec3 grey;
+			float sat = 3.0;
+			float reduce = 100.0;
+			float resat = 2.0;
+			float rereduce = 100.0;
+
+			//vec3 diffuse = material.diffuseColor.rgb;
+			vec3 diffuse = gl_FragColor.rgb;
+
+			#ifdef SAT
+			grey = vec3(dot(lumaWeights, diffuse.rgb));
+			diffuse = vec3(grey + sat * (diffuse.rgb - grey));
+			#endif
+
+			#ifdef REDUCE
+			diffuse *= reduce;
+			diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
+			diffuse /= reduce;
+			#endif
+
+			#ifdef RESAT
+			grey = vec3(dot(lumaWeights, diffuse.rgb));
+			diffuse = vec3(grey + resat * (diffuse.rgb - grey));
+			#endif
+
+			#ifdef REREDUCE
+			diffuse *= rereduce;
+			diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
+			diffuse /= rereduce;
+			#endif
+
+			// when at before lighting pass
+			//material.diffuseColor.rgb = diffuse.rgb;
+
+			// when at tone mapping pass
+			gl_FragColor.rgb = diffuse.rgb;
+			`);
+        };
+        mat.customProgramCacheKey = function () {
+            return 'clucked';
+        };
+        console.log('mats[name] = mat');
+        mats[name] = mat;
+        //return mat;
+        //material.specular?.set(0.1, 0.1, 0.1);
+        //material.shininess = tuple[1] || 30;
+    }
+    async function make_figs_mats() {
         /* promises - nero
         */
         const funcs = [];
-        for (let name in matsfig) {
-            const func = async (name) => {
-                //console.log('func', name);
-                const tuple = matsfig[name];
-                const salt = `?x=same`;
-                const texture = await createTextureFromImage(`${tuple[0]}.png${salt}`, 8);
-                //console.log('name mats', name);
-                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                texture.minFilter = texture.magFilter = THREE.LinearFilter;
-                const mat = new THREE.MeshPhysicalMaterial({
-                    name: name,
-                    map: texture
-                });
-                // material.clearcoat = 1.0;
-                mat.roughness = tuple[2];
-                mat.metalness = tuple[3];
-                mat.clearCoat = 0.5;
-                mat.iridescence = 0.2;
-                if (tuple[7]) {
-                    mat.emissive = new THREE.Color('white');
-                    console.log(' emissive ');
-                }
-                if (tuple[4] && true) {
-                    const texture = await createTextureFromImage(`${tuple[0]}_normal.png${salt}`, 2);
-                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                    if (!normalToggle)
-                        mat.normalScale.set(0, 0);
-                    else
-                        mat.normalScale.set(tuple[1], -tuple[1]);
-                    mat.normalMap = texture;
-                }
-                if (tuple[5] && true) {
-                    const texture = await createTextureFromImage(`${tuple[0]}_emissive.png${salt}`, 4);
-                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                    mat.emissiveMap = texture;
-                    mat.emissive.set('#82834a');
-                    console.warn(' you wot ');
-                }
-                mat.onBeforeCompile = (shader) => {
-                    console.warn('onbeforecompile');
-                    shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
-                    shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
-
-					vec3 lumaWeights = vec3(.25,.50,.25);
-
-					vec3 grey;
-					float sat = 3.0;
-					float reduce = 100.0;
-					float resat = 2.0;
-					float rereduce = 100.0;
-
-					//vec3 diffuse = material.diffuseColor.rgb;
-					vec3 diffuse = gl_FragColor.rgb;
-
-					#ifdef SAT
-					grey = vec3(dot(lumaWeights, diffuse.rgb));
-					diffuse = vec3(grey + sat * (diffuse.rgb - grey));
-					#endif
-
-					#ifdef REDUCE
-					diffuse *= reduce;
-					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
-					diffuse /= reduce;
-					#endif
-
-					#ifdef RESAT
-					grey = vec3(dot(lumaWeights, diffuse.rgb));
-					diffuse = vec3(grey + resat * (diffuse.rgb - grey));
-					#endif
-
-					#ifdef REREDUCE
-					diffuse *= rereduce;
-					diffuse = vec3( ceil(diffuse.r), ceil(diffuse.g), ceil(diffuse.b) );
-					diffuse /= rereduce;
-					#endif
-
-					// when at before lighting pass
-					//material.diffuseColor.rgb = diffuse.rgb;
-
-					// when at tone mapping pass
-					gl_FragColor.rgb = diffuse.rgb;
-					`);
-                };
-                mat.customProgramCacheKey = function () {
-                    return 'clucked';
-                };
-                //material.specular?.set(0.1, 0.1, 0.1);
-                //material.shininess = tuple[1] || 30;
-                mats[name] = mat;
-            };
-            const promise = /*await*/ func(name);
+        for (let name in figsmats) {
+            const tuple = figsmats[name];
+            const promise = /*await*/ make_material(name, tuple);
             funcs.push(promise);
         }
         return Promise.all(funcs);
@@ -188,7 +190,7 @@ var sketchup;
     async function boot() {
         const maxAnisotropy = renderer.renderer.capabilities.getMaxAnisotropy();
         await get_matsfig();
-        await make_materials();
+        await make_figs_mats();
         await load_level();
     }
     sketchup.boot = boot;
@@ -207,11 +209,13 @@ var sketchup;
         }
     }
     sketchup.adapt_color = adapt_color;
-    function object_takes_mat(object, index) {
+    async function object_takes_mat(object, index) {
         const current = index == -1 ? object.material : object.material[index];
-        const mat = mats[current.name];
+        let mat;
+        mat = mats[current.name];
         if (!mat)
-            return;
+            await make_material(current.name, [current.color, '', 1]);
+        mat = mats[current.name];
         if (index == -1)
             object.material = mat;
         else
@@ -220,19 +224,19 @@ var sketchup;
             fix_sticker(mat);
     }
     let levelGroup;
-    function level_takes_new_mats(scene) {
-        function traversal(object) {
+    async function level_takes_figs_mats(scene) {
+        async function traversal(object) {
             if (object.material) {
                 if (!object.material.length)
-                    object_takes_mat(object, -1);
+                    await object_takes_mat(object, -1);
                 else
                     for (let index in object.material)
-                        object_takes_mat(object, index);
+                        await object_takes_mat(object, index);
             }
         }
         scene.traverse(traversal);
     }
-    sketchup.level_takes_new_mats = level_takes_new_mats;
+    sketchup.level_takes_figs_mats = level_takes_figs_mats;
     async function load_level_config(name) {
         let url = `./assets/${name}.json`;
         let response = await fetch(url);
@@ -262,7 +266,7 @@ var sketchup;
                     queue.push(prop);
             }
             scene.traverse(find_make_props);
-            level_takes_new_mats(scene);
+            level_takes_figs_mats(scene);
             for (let prop of queue)
                 prop.complete();
             const group = new THREE.Group();
