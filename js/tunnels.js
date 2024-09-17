@@ -54,16 +54,15 @@ var tunnels;
         }
         build() {
             const size = new THREE.Vector3();
-            this.tunnel.aabb.getSize(size);
-            //size.multiplyScalar(garbage.spaceMultiply);
             const material = new THREE.MeshBasicMaterial({
                 color: 'green',
                 wireframe: true
             });
-            const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-            this.mesh = new THREE.Mesh(boxGeometry, material);
-            // this.mesh.position.copy(this.tunnel.aabb.min);
+            this.mesh = new THREE.Mesh(undefined, material);
+            this.tunnel.aabb.getSize(size);
             this.tunnel.aabb.getCenter(this.mesh.position);
+            this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+            // this.mesh.position.copy(this.tunnel.aabb.min);
             renderer.scene.add(this.mesh);
         }
     }

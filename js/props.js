@@ -75,12 +75,12 @@ var props;
     }
     props.clear = clear;
     function take_collada_prop(prop) {
-        // the prop is sitting in a rotated, scaled scene graph
-        // set it apart
+        // the prop is sitting in a rotated, scaled scene
         const group = new THREE.Group();
+        const master = new THREE.Group();
+        master.add(group);
         const object = prop.object;
         object.matrixWorld.decompose(group.position, group.quaternion, group.scale);
-        // group scale is 0.0254
         object.position.set(0, 0, 0);
         object.rotation.set(0, 0, 0);
         object.quaternion.identity();
@@ -89,11 +89,12 @@ var props;
         group.add(object);
         group.updateMatrix();
         group.updateMatrixWorld(true);
-        renderer.propsGroup.add(group);
+        renderer.propsGroup.add(master);
         function traversal(object) {
             object.geometry?.computeBoundingBox();
         }
         group.traverse(traversal);
+        prop.master = master;
         prop.group = group;
     }
     props.take_collada_prop = take_collada_prop;
@@ -116,12 +117,12 @@ var props;
     class prop {
         object;
         parameters;
-        debugBox = true;
-        wiremesh;
+        frame;
         array = [];
         type;
         kind;
         preset;
+        master;
         group;
         oldRotation;
         fbody;
@@ -136,8 +137,7 @@ var props;
             this.array.push(this);
             take_collada_prop(this);
             this.measure();
-            if (this.debugBox)
-                this.wiremesh = new wiremesh(this);
+            this.frame = new frame(this);
             this._finish();
         }
         _finish() {
@@ -150,22 +150,23 @@ var props;
             this._loop();
         }
         lod() {
-            // messy splices(!)
+            // todo ugly function
             props.collection.splice(props.collection.indexOf(this), 1);
             this.array.splice(this.array.indexOf(this), 1);
             this._lod();
-            this.wiremesh?.lod();
-            renderer.propsGroup.remove(this.group);
+            this.frame?.lod();
+            renderer.propsGroup.remove(this.master);
             if (this.fbody)
                 this.fbody.lod();
         }
         measure() {
-            this.object.updateMatrix();
-            // this includes the lazy z-up to y-up ?
+            this.group.updateMatrix();
+            this.group.updateMatrixWorld();
             this.aabb = new THREE.Box3();
             this.aabb.setFromObject(this.group, true);
         }
         correction_for_physics() {
+            // todo what why not just use matrixworld?
             // this method is called by fbody after measure
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
@@ -180,6 +181,37 @@ var props;
         }
     }
     props.prop = prop;
+    class frame {
+        prop;
+        mesh;
+        constructor(prop) {
+            this.prop = prop;
+            this.build();
+        }
+        lod() {
+            //this.prop.group.remove(this.mesh);
+        }
+        build() {
+            if (!props.globalWires)
+                return;
+            const size = new THREE.Vector3();
+            const material = new THREE.MeshBasicMaterial({
+                color: 'blue',
+                wireframe: true
+            });
+            this.mesh = new THREE.Mesh(undefined, material);
+            this.prop.aabb.getSize(size);
+            this.prop.aabb.getCenter(this.mesh.position);
+            this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+            // this.mesh.position.copy(this.tunnel.aabb.min);
+            this.prop.master.add(this.mesh);
+            // renderer.scene.add(this.mesh);
+        }
+        recolor(color) {
+            this.mesh.material.color = new THREE.Color(color);
+        }
+    }
+    props.frame = frame;
     class pwallorsolid extends prop {
         constructor(object, parameters) {
             super(object, parameters);
@@ -215,41 +247,11 @@ var props;
         }
     }
     props.pstairstep = pstairstep;
-    class wiremesh {
-        prop;
-        mesh;
-        constructor(prop) {
-            this.prop = prop;
-            this.add_wire_mesh_to_prop_group();
-        }
-        lod() {
-            //this.prop.group.remove(this.mesh);
-        }
-        add_wire_mesh_to_prop_group() {
-            if (!props.globalWires)
-                return;
-            const size = new THREE.Vector3();
-            this.prop.aabb.getSize(size);
-            size.multiplyScalar(garbage.spaceMultiply);
-            const material = new THREE.MeshBasicMaterial({
-                color: 'blue',
-                wireframe: true
-            });
-            const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-            this.mesh = new THREE.Mesh(boxGeometry, material);
-            this.prop.group.add(this.mesh);
-        }
-        recolor(color) {
-            this.mesh.material.color = new THREE.Color(color);
-        }
-    }
-    props.wiremesh = wiremesh;
     class pbox extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pbox';
             this.array = props.boxes;
-            this.debugBox = false;
         }
         _finish() {
             new physics.fbox(this);
@@ -268,7 +270,6 @@ var props;
             super(object, parameters);
             this.type = 'pconvex';
             this.array = props.boxes;
-            this.debugBox = false;
             this.object.visible = false;
         }
         _finish() {

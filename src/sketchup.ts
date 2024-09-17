@@ -280,7 +280,7 @@ namespace sketchup {
 		await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
 			const scene = collada.scene;
 			scene.updateMatrix();
-			scene.updateMatrixWorld(); // without this everything explodes
+			scene.updateMatrixWorld(); // without this everything explodes			
 			console.log(' collada scene ', scene);
 			const queue: props.prop[] = [];
 			// todo sheesh cleanup!

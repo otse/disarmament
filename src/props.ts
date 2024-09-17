@@ -78,17 +78,17 @@ namespace props {
 	}
 
 	export function take_collada_prop(prop: prop) {
-		// the prop is sitting in a rotated, scaled scene graph
-		// set it apart
+		// the prop is sitting in a rotated, scaled scene
+
 		const group = new THREE.Group();
+		const master = new THREE.Group();
+		master.add(group);
 		const object = prop.object;
 
 		object.matrixWorld.decompose(
 			group.position,
 			group.quaternion,
 			group.scale);
-
-		// group scale is 0.0254
 
 		object.position.set(0, 0, 0);
 		object.rotation.set(0, 0, 0);
@@ -100,13 +100,14 @@ namespace props {
 		group.updateMatrix();
 		group.updateMatrixWorld(true);
 
-		renderer.propsGroup.add(group);
+		renderer.propsGroup.add(master);
 
 		function traversal(object) {
 			object.geometry?.computeBoundingBox();
 		}
 		group.traverse(traversal);
 
+		prop.master = master;
 		prop.group = group;
 	}
 
@@ -129,12 +130,12 @@ namespace props {
 	export var presets = {}
 
 	export abstract class prop {
-		debugBox = true
-		wiremesh?: wiremesh
+		frame?: frame
 		array: prop[] = []
 		type
 		kind
 		preset
+		master
 		group
 		oldRotation
 		fbody: physics.fbody
@@ -147,8 +148,7 @@ namespace props {
 			this.array.push(this);
 			take_collada_prop(this);
 			this.measure();
-			if (this.debugBox)
-				this.wiremesh = new wiremesh(this);
+			this.frame = new frame(this);
 			this._finish();
 		}
 		protected _finish() { // override
@@ -161,22 +161,23 @@ namespace props {
 			this._loop();
 		}
 		lod() {
-			// messy splices(!)
+			// todo ugly function
 			collection.splice(collection.indexOf(this), 1);
 			this.array.splice(this.array.indexOf(this), 1);
 			this._lod();
-			this.wiremesh?.lod();
-			renderer.propsGroup.remove(this.group);
+			this.frame?.lod();
+			renderer.propsGroup.remove(this.master);
 			if (this.fbody)
 				this.fbody.lod();
 		}
 		protected measure() {
-			this.object.updateMatrix();
-			// this includes the lazy z-up to y-up ?
+			this.group.updateMatrix();
+			this.group.updateMatrixWorld();
 			this.aabb = new THREE.Box3();
 			this.aabb.setFromObject(this.group, true);
 		}
 		correction_for_physics() {
+			// todo what why not just use matrixworld?
 			// this method is called by fbody after measure
 			const size = new THREE.Vector3();
 			this.aabb.getSize(size);
@@ -188,6 +189,35 @@ namespace props {
 			this.object.position.set(-size.x, -size.y, size.z);
 			//this.object.updateMatrix();
 			//this.object.updateMatrixWorld(true);
+		}
+	}
+
+	export class frame {
+		mesh
+		constructor(public prop: prop) {
+			this.build();
+		}
+		lod() {
+			//this.prop.group.remove(this.mesh);
+		}
+		build() {
+			if (!globalWires)
+				return;
+			const size = new THREE.Vector3();
+			const material = new THREE.MeshBasicMaterial({
+				color: 'blue',
+				wireframe: true
+			});
+			this.mesh = new THREE.Mesh(undefined, material);
+			this.prop.aabb.getSize(size);
+			this.prop.aabb.getCenter(this.mesh.position);
+			this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+			// this.mesh.position.copy(this.tunnel.aabb.min);
+			this.prop.master.add(this.mesh);
+			// renderer.scene.add(this.mesh);
+		}
+		recolor(color) {
+			this.mesh.material.color = new THREE.Color(color);
 		}
 	}
 
@@ -226,39 +256,11 @@ namespace props {
 		}
 	}
 
-	export class wiremesh {
-		mesh
-		constructor(public prop: prop) {
-			this.add_wire_mesh_to_prop_group();
-		}
-		lod() {
-			//this.prop.group.remove(this.mesh);
-		}
-		add_wire_mesh_to_prop_group() {
-			if (!globalWires)
-				return;
-			const size = new THREE.Vector3();
-			this.prop.aabb.getSize(size);
-			size.multiplyScalar(garbage.spaceMultiply);
-			const material = new THREE.MeshBasicMaterial({
-				color: 'blue',
-				wireframe: true
-			});
-			const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-			this.mesh = new THREE.Mesh(boxGeometry, material);
-			this.prop.group.add(this.mesh);
-		}
-		recolor(color) {
-			this.mesh.material.color = new THREE.Color(color);
-		}
-	}
-
 	export class pbox extends prop {
 		constructor(object, parameters) {
 			super(object, parameters);
 			this.type = 'pbox';
 			this.array = boxes;
-			this.debugBox = false;
 		}
 		override _finish() {
 			new physics.fbox(this);
@@ -277,7 +279,6 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pconvex';
 			this.array = boxes;
-			this.debugBox = false;
 			this.object.visible = false;
 		}
 		override _finish() {

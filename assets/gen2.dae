@@ -4,8 +4,8 @@
         <contributor>
             <authoring_tool>SketchUp 17.2.2555</authoring_tool>
         </contributor>
-        <created>2024-09-17T08:02:17Z</created>
-        <modified>2024-09-17T08:02:17Z</modified>
+        <created>2024-09-17T08:58:01Z</created>
+        <modified>2024-09-17T08:58:01Z</modified>
         <unit meter="0.0254" name="inch" />
         <up_axis>Z_UP</up_axis>
     </asset>
@@ -63,7 +63,7 @@
         <visual_scene id="ID5">
             <node name="SketchUp">
                 <node name="skp_camera_Last_Saved_SketchUp_View">
-                    <matrix>-0.03361566 0.3238776 -0.9455016 99.73198 -0.9994348 -0.01089352 0.03180163 30.89071 0 0.9460363 0.3240608 124.5925 0 0 0 1</matrix>
+                    <matrix>-0.543811 0.6863187 -0.4829454 -217.9419 -0.8392078 -0.4447381 0.3129511 60.80917 2.775558e-17 0.5754778 0.8178174 733.2379 0 0 0 1</matrix>
                     <instance_camera url="#ID1" />
                 </node>
                 <node name="skp_camera_start">
@@ -1033,7 +1033,7 @@
                     </instance_geometry>
                 </node>
                 <node id="ID728" name="instance_6">
-                    <matrix>-0.03361566 0.9994348 0 9.771296 -0.9994348 -0.03361566 0 -90.31206 0 0 1 -2.131628e-14 0 0 0 1</matrix>
+                    <matrix>-0.5438109 0.8392078 0 9.771296 -0.8392078 -0.5438109 0 -90.31206 0 0 1 -2.131628e-14 0 0 0 1</matrix>
                     <instance_node url="#ID729" />
                 </node>
                 <node id="ID832" name="box_locker">
@@ -1795,7 +1795,7 @@
         <geometry id="ID184">
             <mesh>
                 <source id="ID185">
-                    <float_array id="ID187" count="15">188.9764 7.874016 5.329071e-13 1.932676e-12 7.874016 2.452372e-12 188.9764 7.874016 86.61417 0 11.81102 86.61417 0 0 0</float_array>
+                    <float_array id="ID187" count="15">188.9764 7.874016 5.329071e-13 1.932676e-12 7.874016 2.452372e-12 188.9764 7.874016 86.61417 0 0 0 0 11.81102 86.61417</float_array>
                     <technique_common>
                         <accessor count="5" source="#ID187" stride="3">
                             <param name="X" type="float" />
