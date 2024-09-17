@@ -168,8 +168,8 @@ var props;
             // recenter
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
-            size.z = -size.z;
             size.divideScalar(-2);
+            size.z = -size.z;
             this.group.position.copy(size);
         }
     }
@@ -390,8 +390,8 @@ var props;
         }
         _loop() {
             this.fbody.loop();
-            this.group.position.copy(this.fbody.body.position);
-            this.group.quaternion.copy(this.fbody.body.quaternion);
+            this.master.position.copy(this.fbody.body.position);
+            this.master.quaternion.copy(this.fbody.body.quaternion);
         }
     }
     props.pdoor = pdoor;

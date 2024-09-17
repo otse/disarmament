@@ -165,7 +165,6 @@ namespace physics {
 			prop.fbody = this;
 			prop.correction_for_physics();
 		}
-
 		loop() { // override
 		}
 		lod() {
