@@ -93,9 +93,9 @@ namespace props {
 		object.position.set(0, 0, 0);
 		object.rotation.set(0, 0, 0);
 		object.quaternion.identity();
-		
+
 		group.add(object);
-		
+
 		master.updateMatrix();
 		master.updateMatrixWorld(true);
 
@@ -129,7 +129,7 @@ namespace props {
 	export var presets = {}
 
 	export abstract class prop {
-		frame?: frame
+		frame?: pframe
 		array: prop[] = []
 		type
 		kind
@@ -148,7 +148,7 @@ namespace props {
 			take_collada_prop(this);
 			this.measure();
 			this.master.add(new THREE.AxesHelper());
-			this.frame = new frame(this);
+			this.frame = new pframe(this);
 			this._finish();
 		}
 		protected _finish() { // override
@@ -177,7 +177,7 @@ namespace props {
 			this.aabb.setFromObject(this.master, true);
 		}
 		correction_for_physics() {
-			// recenter
+			// change the origin from the corner to the center
 			const size = new THREE.Vector3();
 			this.aabb.getSize(size);
 			size.divideScalar(-2);
@@ -186,30 +186,24 @@ namespace props {
 		}
 	}
 
-	export class frame {
+	export class pframe {
 		mesh
 		constructor(public prop: prop) {
 			this.build();
 		}
 		lod() {
-			//this.prop.group.remove(this.mesh);
 		}
 		build() {
 			if (!drawDebugFrames)
 				return;
-			const material = new THREE.MeshBasicMaterial({
-				color: 'blue',
-				wireframe: true
-			});
-			this.mesh = new THREE.Mesh(undefined, material);
 			const size = new THREE.Vector3();
 			this.prop.aabb.getSize(size);
-			// size.multiplyScalar(garbage.inchMeter);
-			// this.prop.aabb.getCenter(this.mesh.position);
-			this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-			size.z = -size.z;
-			size.divideScalar(2);
-			//this.mesh.position.copy(size);
+			this.mesh = new THREE.Mesh(
+				new THREE.BoxGeometry(size.x, size.y, size.z),
+				new THREE.MeshBasicMaterial({
+					color: 'blue',
+					wireframe: true
+				}));
 			this.prop.master.add(this.mesh);
 		}
 		recolor(color) {

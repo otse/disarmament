@@ -136,7 +136,7 @@ var props;
             take_collada_prop(this);
             this.measure();
             this.master.add(new THREE.AxesHelper());
-            this.frame = new frame(this);
+            this.frame = new pframe(this);
             this._finish();
         }
         _finish() {
@@ -165,7 +165,7 @@ var props;
             this.aabb.setFromObject(this.master, true);
         }
         correction_for_physics() {
-            // recenter
+            // change the origin from the corner to the center
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
             size.divideScalar(-2);
@@ -174,7 +174,7 @@ var props;
         }
     }
     props.prop = prop;
-    class frame {
+    class pframe {
         prop;
         mesh;
         constructor(prop) {
@@ -182,31 +182,23 @@ var props;
             this.build();
         }
         lod() {
-            //this.prop.group.remove(this.mesh);
         }
         build() {
             if (!props.drawDebugFrames)
                 return;
-            const material = new THREE.MeshBasicMaterial({
-                color: 'blue',
-                wireframe: true
-            });
-            this.mesh = new THREE.Mesh(undefined, material);
             const size = new THREE.Vector3();
             this.prop.aabb.getSize(size);
-            // size.multiplyScalar(garbage.inchMeter);
-            // this.prop.aabb.getCenter(this.mesh.position);
-            this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-            size.z = -size.z;
-            size.divideScalar(2);
-            //this.mesh.position.copy(size);
+            this.mesh = new THREE.Mesh(new THREE.BoxGeometry(size.x, size.y, size.z), new THREE.MeshBasicMaterial({
+                color: 'blue',
+                wireframe: true
+            }));
             this.prop.master.add(this.mesh);
         }
         recolor(color) {
             this.mesh.material.color = new THREE.Color(color);
         }
     }
-    props.frame = frame;
+    props.pframe = pframe;
     class pbox extends prop {
         constructor(object, parameters) {
             super(object, parameters);

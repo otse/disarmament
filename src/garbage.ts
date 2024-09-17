@@ -8,6 +8,7 @@ import points from "./lib/pts.js";
 import renderer from "./renderer.js";
 import vr from "./vr/vr.js";
 import sketchup from "./sketchup.js";
+import tunnels from "./tunnels.js";
 
 glob.developer = true;
 
@@ -61,6 +62,7 @@ namespace garbage {
 
 		vr.loop();
 		gplayer?.loop(delta);
+		tunnels.loop();
 		physics.loop(garbage.timeStep);
 		props.loop();
 		await sketchup.loop();

@@ -19,9 +19,9 @@ namespace tunnels {
 			// ugly guard clause
 			if (!object.name)
 				return;
-			const [kind, preset, hint] = object.name?.split('_');
+			const [kind, name, hint] = object.name?.split('_');
 			if (kind === 'tunnel')
-				new tunnel(object);
+				new tunnel(object, name);
 		}
 		scene.traverse(finder);
 	}
@@ -30,13 +30,13 @@ namespace tunnels {
 
 	export class tunnel {
 		aabb
-		wiremesh
-		constructor(public readonly object) {
-			console.log(' new tunnel ');
+		frame
+		constructor(public readonly object, public readonly name) {
+			console.log(' new tunnel ', name);
 
 			tunnels.push(this);
 			this.measure();
-			this.wiremesh = new frame(this);
+			this.frame = new tframe(this);
 		}
 		protected measure() {
 			this.object.updateMatrix();
@@ -49,7 +49,7 @@ namespace tunnels {
 		}
 	}
 
-	export class frame {
+	export class tframe {
 		mesh
 		constructor(public tunnel: tunnel) {
 			this.build();
@@ -66,6 +66,17 @@ namespace tunnels {
 			this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
 			// this.mesh.position.copy(this.tunnel.aabb.min);
 			renderer.scene.add(this.mesh);
+		}
+	}
+
+	export function loop() {
+		const aabb = garbage.gplayer.aabb;
+
+		for (const tunnel of tunnels) {
+			if (tunnel.aabb.intersectsBox(aabb)) {
+				console.log('we are in tunnel', tunnel.name);
+				break;				
+			}
 		}
 	}
 }

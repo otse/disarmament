@@ -7,6 +7,7 @@ import props from "./props.js";
 import renderer from "./renderer.js";
 import vr from "./vr/vr.js";
 import sketchup from "./sketchup.js";
+import tunnels from "./tunnels.js";
 glob.developer = true;
 var garbage;
 (function (garbage) {
@@ -46,6 +47,7 @@ var garbage;
         }
         vr.loop();
         garbage.gplayer?.loop(delta);
+        tunnels.loop();
         physics.loop(garbage.timeStep);
         props.loop();
         await sketchup.loop();

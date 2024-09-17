@@ -1,6 +1,7 @@
 // this is the lod
 // every other tunnel is culled
 // works intensively with the props system to group props and handle visibility
+import garbage from "./garbage.js";
 import renderer from "./renderer.js";
 var tunnels;
 (function (tunnels_1) {
@@ -15,9 +16,9 @@ var tunnels;
             // ugly guard clause
             if (!object.name)
                 return;
-            const [kind, preset, hint] = object.name?.split('_');
+            const [kind, name, hint] = object.name?.split('_');
             if (kind === 'tunnel')
-                new tunnel(object);
+                new tunnel(object, name);
         }
         scene.traverse(finder);
     }
@@ -25,14 +26,16 @@ var tunnels;
     var tunnels = [];
     class tunnel {
         object;
+        name;
         aabb;
-        wiremesh;
-        constructor(object) {
+        frame;
+        constructor(object, name) {
             this.object = object;
-            console.log(' new tunnel ');
+            this.name = name;
+            console.log(' new tunnel ', name);
             tunnels.push(this);
             this.measure();
-            this.wiremesh = new frame(this);
+            this.frame = new tframe(this);
         }
         measure() {
             this.object.updateMatrix();
@@ -45,7 +48,7 @@ var tunnels;
         }
     }
     tunnels_1.tunnel = tunnel;
-    class frame {
+    class tframe {
         tunnel;
         mesh;
         constructor(tunnel) {
@@ -66,6 +69,16 @@ var tunnels;
             renderer.scene.add(this.mesh);
         }
     }
-    tunnels_1.frame = frame;
+    tunnels_1.tframe = tframe;
+    function loop() {
+        const aabb = garbage.gplayer.aabb;
+        for (const tunnel of tunnels) {
+            if (tunnel.aabb.intersectsBox(aabb)) {
+                console.log('we are in tunnel', tunnel.name);
+                break;
+            }
+        }
+    }
+    tunnels_1.loop = loop;
 })(tunnels || (tunnels = {}));
 export default tunnels;

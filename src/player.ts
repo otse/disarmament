@@ -14,12 +14,15 @@ const plyRadius = 0.4
 class player {
 	camera
 	active = true
+	aabb
 	controls
 	can_jump
 	cannon_body
 	constructor() {
 		this.setup();
 		this.make_physics();
+
+		this.aabb = new THREE.Box3();
 
 		hooks.register('xrStart', () => this.xr_takes_over());
 
@@ -113,8 +116,6 @@ class player {
 					glob.yawGroup.position.y,
 					glob.yawGroup.position.z);
 			}
-
-			//this.cannonBody.collisionResponse = this.noclip ? true : 0;
 		}
 
 		this.noclip ? this.noclip_move(delta) : this.physics_move(delta);
@@ -163,8 +164,8 @@ class player {
 		if (app.proompt('d') && !app.proompt('a'))
 			x = 1;
 		if (app.proompt('shift')) {
-			z *= 2.0;
-			x *= 2.0;
+			z *= 3.0;
+			x *= 3.0;
 		}
 
 		const euler = new THREE.Euler(0, 0, 0, 'YXZ').setFromQuaternion(renderer.camera.quaternion);
@@ -190,12 +191,24 @@ class player {
 			this.body_velocity.z += velocity.z;
 		}
 
+		// we miss a physics frame here
+
 		glob.yawGroup.position.copy(this.cannon_body.position);
 		glob.yawGroup.position.add(new THREE.Vector3(0, -plyRadius, 0));
+
 		if (!glob.hasHeadset)
 			glob.yawGroup.position.add(new THREE.Vector3(0, 1.8, 0));
 		else
 			glob.yawGroup.position.add(new THREE.Vector3(0, 0.5, 0));
+
+		this.set_aabb();
+	}
+
+	set_aabb() {
+		const min = new THREE.Vector3(-plyRadius, -plyRadius, -plyRadius).add(glob.yawGroup.position);
+		const max = new THREE.Vector3(plyRadius, plyRadius, plyRadius).add(glob.yawGroup.position);
+		this.aabb.min.copy(min);
+		this.aabb.max.copy(max);
 	}
 }
 
