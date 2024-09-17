@@ -7,7 +7,7 @@ import easings from "./easings.js";
 import app from "./app.js";
 var props;
 (function (props) {
-    props.globalWires = true;
+    props.drawDebugFrames = true;
     function factory(object) {
         let prop;
         if (!object.name)
@@ -80,15 +80,13 @@ var props;
         const master = new THREE.Group();
         master.add(group);
         const object = prop.object;
-        object.matrixWorld.decompose(group.position, group.quaternion, group.scale);
+        object.matrixWorld.decompose(master.position, group.quaternion, group.scale);
         object.position.set(0, 0, 0);
         object.rotation.set(0, 0, 0);
         object.quaternion.identity();
-        object.updateMatrix();
-        object.updateMatrixWorld(true);
         group.add(object);
-        group.updateMatrix();
-        group.updateMatrixWorld(true);
+        master.updateMatrix();
+        master.updateMatrixWorld(true);
         renderer.propsGroup.add(master);
         function traversal(object) {
             object.geometry?.computeBoundingBox();
@@ -137,6 +135,7 @@ var props;
             this.array.push(this);
             take_collada_prop(this);
             this.measure();
+            this.master.add(new THREE.AxesHelper());
             this.frame = new frame(this);
             this._finish();
         }
@@ -160,24 +159,18 @@ var props;
                 this.fbody.lod();
         }
         measure() {
-            this.group.updateMatrix();
-            this.group.updateMatrixWorld();
+            this.master.updateMatrix();
+            this.master.updateMatrixWorld();
             this.aabb = new THREE.Box3();
-            this.aabb.setFromObject(this.group, true);
+            this.aabb.setFromObject(this.master, true);
         }
         correction_for_physics() {
-            // todo what why not just use matrixworld?
-            // this method is called by fbody after measure
+            // recenter
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
-            size.divideScalar(2);
-            // because of parent transforms, the box is scaled by 0.0254
-            // bring it up to 1 / 0.0254 so we reenter render space
-            size.multiplyScalar(garbage.spaceMultiply);
-            this.object.rotation.set(-Math.PI / 2, 0, 0);
-            this.object.position.set(-size.x, -size.y, size.z);
-            //this.object.updateMatrix();
-            //this.object.updateMatrixWorld(true);
+            size.z = -size.z;
+            size.divideScalar(-2);
+            this.group.position.copy(size);
         }
     }
     props.prop = prop;
@@ -192,26 +185,46 @@ var props;
             //this.prop.group.remove(this.mesh);
         }
         build() {
-            if (!props.globalWires)
+            if (!props.drawDebugFrames)
                 return;
-            const size = new THREE.Vector3();
             const material = new THREE.MeshBasicMaterial({
                 color: 'blue',
                 wireframe: true
             });
             this.mesh = new THREE.Mesh(undefined, material);
+            const size = new THREE.Vector3();
             this.prop.aabb.getSize(size);
-            this.prop.aabb.getCenter(this.mesh.position);
+            // size.multiplyScalar(garbage.inchMeter);
+            // this.prop.aabb.getCenter(this.mesh.position);
             this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-            // this.mesh.position.copy(this.tunnel.aabb.min);
+            size.z = -size.z;
+            size.divideScalar(2);
+            //this.mesh.position.copy(size);
             this.prop.master.add(this.mesh);
-            // renderer.scene.add(this.mesh);
         }
         recolor(color) {
             this.mesh.material.color = new THREE.Color(color);
         }
     }
     props.frame = frame;
+    class pbox extends prop {
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'pbox';
+            this.array = props.boxes;
+        }
+        _finish() {
+            new physics.fbox(this);
+        }
+        _loop() {
+            this.fbody.loop();
+            this.master.position.copy(this.fbody.body.position);
+            this.master.quaternion.copy(this.fbody.body.quaternion);
+        }
+        _lod() {
+        }
+    }
+    props.pbox = pbox;
     class pwallorsolid extends prop {
         constructor(object, parameters) {
             super(object, parameters);
@@ -222,8 +235,8 @@ var props;
             new physics.fbox(this);
             if (this.object.name != 'solid')
                 this.object.visible = false;
-            this.group.position.copy(this.fbody.body.position);
-            this.group.quaternion.copy(this.fbody.body.quaternion);
+            this.master.position.copy(this.fbody.body.position);
+            this.master.quaternion.copy(this.fbody.body.quaternion);
         }
         _loop() {
         }
@@ -239,32 +252,14 @@ var props;
         _finish() {
             console.log('finish stairstep');
             new physics.fstairstep(this);
-            this.group.position.copy(this.fbody.body.position);
-            this.group.quaternion.copy(this.fbody.body.quaternion);
+            this.master.position.copy(this.fbody.body.position);
+            this.master.quaternion.copy(this.fbody.body.quaternion);
             //this.object.visible = false;
         }
         _loop() {
         }
     }
     props.pstairstep = pstairstep;
-    class pbox extends prop {
-        constructor(object, parameters) {
-            super(object, parameters);
-            this.type = 'pbox';
-            this.array = props.boxes;
-        }
-        _finish() {
-            new physics.fbox(this);
-        }
-        _loop() {
-            this.fbody.loop();
-            this.group.position.copy(this.fbody.body.position);
-            this.group.quaternion.copy(this.fbody.body.quaternion);
-        }
-        _lod() {
-        }
-    }
-    props.pbox = pbox;
     class pconvex extends prop {
         constructor(object, parameters) {
             super(object, parameters);
@@ -281,8 +276,8 @@ var props;
         }
         _loop() {
             this.fbody.loop();
-            this.group.position.copy(this.fbody.body.position);
-            this.group.quaternion.copy(this.fbody.body.quaternion);
+            this.master.position.copy(this.fbody.body.position);
+            this.master.quaternion.copy(this.fbody.body.quaternion);
         }
         _lod() {
         }

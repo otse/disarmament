@@ -201,7 +201,7 @@ namespace physics {
 
 			const mass = kind.mass;
 
-			// redo this pleas
+			// redo this
 			let material;
 			switch (prop.object.name) {
 				case 'wall':
@@ -220,6 +220,8 @@ namespace physics {
 
 			const center = new THREE.Vector3();
 			this.prop.aabb.getCenter(center);
+			//center.x -= size.x;
+			//center.sub(size);
 			body.position.copy(center);
 			//console.log(boxBody.quaternion);
 			//new THREE.Quaternion().
