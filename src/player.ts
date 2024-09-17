@@ -15,6 +15,7 @@ class player {
 	camera
 	active = true
 	aabb
+	mesh
 	controls
 	can_jump
 	cannon_body
@@ -22,7 +23,19 @@ class player {
 		this.setup();
 		this.make_physics();
 
-		this.aabb = new THREE.Box3();
+		this.aabb = new THREE.Box3(
+			new THREE.Vector3(-plyRadius, -plyRadius, -plyRadius),
+			new THREE.Vector3(plyRadius, plyRadius, plyRadius));
+
+		const size = new THREE.Vector3();
+		this.aabb.getSize(size);
+		this.mesh = new THREE.Mesh(
+			new THREE.BoxGeometry(size.x, size.y, size.z),
+			new THREE.MeshBasicMaterial({
+				color: 'purple',
+				wireframe: true
+			}));
+		renderer.scene.add(this.mesh);
 
 		hooks.register('xrStart', () => this.xr_takes_over());
 
@@ -205,10 +218,12 @@ class player {
 	}
 
 	set_aabb() {
-		const min = new THREE.Vector3(-plyRadius, -plyRadius, -plyRadius).add(glob.yawGroup.position);
-		const max = new THREE.Vector3(plyRadius, plyRadius, plyRadius).add(glob.yawGroup.position);
+		const min = new THREE.Vector3(-plyRadius, -plyRadius, -plyRadius).add(this.cannon_body.position);
+		const max = new THREE.Vector3(plyRadius, plyRadius, plyRadius).add(this.cannon_body.position);
 		this.aabb.min.copy(min);
 		this.aabb.max.copy(max);
+		this.mesh.position.copy(this.cannon_body.position);
+		//this.mesh.position.y -= plyRadius * 2;
 	}
 }
 
