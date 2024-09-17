@@ -7,7 +7,7 @@ import easings from "./easings.js";
 import app from "./app.js";
 var props;
 (function (props) {
-    props.wireframe_helpers = true; // broken
+    props.globalWires = true;
     function factory(object) {
         let prop;
         if (!object.name)
@@ -116,7 +116,7 @@ var props;
     class prop {
         object;
         parameters;
-        build_debug_box = false;
+        debugBox = true;
         wiremesh;
         array = [];
         type;
@@ -136,7 +136,7 @@ var props;
             this.array.push(this);
             take_collada_prop(this);
             this.measure();
-            if (this.build_debug_box)
+            if (this.debugBox)
                 this.wiremesh = new wiremesh(this);
             this._finish();
         }
@@ -226,13 +226,15 @@ var props;
             //this.prop.group.remove(this.mesh);
         }
         add_wire_mesh_to_prop_group() {
-            if (!props.wireframe_helpers)
+            if (!props.globalWires)
                 return;
-            console.log('add helper aabb');
             const size = new THREE.Vector3();
             this.prop.aabb.getSize(size);
             size.multiplyScalar(garbage.spaceMultiply);
-            const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
+            const material = new THREE.MeshBasicMaterial({
+                color: 'blue',
+                wireframe: true
+            });
             const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
             this.mesh = new THREE.Mesh(boxGeometry, material);
             this.prop.group.add(this.mesh);
@@ -247,7 +249,7 @@ var props;
             super(object, parameters);
             this.type = 'pbox';
             this.array = props.boxes;
-            this.build_debug_box = false;
+            this.debugBox = false;
         }
         _finish() {
             new physics.fbox(this);
@@ -266,7 +268,7 @@ var props;
             super(object, parameters);
             this.type = 'pconvex';
             this.array = props.boxes;
-            this.build_debug_box = false;
+            this.debugBox = false;
             this.object.visible = false;
         }
         _finish() {

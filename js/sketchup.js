@@ -2,6 +2,7 @@ import app from "./app.js";
 import glob from "./lib/glob.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
+import tunnels from "./tunnels.js";
 import vr from "./vr/vr.js";
 var sketchup;
 (function (sketchup) {
@@ -63,7 +64,7 @@ var sketchup;
     async function bake_material_from_tuple(name, tuple) {
         /* misnomer
          */
-        console.log('bake material', name, tuple);
+        // console.log('bake material', name, tuple);
         const salt = `?x=same`;
         let texture;
         if (tuple[1]) {
@@ -172,7 +173,7 @@ var sketchup;
                 const ctx = canvas.getContext('2d');
                 const texture = new THREE.CanvasTexture(canvas);
                 new THREE.ImageLoader().loadAsync(imageUrl).then((image) => {
-                    console.log('from', image.width, image.height, 'to', image.width / scale, image.height / scale);
+                    // console.log('from', image.width, image.height, 'to', image.width / scale, image.height / scale);
                     canvas.width = image.width / scale;
                     canvas.height = image.height / scale;
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -252,6 +253,8 @@ var sketchup;
             scene.updateMatrixWorld(); // without this everything explodes
             console.log(' collada scene ', scene);
             const queue = [];
+            // todo sheesh cleanup!
+            tunnels.find_make_tunnels(scene);
             function find_make_props(object) {
                 object.castShadow = true;
                 object.receiveShadow = true;

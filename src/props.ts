@@ -9,7 +9,7 @@ import app from "./app.js";
 
 namespace props {
 
-	export const wireframe_helpers = true; // broken
+	export const globalWires = true;
 
 	export function factory(object: any) {
 		let prop: prop | undefined;
@@ -129,7 +129,7 @@ namespace props {
 	export var presets = {}
 
 	export abstract class prop {
-		build_debug_box = false
+		debugBox = true
 		wiremesh?: wiremesh
 		array: prop[] = []
 		type
@@ -147,7 +147,7 @@ namespace props {
 			this.array.push(this);
 			take_collada_prop(this);
 			this.measure();
-			if (this.build_debug_box)
+			if (this.debugBox)
 				this.wiremesh = new wiremesh(this);
 			this._finish();
 		}
@@ -235,13 +235,15 @@ namespace props {
 			//this.prop.group.remove(this.mesh);
 		}
 		add_wire_mesh_to_prop_group() {
-			if (!wireframe_helpers)
+			if (!globalWires)
 				return;
-			console.log('add helper aabb');
 			const size = new THREE.Vector3();
 			this.prop.aabb.getSize(size);
 			size.multiplyScalar(garbage.spaceMultiply);
-			const material = new THREE.MeshLambertMaterial({ color: 'red', wireframe: true });
+			const material = new THREE.MeshBasicMaterial({
+				color: 'blue',
+				wireframe: true
+			});
 			const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
 			this.mesh = new THREE.Mesh(boxGeometry, material);
 			this.prop.group.add(this.mesh);
@@ -256,7 +258,7 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pbox';
 			this.array = boxes;
-			this.build_debug_box = false;
+			this.debugBox = false;
 		}
 		override _finish() {
 			new physics.fbox(this);
@@ -275,7 +277,7 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pconvex';
 			this.array = boxes;
-			this.build_debug_box = false;
+			this.debugBox = false;
 			this.object.visible = false;
 		}
 		override _finish() {
@@ -597,15 +599,15 @@ namespace props {
 
 			light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
 			this.group.add(light);
-			
+
 			const temp = new THREE.Vector3(size.x, size.z, size.y);
 			temp.multiplyScalar(garbage.spaceMultiply);
 			this.object.position.sub(temp.divideScalar(2));
-			
+
 			size.divideScalar(2);
 			size.z = -size.z;
 			this.group.position.add(size);
-			
+
 			const hasHelper = this.preset_.helper;
 			if (hasHelper) {
 				const helper = new RectAreaLightHelper(light);
