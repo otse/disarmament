@@ -3,8 +3,8 @@
 		"xdisabled": true,
 		"xhelper": true,
 		"hide": true,
-		"color": "chartreuse",
-		"intensity": 0.004,
+		"color": "yellow",
+		"intensity": 0.005,
 		"target": [
 			0,
 			0,

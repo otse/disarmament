@@ -12,6 +12,9 @@
     "officehall": ["white", "./assets/textures/officehall", 0.5, 0.3, 0.0, true],
     "bunkerwall": ["white", "./assets/textures/bunkerwall", 0.15, 0.3, 0.0, true],
     "bunkerwall_var": ["white", "./assets/textures/bunkerwall_var", 0.15, 0.3, 0.0, true],
+    "rustydoorframe": ["white", "./assets/textures/rustydoorframe", 0.5, 0, 0, false],
+    "barrel1": ["white", "./assets/textures/barrel1", 0.5, 0, 0, true],
     "locker1": ["white", "./assets/textures/locker1", 0.5, 0.25, 0.0, false],
+    "lockerssplat": ["white", "./assets/textures/lockerssplat", 0.5, 0, 0, false],
     "door1": ["white", "./assets/textures/door1", 0.1, 0.2, 0.1, true]
   }

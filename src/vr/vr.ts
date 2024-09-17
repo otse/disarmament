@@ -2,13 +2,13 @@ import app from "../app.js";
 import glob from "../lib/glob.js";
 import hooks from "../lib/hooks.js";
 import renderer from "../renderer.js";
-import ctrlr from "./controller.js";
+import controller from "./controller.js";
 
 namespace vr {
 	export let baseReferenceSpace
 
-	let rightController: ctrlr;
-	let leftController: ctrlr;
+	export let rightController: controller;
+	export let leftController: controller;
 
 	let controllerGrip1, controllerGrip2;
 
@@ -19,7 +19,7 @@ namespace vr {
 
 	export function boot() {
 
-		ctrlr.boot();
+		controller.boot();
 		
 		let button = VRButton.createButton(renderer.renderer);
 
@@ -72,8 +72,8 @@ namespace vr {
 		floor.visible = false;
 		renderer.scene.add(floor);
 
-		leftController = new ctrlr(0);
-		rightController = new ctrlr(1);
+		leftController = new controller(0);
+		rightController = new controller(1);
 
 	}
 

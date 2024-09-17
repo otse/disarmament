@@ -194,8 +194,8 @@ class player {
 		glob.yawGroup.position.add(new THREE.Vector3(0, -plyRadius, 0));
 		if (!glob.hasHeadset)
 			glob.yawGroup.position.add(new THREE.Vector3(0, 1.8, 0));
-		//else
-		//	glob.yawGroup.position.add(new THREE.Vector3(0, 1.0, 0));
+		else
+			glob.yawGroup.position.add(new THREE.Vector3(0, 0.5, 0));
 	}
 }
 

@@ -3,6 +3,7 @@ import garbage from "./garbage.js";
 import glob from "./lib/glob.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
+import vr from "./vr/vr.js";
 
 namespace sketchup {
 
@@ -36,7 +37,7 @@ namespace sketchup {
 			if (app.proompt('r') == 1) {
 				await get_matsfig();
 				await make_figs_mats();
-				level_takes_figs_mats(levelGroup);
+				scene_takes_figs_mats(levelGroup);
 			}
 			if (app.proompt('t') == 1) {
 				console.log('[t]');
@@ -68,24 +69,19 @@ namespace sketchup {
 		normalToggle = !normalToggle;
 		const funcs: any[] = [];
 		for (let name in figsMats) {
-			const func = async (name) => {
-				const tuple = figsMats[name];
-				const mat = mats[name];
-				if (!normalToggle)
-					mat.normalScale.set(0, 0);
-				else
-					mat.normalScale.set(tuple[1], -tuple[1]);
-			}
-			const promise = /*await*/ func(name)
-			funcs.push(promise);
+			const tuple = figsMats[name];
+			const mat = mats[name];
+			if (!normalToggle)
+				mat.normalScale.set(0, 0);
+			else
+				mat.normalScale.set(tuple[2], -tuple[2]!);
 		}
-		return Promise.all(funcs);
 	}
 
 	async function bake_material_from_tuple(name, tuple: tuple) {
-		/* misnomer!
+		/* misnomer
 		 */
-		console.log('make material', name, tuple);
+		console.log('bake material', name, tuple);
 		const salt = `?x=same`;
 		let texture;
 		if (tuple[1]) {
@@ -99,7 +95,7 @@ namespace sketchup {
 			map: texture
 		});
 		// material.clearcoat = 1.0;
-		mat.roughness = tuple[3] || 0.5;
+		mat.roughness = tuple[3] || 0.3;
 		mat.metalness = tuple[4] || 0;
 		mat.clearCoat = 0.5;
 		mat.iridescence = 0.2;
@@ -219,6 +215,8 @@ namespace sketchup {
 		await get_matsfig();
 		await make_figs_mats();
 		await load_level();
+		const aks47 = await load_gun('aks-47');
+		vr.rightController.grip.add(aks47);
 	}
 
 	function fix_sticker(material) {
@@ -255,16 +253,15 @@ namespace sketchup {
 
 	let levelGroup;
 
-	export async function level_takes_figs_mats(scene) {
+	export async function scene_takes_figs_mats(scene) {
 		async function traversal(object) {
-			if (object.material) {
+			if (object.material)
 				if (!object.material.length)
 					await object_takes_mat(object, -1);
 
 				else
 					for (let index in object.material)
 						await object_takes_mat(object, index);
-			}
 		}
 		scene.traverse(traversal);
 	}
@@ -277,30 +274,18 @@ namespace sketchup {
 	}
 
 	export async function load_level() {
-
 		const name = glob.level;
-
-		//await new Promise(resolve => setTimeout(resolve, 200));
-
 		const loadingManager = new THREE.LoadingManager(function () {
 		});
-
 		const colladaLoader = new ColladaLoader(loadingManager);
 		const levelConfig = await load_level_config(name);
-
 		props.presets = Object.assign(props.presets, levelConfig);
-
 		await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
-
 			const scene = collada.scene;
-
 			scene.updateMatrix();
 			scene.updateMatrixWorld(); // without this everything explodes
-
 			console.log(' collada scene ', scene);
-
 			const queue: props.prop[] = [];
-
 			function find_make_props(object) {
 				object.castShadow = true;
 				object.receiveShadow = true;
@@ -308,22 +293,35 @@ namespace sketchup {
 				if (prop)
 					queue.push(prop);
 			}
-
 			scene.traverse(find_make_props);
-
-			level_takes_figs_mats(scene);
-
+			scene_takes_figs_mats(scene);
 			for (let prop of queue)
 				prop.complete();
-
 			const group = new THREE.Group();
 			group.add(scene);
-
 			renderer.scene.add(group);
-
 			levelGroup = group;
 		});
+	}
 
+	export async function load_gun(name) {
+		const group = new THREE.Group();
+		//group.add(new THREE.AxesHelper());
+		group.rotation.x = -Math.PI / 2;
+		group.rotation.y = Math.PI / 2;
+		const loadingManager = new THREE.LoadingManager(function () {
+		});
+		const colladaLoader = new ColladaLoader(loadingManager);
+		await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
+			const scene = collada.scene;
+			scene.updateMatrix();
+			scene.updateMatrixWorld(); // without this everything explodes
+			console.log(' collada scene ', scene);
+			scene_takes_figs_mats(scene);
+			group.add(scene);
+			renderer.scene.add(group);
+		});
+		return group;
 	}
 }
 

@@ -8,7 +8,7 @@ let floorIntersect;
 
 let tempMatrix, raycaster;
 
-export class ctrlr {
+export class controller {
 	controller
 	grip
 	hand
@@ -57,6 +57,8 @@ export class ctrlr {
 		// it can also make a black rift s controller
 		this.grip = renderer.renderer.xr.getControllerGrip(index);
 		this.grip.add(controllerModelFactory.createControllerModel(this.grip));
+
+		//this.grip.add(new THREE.AxesHelper());
 
 		//console.log(' ctrlr grip', this.grip);
 
@@ -223,11 +225,11 @@ export class ctrlr {
 	}
 }
 
-export namespace ctrlr {
+export namespace controller {
 	export function boot() {
 		tempMatrix = new THREE.Matrix4();
 		raycaster = new THREE.Raycaster();
 	}
 }
 
-export default ctrlr;
+export default controller;

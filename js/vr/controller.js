@@ -4,7 +4,7 @@ import renderer from "../renderer.js";
 import vr from "./vr.js";
 let floorIntersect;
 let tempMatrix, raycaster;
-export class ctrlr {
+export class controller {
     index;
     controller;
     grip;
@@ -45,6 +45,7 @@ export class ctrlr {
         // it can also make a black rift s controller
         this.grip = renderer.renderer.xr.getControllerGrip(index);
         this.grip.add(controllerModelFactory.createControllerModel(this.grip));
+        //this.grip.add(new THREE.AxesHelper());
         //console.log(' ctrlr grip', this.grip);
         renderer.yawGroup.add(this.grip);
         this.grip.addEventListener("connected", (e) => {
@@ -169,11 +170,11 @@ export class ctrlr {
         //console.log(this.grip.data.gamepad);
     }
 }
-(function (ctrlr) {
+(function (controller) {
     function boot() {
         tempMatrix = new THREE.Matrix4();
         raycaster = new THREE.Raycaster();
     }
-    ctrlr.boot = boot;
-})(ctrlr || (ctrlr = {}));
-export default ctrlr;
+    controller.boot = boot;
+})(controller || (controller = {}));
+export default controller;

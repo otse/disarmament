@@ -1,16 +1,14 @@
 import glob from "../lib/glob.js";
 import hooks from "../lib/hooks.js";
 import renderer from "../renderer.js";
-import ctrlr from "./controller.js";
+import controller from "./controller.js";
 var vr;
 (function (vr) {
-    let rightController;
-    let leftController;
     let controllerGrip1, controllerGrip2;
     // export var position, rotation;
     let INTERSECTION;
     function boot() {
-        ctrlr.boot();
+        controller.boot();
         let button = VRButton.createButton(renderer.renderer);
         console.log(' button ', button);
         document.body.appendChild(button);
@@ -39,8 +37,8 @@ var vr;
         vr.floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30, 2, 2).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xbcbcbc, transparent: true, opacity: 0.25 }));
         vr.floor.visible = false;
         renderer.scene.add(vr.floor);
-        leftController = new ctrlr(0);
-        rightController = new ctrlr(1);
+        vr.leftController = new controller(0);
+        vr.rightController = new controller(1);
     }
     vr.boot = boot;
     function start() {
@@ -59,8 +57,8 @@ var vr;
         //app.loop();
     }
     function loop() {
-        leftController.loop();
-        rightController.loop();
+        vr.leftController.loop();
+        vr.rightController.loop();
     }
     vr.loop = loop;
 })(vr || (vr = {}));
