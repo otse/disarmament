@@ -44,7 +44,7 @@ namespace sketchup {
 				console.log('[t]');
 				props.clear();
 				renderer.scene.remove(levelGroup);
-				await props.boot();
+				await props.reload();
 				//await get_matsfig();
 				//await make_materials();
 				await load_level();
@@ -53,7 +53,7 @@ namespace sketchup {
 				loresToggle = !loresToggle;
 				props.clear();
 				renderer.scene.remove(levelGroup);
-				await props.boot();
+				await props.reload();
 				await get_matsfig();
 				await make_figs_mats();
 				await load_level();

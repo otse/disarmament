@@ -4,14 +4,15 @@ import hooks from "./lib/hooks.js";
 import garbage from "./garbage.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
+import common from "./common.js";
 //import plc from "./plc.js";
 // https://github.com/mrdoob/three.js/blob/master/examples/jsm/controls/PointerLockControls.js
 const plyRadius = 0.4;
 class player {
+    vdb;
     camera;
     active = true;
     aabb;
-    mesh;
     controls;
     can_jump;
     cannon_body;
@@ -19,13 +20,8 @@ class player {
         this.setup();
         this.make_physics();
         this.aabb = new THREE.Box3(new THREE.Vector3(-plyRadius, -plyRadius, -plyRadius), new THREE.Vector3(plyRadius, plyRadius, plyRadius));
-        const size = new THREE.Vector3();
-        this.aabb.getSize(size);
-        this.mesh = new THREE.Mesh(new THREE.BoxGeometry(size.x, size.y, size.z), new THREE.MeshBasicMaterial({
-            color: 'purple',
-            wireframe: true
-        }));
-        renderer.scene.add(this.mesh);
+        this.vdb = new common.visual_debug_box(this, 'purple');
+        renderer.scene.add(this.vdb.mesh);
         hooks.register('xrStart', () => this.xr_takes_over());
         glob.move = { x: 0, z: 0 };
     }
@@ -152,7 +148,7 @@ class player {
         glob.yawGroup.position.add(new THREE.Vector3(0, -plyRadius, 0));
         if (!glob.hasHeadset)
             glob.yawGroup.position.add(new THREE.Vector3(0, 1.8, 0));
-        else
+        else // if we're sitting with a headset
             glob.yawGroup.position.add(new THREE.Vector3(0, 0.5, 0));
         this.set_aabb();
     }
@@ -161,7 +157,7 @@ class player {
         const max = new THREE.Vector3(plyRadius, plyRadius, plyRadius).add(this.cannon_body.position);
         this.aabb.min.copy(min);
         this.aabb.max.copy(max);
-        this.mesh.position.copy(this.cannon_body.position);
+        this.vdb.mesh?.position.copy(this.cannon_body.position);
         //this.mesh.position.y -= plyRadius * 2;
     }
 }

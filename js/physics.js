@@ -199,8 +199,8 @@ var physics;
                 let volume;
                 volume = garbage.clamp(mass * velocity, 0.1, 3);
                 volume = garbage.clamp(velocity, 0.1, 1.0);
-                if (that.prop.frame)
-                    that.prop.frame.recolor(garbage.sample(collision_happy_colors));
+                if (that.prop.vdb)
+                    that.prop.vdb.recolor(garbage.sample(collision_happy_colors));
                 let sample = '';
                 const impacts = props.impact_sounds[kind.material];
                 if (!impacts)

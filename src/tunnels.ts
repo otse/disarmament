@@ -2,6 +2,7 @@
 // every other tunnel is culled
 // works intensively with the props system to group props and handle visibility
 
+import common from "./common.js";
 import garbage from "./garbage.js";
 import renderer from "./renderer.js";
 
@@ -30,13 +31,12 @@ namespace tunnels {
 
 	export class tunnel {
 		aabb
-		frame
+		vdb
 		constructor(public readonly object, public readonly name) {
-			console.log(' new tunnel ', name);
-
 			tunnels.push(this);
 			this.measure();
-			this.frame = new tframe(this);
+			this.vdb = new common.visual_debug_box(this, 'green', true);
+			renderer.scene.add(this.vdb.mesh);
 		}
 		protected measure() {
 			this.object.updateMatrix();
@@ -46,26 +46,6 @@ namespace tunnels {
 		}
 		cleanup() {
 			// tunnels.splice(tunnels.indexOf(this), 1);
-		}
-	}
-
-	export class tframe {
-		mesh
-		constructor(public tunnel: tunnel) {
-			this.build();
-		}
-		build() {
-			const size = new THREE.Vector3();
-			const material = new THREE.MeshBasicMaterial({
-				color: 'green',
-				wireframe: true
-			});
-			this.mesh = new THREE.Mesh(undefined, material);
-			this.tunnel.aabb.getSize(size);
-			this.tunnel.aabb.getCenter(this.mesh.position);
-			this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-			// this.mesh.position.copy(this.tunnel.aabb.min);
-			renderer.scene.add(this.mesh);
 		}
 	}
 

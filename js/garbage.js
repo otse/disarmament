@@ -8,6 +8,7 @@ import renderer from "./renderer.js";
 import vr from "./vr/vr.js";
 import sketchup from "./sketchup.js";
 import tunnels from "./tunnels.js";
+import common from "./common.js";
 glob.developer = true;
 var garbage;
 (function (garbage) {
@@ -29,6 +30,9 @@ var garbage;
         garbage.locker = document.querySelector('salvage-instructions');
         garbage.main = document.querySelector('salvage-body');
         glob.level = 'gen2';
+        glob.wireframes = false;
+        glob.propAxes = false;
+        common.boot();
         physics.boot();
         props.boot();
         renderer.boot();

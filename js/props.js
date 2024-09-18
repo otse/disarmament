@@ -1,13 +1,14 @@
 import audio from "./audio.js";
+import glob from "./lib/glob.js";
 import hooks from "./lib/hooks.js";
 import garbage from "./garbage.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
 import easings from "./easings.js";
 import app from "./app.js";
+import common from "./common.js";
 var props;
 (function (props) {
-    props.drawDebugFrames = true;
     function factory(object) {
         let prop;
         if (!object.name)
@@ -88,15 +89,16 @@ var props;
         master.updateMatrix();
         master.updateMatrixWorld(true);
         renderer.propsGroup.add(master);
-        function traversal(object) {
-            object.geometry?.computeBoundingBox();
-        }
-        group.traverse(traversal);
+        group.traverse((object) => object.geometry?.computeBoundingBox());
         prop.master = master;
         prop.group = group;
     }
     props.take_collada_prop = take_collada_prop;
-    async function boot() {
+    function boot() {
+        reload();
+    }
+    props.boot = boot;
+    async function reload() {
         let url = './figs/glob.json';
         let response = await fetch(url);
         const arrSales = await response.json();
@@ -104,7 +106,7 @@ var props;
         console.log(props.presets);
         return arrSales;
     }
-    props.boot = boot;
+    props.reload = reload;
     props.collection = [];
     props.markers = [];
     props.walls = [];
@@ -115,7 +117,7 @@ var props;
     class prop {
         object;
         parameters;
-        frame;
+        vdb;
         array = [];
         type;
         kind;
@@ -135,8 +137,10 @@ var props;
             this.array.push(this);
             take_collada_prop(this);
             this.measure();
-            this.master.add(new THREE.AxesHelper());
-            this.frame = new pframe(this);
+            if (glob.propAxes)
+                this.master.add(new THREE.AxesHelper());
+            this.vdb = new common.visual_debug_box(this, 'blue');
+            this.master.add(this.vdb.mesh);
             this._finish();
         }
         _finish() {
@@ -153,7 +157,7 @@ var props;
             props.collection.splice(props.collection.indexOf(this), 1);
             this.array.splice(this.array.indexOf(this), 1);
             this._lod();
-            this.frame?.lod();
+            this.vdb?.lod();
             renderer.propsGroup.remove(this.master);
             if (this.fbody)
                 this.fbody.lod();
@@ -174,31 +178,6 @@ var props;
         }
     }
     props.prop = prop;
-    class pframe {
-        prop;
-        mesh;
-        constructor(prop) {
-            this.prop = prop;
-            this.build();
-        }
-        lod() {
-        }
-        build() {
-            if (!props.drawDebugFrames)
-                return;
-            const size = new THREE.Vector3();
-            this.prop.aabb.getSize(size);
-            this.mesh = new THREE.Mesh(new THREE.BoxGeometry(size.x, size.y, size.z), new THREE.MeshBasicMaterial({
-                color: 'blue',
-                wireframe: true
-            }));
-            this.prop.master.add(this.mesh);
-        }
-        recolor(color) {
-            this.mesh.material.color = new THREE.Color(color);
-        }
-    }
-    props.pframe = pframe;
     class pbox extends prop {
         constructor(object, parameters) {
             super(object, parameters);

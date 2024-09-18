@@ -6,10 +6,9 @@ import physics from "./physics.js";
 import renderer from "./renderer.js";
 import easings from "./easings.js";
 import app from "./app.js";
+import common from "./common.js";
 
 namespace props {
-
-	export const drawDebugFrames = true;
 
 	export function factory(object: any) {
 		let prop: prop | undefined;
@@ -83,6 +82,7 @@ namespace props {
 		const group = new THREE.Group();
 		const master = new THREE.Group();
 		master.add(group);
+
 		const object = prop.object;
 
 		object.matrixWorld.decompose(
@@ -101,16 +101,17 @@ namespace props {
 
 		renderer.propsGroup.add(master);
 
-		function traversal(object) {
-			object.geometry?.computeBoundingBox();
-		}
-		group.traverse(traversal);
+		group.traverse((object) => object.geometry?.computeBoundingBox());
 
 		prop.master = master;
 		prop.group = group;
 	}
 
-	export async function boot() {
+	export function boot() {
+		reload();
+	}
+
+	export async function reload() {
 		let url = './figs/glob.json';
 		let response = await fetch(url);
 		const arrSales = await response.json();
@@ -129,7 +130,7 @@ namespace props {
 	export var presets = {}
 
 	export abstract class prop {
-		frame?: pframe
+		vdb?: common.visual_debug_box
 		array: prop[] = []
 		type
 		kind
@@ -147,8 +148,10 @@ namespace props {
 			this.array.push(this);
 			take_collada_prop(this);
 			this.measure();
-			this.master.add(new THREE.AxesHelper());
-			this.frame = new pframe(this);
+			if (glob.propAxes)
+				this.master.add(new THREE.AxesHelper());
+			this.vdb = new common.visual_debug_box(this, 'blue');
+			this.master.add(this.vdb.mesh);
 			this._finish();
 		}
 		protected _finish() { // override
@@ -165,7 +168,7 @@ namespace props {
 			collection.splice(collection.indexOf(this), 1);
 			this.array.splice(this.array.indexOf(this), 1);
 			this._lod();
-			this.frame?.lod();
+			this.vdb?.lod();
 			renderer.propsGroup.remove(this.master);
 			if (this.fbody)
 				this.fbody.lod();
@@ -183,31 +186,6 @@ namespace props {
 			size.divideScalar(-2);
 			size.z = -size.z;
 			this.group.position.copy(size);
-		}
-	}
-
-	export class pframe {
-		mesh
-		constructor(public prop: prop) {
-			this.build();
-		}
-		lod() {
-		}
-		build() {
-			if (!drawDebugFrames)
-				return;
-			const size = new THREE.Vector3();
-			this.prop.aabb.getSize(size);
-			this.mesh = new THREE.Mesh(
-				new THREE.BoxGeometry(size.x, size.y, size.z),
-				new THREE.MeshBasicMaterial({
-					color: 'blue',
-					wireframe: true
-				}));
-			this.prop.master.add(this.mesh);
-		}
-		recolor(color) {
-			this.mesh.material.color = new THREE.Color(color);
 		}
 	}
 
