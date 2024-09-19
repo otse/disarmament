@@ -142,17 +142,35 @@
 		"helper": true,
 		"hide": true,
 		"color": "lavender",
-		"intensity": 8.0,
+		"intensity": 15.0,
 		"target": [
 			0.0,
 			-1.0,
 			0.0
 		],
-		"xbehavior": {
-			"type": "shake",
-			"cycle": 2,
+		"behavior": {
+			"type": "bounce",
+			"cycle": 5,
 			"base": 1.0,
 			"variance": 0.1
+		}
+	},
+	"rlofficefloor": {
+		"xdisabled": true,
+		"xhelper": true,
+		"hide": true,
+		"color": "green",
+		"intensity": 0.01,
+		"target": [
+			0,
+			0,
+			1
+		],
+		"xbehavior": {
+			"type": "bounce",
+			"cycle": 5,
+			"base": 1.0,
+			"variance": 1.0
 		}
 	}
 }
