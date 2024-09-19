@@ -14,16 +14,18 @@ class player {
     active = true;
     aabb;
     controls;
-    can_jump;
-    cannon_body;
+    canJump;
+    cannonBody;
     constructor() {
+        glob.move = { x: 0, z: 0 };
         this.setup();
         this.make_physics();
-        this.aabb = new THREE.Box3(new THREE.Vector3(-plyRadius, -plyRadius, -plyRadius), new THREE.Vector3(plyRadius, plyRadius, plyRadius));
+        this.cannonBody.position.set(glob.yawGroup.position.x, glob.yawGroup.position.y + 1, glob.yawGroup.position.z);
+        this.aabb = new THREE.Box3();
+        this.set_aabb();
         this.vdb = new common.visual_debug_box(this, 'purple');
         renderer.scene.add(this.vdb.mesh);
         hooks.register('xrStart', () => this.xr_takes_over());
-        glob.move = { x: 0, z: 0 };
     }
     setup() {
         this.controls = new PointerLockControls(renderer.camera, renderer.renderer.domElement);
@@ -48,14 +50,14 @@ class player {
         sphereBody.linearDamping = 0.95;
         sphereBody.angularDamping = 0.999;
         physics.world.addBody(sphereBody);
-        this.cannon_body = sphereBody;
+        this.cannonBody = sphereBody;
         const contactNormal = new CANNON.Vec3(); // Normal in the contact, pointing *out* of whatever the player touched
         const upAxis = new CANNON.Vec3(0, 1, 0);
-        this.cannon_body.addEventListener('collide', (event) => {
+        this.cannonBody.addEventListener('collide', (event) => {
             const { contact } = event;
             // contact.bi and contact.bj are the colliding bodies, and contact.ni is the collision normal.
             // We do not yet know which one is which! Let's check.
-            if (contact.bi.id === this.cannon_body.id) {
+            if (contact.bi.id === this.cannonBody.id) {
                 // bi is the player body, flip the contact normal
                 contact.ni.negate(contactNormal);
             }
@@ -66,10 +68,10 @@ class player {
             // If contactNormal.dot(upAxis) is between 0 and 1, we know that the contact normal is somewhat in the up direction.
             if (contactNormal.dot(upAxis) > 0.5) {
                 // Use a "good" threshold value between 0 and 1 here!
-                this.can_jump = true;
+                this.canJump = true;
             }
         });
-        this.body_velocity = this.cannon_body.velocity;
+        this.body_velocity = this.cannonBody.velocity;
     }
     body_velocity;
     noclip = false;
@@ -81,7 +83,7 @@ class player {
         if (app.proompt('v') == 1) {
             this.noclip = !this.noclip;
             if (!this.noclip) {
-                this.cannon_body.position.set(glob.yawGroup.position.x, glob.yawGroup.position.y, glob.yawGroup.position.z);
+                this.cannonBody.position.set(glob.yawGroup.position.x, glob.yawGroup.position.y, glob.yawGroup.position.z);
             }
         }
         this.noclip ? this.noclip_move(delta) : this.physics_move(delta);
@@ -110,9 +112,9 @@ class player {
     }
     physics_move(delta) {
         let { x, z } = glob.move;
-        if (app.proompt(' ') && this.can_jump) {
+        if (app.proompt(' ') && this.canJump) {
             this.body_velocity.y = 10;
-            this.can_jump = false;
+            this.canJump = false;
         }
         if (app.proompt('w') && !app.proompt('s'))
             z = -1;
@@ -144,7 +146,7 @@ class player {
             this.body_velocity.z += velocity.z;
         }
         // we miss a physics frame here
-        glob.yawGroup.position.copy(this.cannon_body.position);
+        glob.yawGroup.position.copy(this.cannonBody.position);
         glob.yawGroup.position.add(new THREE.Vector3(0, -plyRadius, 0));
         if (!glob.hasHeadset)
             glob.yawGroup.position.add(new THREE.Vector3(0, 1.8, 0));
@@ -153,11 +155,11 @@ class player {
         this.set_aabb();
     }
     set_aabb() {
-        const min = new THREE.Vector3(-plyRadius, -plyRadius, -plyRadius).add(this.cannon_body.position);
-        const max = new THREE.Vector3(plyRadius, plyRadius, plyRadius).add(this.cannon_body.position);
+        const min = new THREE.Vector3(-plyRadius, -plyRadius, -plyRadius).add(this.cannonBody.position);
+        const max = new THREE.Vector3(plyRadius, plyRadius, plyRadius).add(this.cannonBody.position);
         this.aabb.min.copy(min);
         this.aabb.max.copy(max);
-        this.vdb.mesh?.position.copy(this.cannon_body.position);
+        this.vdb?.mesh?.position.copy(this.cannonBody.position);
         //this.mesh.position.y -= plyRadius * 2;
     }
 }

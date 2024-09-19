@@ -6,7 +6,7 @@ import tunnels from "./tunnels.js";
 import vr from "./vr/vr.js";
 var sketchup;
 (function (sketchup) {
-    const stickers = ['lockerssplat'];
+    const stickers = ['sewerhole'];
     var figsMats = {};
     const mats = {};
     var loresToggle = true;
@@ -83,7 +83,7 @@ var sketchup;
         mat.clearCoat = 0.5;
         mat.iridescence = 0.2;
         if (tuple[5] && true) {
-            const texture = await createTextureFromImage(`${tuple[1]}_normal.png${salt}`, 2);
+            const texture = await createTextureFromImage(`${tuple[1]}_normal.png${salt}`, 4);
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             if (!normalToggle)
                 mat.normalScale.set(0, 0);
@@ -188,6 +188,15 @@ var sketchup;
         await get_matsfig();
         await make_figs_mats();
         await load_level();
+        for (const marker of props.markers) {
+            if (marker.preset === 'start') {
+                console.log('woo');
+                console.log('yawgroup old pos', glob.yawGroup.position);
+                glob.yawGroup.position.copy(marker.get_center());
+                console.log('yawgroup new pos', glob.yawGroup.position);
+                break;
+            }
+        }
         const aks47 = await load_gun('aks-47');
         vr.rightController.grip.add(aks47);
     }

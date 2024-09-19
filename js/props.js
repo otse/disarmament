@@ -15,6 +15,9 @@ var props;
             return;
         const [kind, preset, hint] = object.name.split('_');
         switch (kind) {
+            case 'marker':
+                prop = new pmarker(object, {});
+                break;
             case 'prop':
             case 'box':
                 console.log(' new pbox ', kind, preset);
@@ -50,9 +53,6 @@ var props;
             case 'convex':
                 console.log(' new convex ');
                 prop = new pconvex(object, {});
-                break;
-            case 'marker':
-                prop = new pmarker(object, {});
                 break;
             default:
         }
@@ -153,7 +153,7 @@ var props;
             this._loop();
         }
         lod() {
-            // todo ugly function
+            // todo ugly and confusing splices
             props.collection.splice(props.collection.indexOf(this), 1);
             this.array.splice(this.array.indexOf(this), 1);
             this._lod();
@@ -168,6 +168,11 @@ var props;
             this.aabb = new THREE.Box3();
             this.aabb.setFromObject(this.master, true);
         }
+        get_center() {
+            const center = new THREE.Vector3();
+            this.aabb.getCenter(center);
+            return center;
+        }
         correction_for_physics() {
             // change the origin from the corner to the center
             const size = new THREE.Vector3();
@@ -178,6 +183,20 @@ var props;
         }
     }
     props.prop = prop;
+    class pmarker extends prop {
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'pmarker';
+            this.array = props.markers;
+        }
+        _finish() {
+            this.object.visible = true;
+            this.object.add(new THREE.AxesHelper(1));
+        }
+        _loop() {
+        }
+    }
+    props.pmarker = pmarker;
     class pbox extends prop {
         constructor(object, parameters) {
             super(object, parameters);
@@ -532,21 +551,6 @@ var props;
         }
     }
     props.prectlight = prectlight;
-    class pmarker extends prop {
-        constructor(object, parameters) {
-            super(object, parameters);
-            this.type = 'pmarker';
-            this.array = props.markers;
-        }
-        _finish() {
-            this.object.visible = true;
-            let helper = new THREE.AxesHelper(1);
-            this.object.add(helper);
-        }
-        _loop() {
-        }
-    }
-    props.pmarker = pmarker;
     props.impact_sounds = {
         'cardboard': {
             soft: [

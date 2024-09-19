@@ -16,6 +16,9 @@ namespace props {
 			return;
 		const [kind, preset, hint] = object.name.split('_');
 		switch (kind) {
+			case 'marker':
+				prop = new pmarker(object, {});
+				break;
 			case 'prop':
 			case 'box':
 				console.log(' new pbox ', kind, preset);
@@ -51,9 +54,6 @@ namespace props {
 			case 'convex':
 				console.log(' new convex ');
 				prop = new pconvex(object, {});
-				break;
-			case 'marker':
-				prop = new pmarker(object, {});
 				break;
 			default:
 		}
@@ -164,7 +164,7 @@ namespace props {
 			this._loop();
 		}
 		lod() {
-			// todo ugly function
+			// todo ugly and confusing splices
 			collection.splice(collection.indexOf(this), 1);
 			this.array.splice(this.array.indexOf(this), 1);
 			this._lod();
@@ -179,6 +179,11 @@ namespace props {
 			this.aabb = new THREE.Box3();
 			this.aabb.setFromObject(this.master, true);
 		}
+		get_center() {
+			const center = new THREE.Vector3();
+			this.aabb.getCenter(center);
+			return center;
+		}
 		correction_for_physics() {
 			// change the origin from the corner to the center
 			const size = new THREE.Vector3();
@@ -186,6 +191,20 @@ namespace props {
 			size.divideScalar(-2);
 			size.z = -size.z;
 			this.group.position.copy(size);
+		}
+	}
+
+	export class pmarker extends prop {
+		constructor(object, parameters) {
+			super(object, parameters);
+			this.type = 'pmarker';
+			this.array = markers;
+		}
+		override _finish() {
+			this.object.visible = true;
+			this.object.add(new THREE.AxesHelper(1));
+		}
+		override _loop() {
 		}
 	}
 
@@ -587,21 +606,6 @@ namespace props {
 			this.behavior();
 		}
 		override _lod() {
-		}
-	}
-
-	export class pmarker extends prop {
-		constructor(object, parameters) {
-			super(object, parameters);
-			this.type = 'pmarker';
-			this.array = markers;
-		}
-		override _finish() {
-			this.object.visible = true;
-			let helper = new THREE.AxesHelper(1);
-			this.object.add(helper);
-		}
-		override _loop() {
 		}
 	}
 
