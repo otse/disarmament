@@ -9,9 +9,12 @@ var vr;
     let INTERSECTION;
     function boot() {
         controller.boot();
-        let button = VRButton.createButton(renderer.renderer);
-        console.log(' button ', button);
-        document.body.appendChild(button);
+        let button;
+        if (glob.hasHeadset) {
+            button = VRButton.createButton(renderer.renderer);
+            console.log(' button ', button);
+            document.body.appendChild(button);
+        }
         renderer.renderer.xr.addEventListener('sessionstart', () => {
             glob.xr = true;
             vr.baseReferenceSpace = renderer.renderer.xr.getReferenceSpace();

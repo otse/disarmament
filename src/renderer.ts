@@ -17,6 +17,8 @@ namespace renderer {
 
 	export var sun, sunOffset = [-2, 30, -2]
 
+	export var maxAnisotropy
+
 	export var headacheMode = false;
 	export var statsEnabled = false;
 
@@ -66,6 +68,8 @@ namespace renderer {
 			renderer.setAnimationLoop(app.base_loop);
 		renderer.xr.setFramebufferScaleFactor(1);
 		renderer.shadowMap.enabled = true;
+
+		maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
 
 		renderer.xr.enabled = true;
 		renderer.xr.cameraAutoUpdate = false;

@@ -142,7 +142,7 @@
 		"helper": true,
 		"hide": true,
 		"color": "lavender",
-		"intensity": 15.0,
+		"intensity": 8.0,
 		"target": [
 			0.0,
 			-1.0,

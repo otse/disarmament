@@ -41,6 +41,7 @@ var renderer;
             renderer_1.renderer.setAnimationLoop(app.base_loop);
         renderer_1.renderer.xr.setFramebufferScaleFactor(1);
         renderer_1.renderer.shadowMap.enabled = true;
+        renderer_1.maxAnisotropy = renderer_1.renderer.capabilities.getMaxAnisotropy();
         renderer_1.renderer.xr.enabled = true;
         renderer_1.renderer.xr.cameraAutoUpdate = false;
         renderer_1.renderer.shadowMap.type = THREE.BasicShadowMap;

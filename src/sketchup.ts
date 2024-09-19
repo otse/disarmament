@@ -24,7 +24,8 @@ namespace sketchup {
 	var figsMats = {}
 	const mats = {}
 
-	var loresToggle = false;
+	var loresToggle = true;
+	var normalToggle = false;
 
 	export async function get_matsfig() {
 		let url = 'figs/mats.json';
@@ -65,7 +66,6 @@ namespace sketchup {
 		}
 	}
 
-	var normalToggle = true;
 	async function toggle_normalmap() {
 		normalToggle = !normalToggle;
 		const funcs: any[] = [];
@@ -127,7 +127,7 @@ namespace sketchup {
 			vec3 lumaWeights = vec3(.25,.50,.25);
 
 			vec3 grey;
-			float sat = 3.0;
+			float sat = 2.0;
 			float reduce = 100.0;
 			float resat = 2.0;
 			float rereduce = 100.0;
@@ -196,6 +196,7 @@ namespace sketchup {
 				const canvas = document.createElement('canvas');
 				const ctx = canvas.getContext('2d')!;
 				const texture = new THREE.CanvasTexture(canvas);
+				texture.anisotropy = renderer.maxAnisotropy;
 				new THREE.ImageLoader().loadAsync(imageUrl).then((image) => {
 					// console.log('from', image.width, image.height, 'to', image.width / scale, image.height / scale);
 					canvas.width = image.width / scale;
