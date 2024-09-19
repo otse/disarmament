@@ -2,6 +2,7 @@
     "ebony": ["white", "./assets/textures/black", 0.5, 0.5, 0, false],
     "floor1": ["white", "./assets/textures/floor1", 0.15, 0.4, 0, true],
     "floor2": ["white", "./assets/textures/floor2", 0.2, 0.3, 0, true],
+    "concrete1": ["white", "./assets/textures/concrete1", 0.2, 0.6, 0, false],
     "floormossy": ["white", "./assets/textures/mossyfloor", 0.1, 0.35, 0, true, true],
     "twotonewall": ["white", "./assets/textures/twotonewall", 0.2, 0.2, 0, true, false],
     "officehall": ["white", "./assets/textures/officehall", 0.5, 0.3, 0.0, true],
@@ -9,6 +10,6 @@
     "locker1": ["white", "./assets/textures/locker1", 0.5, 0.3, 0.0, false],
     "door1": ["white", "./assets/textures/door1", 0.1, 0.2, 0.1, true],
     "wallsewerhole": ["white", "./assets/textures/wallsewerhole", 0.5, 0.5, 0.0, false],
-    "concretecornerdamage": ["white", "./assets/textures/concretecornerdamage", 0.2, 0.3, 0.0, false],
+    "concretecornerdamage": ["white", "./assets/textures/concretecornerdamage", 1.0, 0.3, 0.0, true],
     "rustylatch": ["white", "./assets/textures/rustylatch", 0.2, 0.3, 0.0, false]
   }

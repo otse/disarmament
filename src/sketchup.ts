@@ -24,8 +24,8 @@ namespace sketchup {
 	var figsMats = {}
 	const mats = {}
 
-	var loresToggle = true;
-	var normalToggle = false;
+	var loresToggle = false;
+	var normalToggle = true;
 
 	export async function get_matsfig() {
 		let url = 'figs/mats.json';
