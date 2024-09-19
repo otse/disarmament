@@ -19,7 +19,7 @@ namespace sketchup {
 		transparent?: boolean,
 	]
 
-	const stickers = ['sewerhole']
+	const stickers = ['wallsewerhole', 'concretecornerdamage']
 
 	var figsMats = {}
 	const mats = {}

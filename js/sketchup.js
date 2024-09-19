@@ -6,7 +6,7 @@ import tunnels from "./tunnels.js";
 import vr from "./vr/vr.js";
 var sketchup;
 (function (sketchup) {
-    const stickers = ['sewerhole'];
+    const stickers = ['wallsewerhole', 'concretecornerdamage'];
     var figsMats = {};
     const mats = {};
     var loresToggle = true;
