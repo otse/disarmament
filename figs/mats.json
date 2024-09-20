@@ -3,7 +3,7 @@
     "floor1": ["white", "./assets/textures/floor1", 0.8, 0.4, 0.4, true],
     "floor2": ["white", "./assets/textures/floor2", 0.2, 0.3, 0, true],
     "concrete1": ["white", "./assets/textures/concrete1", 0.2, 0.6, 0.7, false],
-    "floormossy": ["white", "./assets/textures/mossyfloor", 0.1, 0.35, 0, true, false],
+    "floormossy": ["white", "./assets/textures/mossyfloor", 0.1, 0.3, 0, true, false],
     "twotonewall": ["white", "./assets/textures/twotonewall", 0.2, 0.2, 0, true, false],
     "officehall": ["white", "./assets/textures/officehall", 0.8, 0.3, 0.0, true],
     "bunkerwall": ["white", "./assets/textures/bunkerwall", 0.1, 0.3, 0.0, true],

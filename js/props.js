@@ -3,10 +3,10 @@ import glob from "./lib/glob.js";
 import hooks from "./lib/hooks.js";
 import garbage from "./garbage.js";
 import physics from "./physics.js";
-import renderer from "./renderer.js";
 import easings from "./easings.js";
 import app from "./app.js";
 import common from "./common.js";
+import toggle from "./lib/toggle.js";
 var props;
 (function (props) {
     function factory(object) {
@@ -19,6 +19,8 @@ var props;
                 prop = new pmarker(object, {});
                 break;
             case 'prop':
+                prop = new pprop(object, {});
+                break;
             case 'box':
                 console.log(' new pbox ', kind, preset);
                 prop = new pbox(object, {});
@@ -88,7 +90,7 @@ var props;
         group.add(object);
         master.updateMatrix();
         master.updateMatrixWorld(true);
-        renderer.propsGroup.add(master);
+        // glob.propsGroup.add(master);
         group.traverse((object) => object.geometry?.computeBoundingBox());
         prop.master = master;
         prop.group = group;
@@ -114,10 +116,10 @@ var props;
     props.boxes = [];
     props.lights = [];
     props.presets = {};
-    class prop {
+    class prop extends toggle {
         object;
         parameters;
-        vdb;
+        debugBox;
         array = [];
         type;
         kind;
@@ -127,10 +129,12 @@ var props;
         oldRotation;
         fbody;
         aabb;
+        aabb2;
         constructor(object, parameters) {
+            super();
             this.object = object;
             this.parameters = parameters;
-            this.type = 'ordinary prop';
+            this.type = 'Illegal prop';
             props.collection.push(this);
         }
         complete() {
@@ -139,26 +143,44 @@ var props;
             this.measure();
             if (glob.propAxes)
                 this.master.add(new THREE.AxesHelper());
-            this.vdb = new common.debug_box(this, 'blue');
-            this.master.add(this.vdb.mesh);
-            this._finish();
+            //this.hide();
         }
-        _finish() {
+        show() {
+            if (this.on()) {
+                console.warn(`Oops: Prop ${this.type} is already showing.`);
+                return;
+            }
+            glob.propsGroup.add(this.master);
+            this._show();
+        }
+        hide() {
+            if (this.off()) {
+                console.warn(`Oops: Prop ${this.type} is already hidden.`);
+                return;
+            }
+            glob.propsGroup.remove(this.master);
+            this._hide();
+        }
+        loop() {
+            this.active && this._loop?.(); // Execute loop logic for active prop
+        }
+        _show() {
+            this.object.visible = true;
+        }
+        _hide() {
+            this.object.visible = false;
         }
         _lod() {
         }
         _loop() {
-        }
-        loop() {
-            this._loop();
         }
         lod() {
             // todo ugly and confusing splices
             props.collection.splice(props.collection.indexOf(this), 1);
             this.array.splice(this.array.indexOf(this), 1);
             this._lod();
-            this.vdb?.lod();
-            renderer.propsGroup.remove(this.master);
+            this.debugBox?.lod();
+            glob.propsGroup.remove(this.master);
             if (this.fbody)
                 this.fbody.lod();
         }
@@ -183,15 +205,33 @@ var props;
         }
     }
     props.prop = prop;
+    class pprop extends prop {
+        constructor(object, parameters) {
+            super(object, parameters);
+            this.type = 'pprop';
+        }
+        _show() {
+            this.object.visible = true;
+            this.debugBox = new common.debug_box(this, 'blue', true);
+            glob.propsGroup.add(this.debugBox.mesh);
+        }
+        _hide() {
+            this.object.visible = false;
+            this.debugBox?.mesh.removeFromParent();
+        }
+        _loop() {
+        }
+    }
+    props.pprop = pprop;
     class pmarker extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pmarker';
             this.array = props.markers;
-        }
-        _finish() {
-            this.object.visible = true;
             this.object.add(new THREE.AxesHelper(1));
+        }
+        _show() {
+            this.object.visible = true;
         }
         _loop() {
         }
@@ -203,8 +243,16 @@ var props;
             this.type = 'pbox';
             this.array = props.boxes;
         }
-        _finish() {
+        _show() {
+            this.object.visible = true;
             new physics.fbox(this);
+            this.debugBox = new common.debug_box(this, 'blue', true);
+            glob.propsGroup.add(this.debugBox.mesh);
+        }
+        _hide() {
+            this.object.visible = false;
+            this.debugBox?.mesh.removeFromParent();
+            this.fbody?.lod();
         }
         _loop() {
             this.fbody.loop();
@@ -221,12 +269,17 @@ var props;
             this.type = 'pwallorsolid';
             this.array = props.walls;
         }
-        _finish() {
+        _show() {
             new physics.fbox(this);
             if (this.object.name != 'solid')
                 this.object.visible = false;
             this.master.position.copy(this.fbody.body.position);
             this.master.quaternion.copy(this.fbody.body.quaternion);
+        }
+        _hide() {
+            this.object.visible = false;
+            this.debugBox?.mesh.removeFromParent();
+            this.fbody?.lod();
         }
         _loop() {
         }
@@ -239,7 +292,7 @@ var props;
             this.array = props.walls;
             //this.build_debug_box = true;
         }
-        _finish() {
+        _show() {
             console.log('finish stairstep');
             new physics.fstairstep(this);
             this.master.position.copy(this.fbody.body.position);
@@ -257,7 +310,7 @@ var props;
             this.array = props.boxes;
             this.object.visible = false;
         }
-        _finish() {
+        _show() {
             const size = new THREE.Vector3();
             this.aabb.getSize(size);
             size.multiplyScalar(garbage.spaceMultiply);
@@ -300,7 +353,7 @@ var props;
                 return false;
             });
         }
-        _finish() {
+        _show() {
             this.object.visible = false;
             this._play();
         }
@@ -332,7 +385,7 @@ var props;
             super(object, parameters);
             this.type = 'pfan';
         }
-        _finish() {
+        _show() {
             this.preset_ = props.presets[this.preset || 'none'];
             console.log('fan preset_', this.preset_, this.preset);
             //this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
@@ -373,7 +426,12 @@ var props;
             '⛪️';
             //console.log('pdoor hint', parameters.rotation || 0);
         }
-        _finish() {
+        _hide() {
+            this.object.visible = false;
+            this.fbody?.lod();
+        }
+        _show() {
+            this.object.visible = true;
             new physics.fdoor(this);
             //this.object.add(new THREE.AxesHelper(20));
             //this.group.add(new THREE.AxesHelper(20));
@@ -394,6 +452,8 @@ var props;
         timer = 0;
         behavior() {
             if (!this.preset_)
+                return;
+            if (!this.light)
                 return;
             const behavior = this.preset_.behavior;
             if (!behavior)
@@ -424,7 +484,11 @@ var props;
             this.type = 'plight';
             this.array = props.lights;
         }
-        _finish() {
+        _hide() {
+            this.object.visible = false;
+            this.light?.removeFromParent();
+        }
+        _show() {
             //this.object.visible = false;
             this.preset_ = props.presets[this.preset || 'none'];
             if (!this.preset_) {
@@ -435,7 +499,6 @@ var props;
             let size = new THREE.Vector3();
             this.aabb.getSize(size);
             size.divideScalar(2.0);
-            size.multiplyScalar(garbage.spaceMultiply);
             let light = new THREE.PointLight(this.preset_.color || 'white', this.preset_.intensity || 1, this.preset_.distance || 3, this.preset_.decay || 1);
             this.light = light;
             light.visible = !this.preset_.disabled;
@@ -443,7 +506,7 @@ var props;
             //light.position.fromArray(preset.offset || [0, 0, 0]);
             light.position.add(size);
             // light.add(new THREE.AxesHelper(10));
-            this.group.add(light);
+            this.master.add(light);
         }
         _loop() {
             this.behavior();
@@ -459,7 +522,7 @@ var props;
             this.type = 'pspotlight';
             this.array = props.lights;
         }
-        _finish() {
+        _show() {
             this.preset_ = props.presets[this.preset || 'none'];
             if (!this.preset_) {
                 console.warn(' preset no def ');
@@ -501,7 +564,11 @@ var props;
             this.type = 'prectlight';
             this.array = props.lights;
         }
-        _finish() {
+        _hide() {
+            this.light?.removeFromParent();
+        }
+        _show() {
+            console.log('prectlight show');
             this.preset_ = props.presets[this.preset || 'none'];
             if (!this.preset_) {
                 console.log(' preset no def ', this.preset);
@@ -528,16 +595,16 @@ var props;
             light.power = 100;
             light.intensity = this.preset_.intensity;
             light.needsUpdate = true;
-            console.log('rectlight preset', this.preset_, 'intensity', this.preset_.intensity);
+            // console.log('rectlight preset', this.preset_, 'intensity', this.preset_.intensity);
             this.light = light;
             light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
-            this.group.add(light);
+            this.master.add(light);
             const temp = new THREE.Vector3(size.x, size.z, size.y);
             temp.multiplyScalar(garbage.spaceMultiply);
-            this.object.position.sub(temp.divideScalar(2));
+            //this.object.position.sub(temp.divideScalar(2));
             size.divideScalar(2);
             size.z = -size.z;
-            this.group.position.add(size);
+            this.light.position.add(size);
             const hasHelper = this.preset_.helper;
             if (hasHelper) {
                 const helper = new RectAreaLightHelper(light);

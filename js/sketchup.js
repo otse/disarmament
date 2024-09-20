@@ -23,12 +23,12 @@ var sketchup;
             if (app.proompt('r') == 1) {
                 await get_matsfig();
                 await make_figs_mats();
-                scene_takes_figs_mats(levelGroup);
+                scene_takes_figs_mats(renderer.scene);
             }
             if (app.proompt('t') == 1) {
                 console.log('[t]');
                 props.clear();
-                renderer.scene.remove(levelGroup);
+                renderer.scene.remove(renderer.scene);
                 await props.reload();
                 //await get_matsfig();
                 //await make_materials();
@@ -37,7 +37,7 @@ var sketchup;
             if (app.proompt('f3') == 1) {
                 loresToggle = !loresToggle;
                 props.clear();
-                renderer.scene.remove(levelGroup);
+                renderer.scene.remove(renderer.scene);
                 await props.reload();
                 await get_matsfig();
                 await make_figs_mats();
@@ -202,7 +202,7 @@ var sketchup;
     }
     sketchup.boot = boot;
     function fix_sticker(material) {
-        console.warn(' fix sticker ', material);
+        // console.warn(' fix sticker ', material);
         material.transparent = true;
         material.polygonOffset = true;
         material.polygonOffsetFactor = -1;
@@ -264,7 +264,6 @@ var sketchup;
             console.log(' collada scene ', scene);
             const queue = [];
             // todo sheesh cleanup!
-            tunnels.find_make_tunnels(scene);
             function find_make_props(object) {
                 object.castShadow = true;
                 object.receiveShadow = true;
@@ -276,6 +275,7 @@ var sketchup;
             scene_takes_figs_mats(scene);
             for (let prop of queue)
                 prop.complete();
+            tunnels.find_make_tunnels(scene);
             const group = new THREE.Group();
             group.add(scene);
             renderer.scene.add(group);

@@ -14,6 +14,7 @@ var renderer;
         renderer_1.clock = new THREE.Clock();
         renderer_1.propsGroup = new THREE.Group();
         renderer_1.yawGroup = new THREE.Group();
+        glob.propsGroup = renderer_1.propsGroup;
         renderer_1.scene = new THREE.Scene();
         renderer_1.scene.add(renderer_1.propsGroup);
         renderer_1.scene.add(renderer_1.yawGroup);

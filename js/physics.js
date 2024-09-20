@@ -199,8 +199,8 @@ var physics;
                 let volume;
                 volume = garbage.clamp(mass * velocity, 0.1, 3);
                 volume = garbage.clamp(velocity, 0.1, 1.0);
-                if (that.prop.vdb)
-                    that.prop.vdb.recolor(garbage.sample(collision_happy_colors));
+                if (that.prop.debugBox)
+                    that.prop.debugBox.recolor(garbage.sample(collision_happy_colors));
                 let sample = '';
                 const impacts = props.impact_sounds[kind.material];
                 if (!impacts)
@@ -319,6 +319,8 @@ var physics;
             physics.world.removeBody(this.hingedBody);
             physics.world.removeBody(this.staticBody);
         }
+        loop() {
+        }
         constructor(prop) {
             super(prop);
             const size = new THREE.Vector3();
@@ -392,8 +394,6 @@ var physics;
             this.body = hingedBody;
             this.hingedBody = hingedBody;
             this.staticBody = staticBody;
-        }
-        loop() {
         }
     }
     physics.fdoor = fdoor;

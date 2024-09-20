@@ -33,6 +33,8 @@ namespace renderer {
 
 		propsGroup = new THREE.Group();
 		yawGroup = new THREE.Group();
+
+		glob.propsGroup = propsGroup;
 		
 		scene = new THREE.Scene();
 		scene.add(propsGroup);

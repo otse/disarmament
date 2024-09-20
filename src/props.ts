@@ -7,6 +7,7 @@ import renderer from "./renderer.js";
 import easings from "./easings.js";
 import app from "./app.js";
 import common from "./common.js";
+import toggle from "./lib/toggle.js";
 
 namespace props {
 
@@ -20,6 +21,8 @@ namespace props {
 				prop = new pmarker(object, {});
 				break;
 			case 'prop':
+				prop = new pprop(object, {});
+				break;
 			case 'box':
 				console.log(' new pbox ', kind, preset);
 				prop = new pbox(object, {});
@@ -99,7 +102,7 @@ namespace props {
 		master.updateMatrix();
 		master.updateMatrixWorld(true);
 
-		renderer.propsGroup.add(master);
+		// glob.propsGroup.add(master);
 
 		group.traverse((object) => object.geometry?.computeBoundingBox());
 
@@ -129,8 +132,8 @@ namespace props {
 
 	export var presets = {}
 
-	export abstract class prop {
-		vdb?: common.debug_box
+	export abstract class prop extends toggle {
+		debugBox?: common.debug_box
 		array: prop[] = []
 		type
 		kind
@@ -140,8 +143,10 @@ namespace props {
 		oldRotation
 		fbody: physics.fbody
 		aabb
+		aabb2
 		constructor(public readonly object, public readonly parameters) {
-			this.type = 'ordinary prop';
+			super();
+			this.type = 'Illegal prop';
 			collection.push(this);
 		}
 		complete() {
@@ -150,26 +155,44 @@ namespace props {
 			this.measure();
 			if (glob.propAxes)
 				this.master.add(new THREE.AxesHelper());
-			this.vdb = new common.debug_box(this, 'blue');
-			this.master.add(this.vdb.mesh);
-			this._finish();
+			//this.hide();
 		}
-		protected _finish() { // override
+		show() {
+			if (this.on()) {
+				console.warn(`Oops: Prop ${this.type} is already showing.`);
+				return;
+			}
+			glob.propsGroup.add(this.master);
+			this._show();
+		}
+		hide() {
+			if (this.off()) {
+				console.warn(`Oops: Prop ${this.type} is already hidden.`);
+				return;
+			}
+			glob.propsGroup.remove(this.master);
+			this._hide();
+		}
+		loop() {
+			this.active && this._loop?.(); // Execute loop logic for active prop
+		}
+		protected _show() { // override
+			this.object.visible = true;
+		}
+		protected _hide() { // override
+			this.object.visible = false;
 		}
 		protected _lod() { // override
 		}
 		protected _loop() { // override
-		}
-		loop() {
-			this._loop();
 		}
 		lod() {
 			// todo ugly and confusing splices
 			collection.splice(collection.indexOf(this), 1);
 			this.array.splice(this.array.indexOf(this), 1);
 			this._lod();
-			this.vdb?.lod();
-			renderer.propsGroup.remove(this.master);
+			this.debugBox?.lod();
+			glob.propsGroup.remove(this.master);
 			if (this.fbody)
 				this.fbody.lod();
 		}
@@ -194,15 +217,33 @@ namespace props {
 		}
 	}
 
+	export class pprop extends prop {
+		constructor(object, parameters) {
+			super(object, parameters);
+			this.type = 'pprop';
+		}
+		override _show() {
+			this.object.visible = true;
+			this.debugBox = new common.debug_box(this, 'blue', true);
+			glob.propsGroup.add(this.debugBox.mesh);
+		}
+		override _hide() {
+			this.object.visible = false;
+			this.debugBox?.mesh.removeFromParent();
+		}
+		override _loop() {
+		}
+	}
+
 	export class pmarker extends prop {
 		constructor(object, parameters) {
 			super(object, parameters);
 			this.type = 'pmarker';
 			this.array = markers;
-		}
-		override _finish() {
-			this.object.visible = true;
 			this.object.add(new THREE.AxesHelper(1));
+		}
+		override _show() {
+			this.object.visible = true;
 		}
 		override _loop() {
 		}
@@ -214,8 +255,16 @@ namespace props {
 			this.type = 'pbox';
 			this.array = boxes;
 		}
-		override _finish() {
+		override _show() {
+			this.object.visible = true;
 			new physics.fbox(this);
+			this.debugBox = new common.debug_box(this, 'blue', true);
+			glob.propsGroup.add(this.debugBox.mesh);
+		}
+		override _hide() {
+			this.object.visible = false;
+			this.debugBox?.mesh.removeFromParent();
+			this.fbody?.lod();
 		}
 		override _loop() {
 			this.fbody.loop();
@@ -232,12 +281,17 @@ namespace props {
 			this.type = 'pwallorsolid';
 			this.array = walls;
 		}
-		override _finish() {
+		override _show() {
 			new physics.fbox(this);
 			if (this.object.name != 'solid')
 				this.object.visible = false;
 			this.master.position.copy(this.fbody.body.position);
 			this.master.quaternion.copy(this.fbody.body.quaternion);
+		}
+		override _hide() {
+			this.object.visible = false;
+			this.debugBox?.mesh.removeFromParent();
+			this.fbody?.lod();
 		}
 		override _loop() {
 		}
@@ -250,7 +304,7 @@ namespace props {
 			this.array = walls;
 			//this.build_debug_box = true;
 		}
-		override _finish() {
+		override _show() {
 			console.log('finish stairstep');
 			new physics.fstairstep(this);
 			this.master.position.copy(this.fbody.body.position);
@@ -268,7 +322,7 @@ namespace props {
 			this.array = boxes;
 			this.object.visible = false;
 		}
-		override _finish() {
+		override _show() {
 			const size = new THREE.Vector3();
 			this.aabb.getSize(size);
 			size.multiplyScalar(garbage.spaceMultiply);
@@ -311,7 +365,7 @@ namespace props {
 				return false;
 			});
 		}
-		override _finish() {
+		override _show() {
 			this.object.visible = false;
 			this._play();
 		}
@@ -344,7 +398,7 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pfan';
 		}
-		override _finish() {
+		override _show() {
 			this.preset_ = presets[this.preset || 'none'];
 			console.log('fan preset_', this.preset_, this.preset);
 
@@ -397,7 +451,12 @@ namespace props {
 			//console.log('pdoor hint', parameters.rotation || 0);
 
 		}
-		override _finish() {
+		override _hide() {
+			this.object.visible = false;
+			this.fbody?.lod();
+		}
+		override _show() {
+			this.object.visible = true;
 			new physics.fdoor(this);
 			//this.object.add(new THREE.AxesHelper(20));
 			//this.group.add(new THREE.AxesHelper(20));
@@ -418,6 +477,8 @@ namespace props {
 		timer = 0
 		behavior() {
 			if (!this.preset_)
+				return;
+			if (!this.light)
 				return;
 			const behavior = this.preset_.behavior;
 			if (!behavior)
@@ -448,7 +509,11 @@ namespace props {
 			this.type = 'plight';
 			this.array = lights;
 		}
-		override _finish() {
+		override _hide() {
+			this.object.visible = false;
+			this.light?.removeFromParent();
+		}
+		override _show() {
 			//this.object.visible = false;
 			this.preset_ = presets[this.preset || 'none'];
 			if (!this.preset_) {
@@ -461,7 +526,6 @@ namespace props {
 			let size = new THREE.Vector3();
 			this.aabb.getSize(size);
 			size.divideScalar(2.0);
-			size.multiplyScalar(garbage.spaceMultiply);
 
 			let light = new THREE.PointLight(
 				this.preset_.color || 'white',
@@ -474,7 +538,7 @@ namespace props {
 			//light.position.fromArray(preset.offset || [0, 0, 0]);
 			light.position.add(size);
 			// light.add(new THREE.AxesHelper(10));
-			this.group.add(light);
+			this.master.add(light);
 		}
 		override _loop() {
 			this.behavior();
@@ -490,7 +554,7 @@ namespace props {
 			this.type = 'pspotlight';
 			this.array = lights;
 		}
-		override _finish() {
+		override _show() {
 			this.preset_ = presets[this.preset || 'none'];
 			if (!this.preset_) {
 				console.warn(' preset no def ');
@@ -543,8 +607,12 @@ namespace props {
 			this.type = 'prectlight';
 			this.array = lights;
 		}
-		override _finish() {
-
+		override _hide() {
+			this.light?.removeFromParent();
+		}
+		override _show() {
+			console.log('prectlight show');
+			
 			this.preset_ = presets[this.preset || 'none'];
 			if (!this.preset_) {
 				console.log(' preset no def ', this.preset);
@@ -581,20 +649,20 @@ namespace props {
 			light.intensity = this.preset_.intensity;
 			light.needsUpdate = true;
 
-			console.log('rectlight preset', this.preset_, 'intensity', this.preset_.intensity);
+			// console.log('rectlight preset', this.preset_, 'intensity', this.preset_.intensity);
 
 			this.light = light;
 
 			light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
-			this.group.add(light);
+			this.master.add(light);
 
 			const temp = new THREE.Vector3(size.x, size.z, size.y);
 			temp.multiplyScalar(garbage.spaceMultiply);
-			this.object.position.sub(temp.divideScalar(2));
+			//this.object.position.sub(temp.divideScalar(2));
 
 			size.divideScalar(2);
 			size.z = -size.z;
-			this.group.position.add(size);
+			this.light.position.add(size);
 
 			const hasHelper = this.preset_.helper;
 			if (hasHelper) {
