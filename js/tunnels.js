@@ -22,27 +22,44 @@ var tunnels;
                 new tunnel(object, name);
         }
         scene.traverse(finder);
+        neighbors();
     }
     tunnels_1.find_make_tunnels = find_make_tunnels;
+    function neighbors() {
+        for (const tunnel of tunnels)
+            tunnel.boring();
+    }
     var tunnels = [];
     class tunnel {
         object;
         name;
         aabb;
-        vdb;
+        aabb2;
+        neighbors = [];
+        debugBox;
         constructor(object, name) {
             this.object = object;
             this.name = name;
             tunnels.push(this);
             this.measure();
-            this.vdb = new common.visual_debug_box(this, 'green', true);
-            renderer.scene.add(this.vdb.mesh);
+            this.debugBox = new common.debug_box(this, 'green', true);
+            renderer.scene.add(this.debugBox.mesh);
         }
         measure() {
             this.object.updateMatrix();
             this.object.updateMatrixWorld();
             this.aabb = new THREE.Box3();
             this.aabb.setFromObject(this.object, true);
+            this.aabb2 = new THREE.Box3().copy(this.aabb);
+            this.aabb2.expandByScalar(0.1);
+        }
+        boring() {
+            for (const tunnel of tunnels) {
+                if (this === tunnel)
+                    continue;
+                if (this.aabb2.intersectsBox(tunnel.aabb2))
+                    this.neighbors.push(tunnel);
+            }
         }
         cleanup() {
             // tunnels.splice(tunnels.indexOf(this), 1);

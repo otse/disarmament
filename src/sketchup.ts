@@ -75,7 +75,7 @@ namespace sketchup {
 			if (!normalToggle)
 				mat.normalScale.set(0, 0);
 			else
-				mat.normalScale.set(tuple[2], -tuple[2]!);
+				mat.normalScale.set(tuple[2], -tuple[2]);
 		}
 	}
 

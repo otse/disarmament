@@ -130,7 +130,7 @@ namespace props {
 	export var presets = {}
 
 	export abstract class prop {
-		vdb?: common.visual_debug_box
+		vdb?: common.debug_box
 		array: prop[] = []
 		type
 		kind
@@ -150,7 +150,7 @@ namespace props {
 			this.measure();
 			if (glob.propAxes)
 				this.master.add(new THREE.AxesHelper());
-			this.vdb = new common.visual_debug_box(this, 'blue');
+			this.vdb = new common.debug_box(this, 'blue');
 			this.master.add(this.vdb.mesh);
 			this._finish();
 		}

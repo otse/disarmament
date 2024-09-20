@@ -24,6 +24,13 @@
 		"intensity": 0.15,
 		"distance": 2
 	},
+	"plgen": {
+		"hide": true,
+		"color": "white",
+		"intensity": 0.3,
+		"distance": 2.0,
+		"decay": 1.0
+	},
 	"fansw": {
 		"speed": 1
 	},

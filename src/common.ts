@@ -10,7 +10,7 @@ namespace common {
 	export function boot() {
 
 	}
-	export class visual_debug_box {
+	export class debug_box {
 		mesh
 		constructor(
 			public base: has_property_aabb,

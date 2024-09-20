@@ -139,7 +139,7 @@ var props;
             this.measure();
             if (glob.propAxes)
                 this.master.add(new THREE.AxesHelper());
-            this.vdb = new common.visual_debug_box(this, 'blue');
+            this.vdb = new common.debug_box(this, 'blue');
             this.master.add(this.vdb.mesh);
             this._finish();
         }

@@ -5,7 +5,7 @@ var common;
     function boot() {
     }
     common.boot = boot;
-    class visual_debug_box {
+    class debug_box {
         base;
         color;
         absolute;
@@ -36,6 +36,6 @@ var common;
             this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
         }
     }
-    common.visual_debug_box = visual_debug_box;
+    common.debug_box = debug_box;
 })(common || (common = {}));
 export default common;

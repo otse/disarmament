@@ -23,7 +23,7 @@ class player {
         this.cannonBody.position.set(glob.yawGroup.position.x, glob.yawGroup.position.y + 1, glob.yawGroup.position.z);
         this.aabb = new THREE.Box3();
         this.set_aabb();
-        this.vdb = new common.visual_debug_box(this, 'purple');
+        this.vdb = new common.debug_box(this, 'purple');
         renderer.scene.add(this.vdb.mesh);
         hooks.register('xrStart', () => this.xr_takes_over());
     }
@@ -149,7 +149,7 @@ class player {
         glob.yawGroup.position.copy(this.cannonBody.position);
         glob.yawGroup.position.add(new THREE.Vector3(0, -plyRadius, 0));
         if (!glob.hasHeadset)
-            glob.yawGroup.position.add(new THREE.Vector3(0, 1.8, 0));
+            glob.yawGroup.position.add(new THREE.Vector3(0, 1.65, 0));
         else // if we're sitting with a headset
             glob.yawGroup.position.add(new THREE.Vector3(0, 0.5, 0));
         this.set_aabb();
