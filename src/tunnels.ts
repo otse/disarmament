@@ -9,12 +9,13 @@ import props from "./props.js";
 import renderer from "./renderer.js";
 
 namespace tunnels {
-	export var corridor: tunnel;
+	export var currentTunnel: tunnel | undefined;
 
 	export function clear() {
 		for (const tunnel of tunnels)
 			tunnel.cleanup();
 		tunnels = [];
+		currentTunnel = undefined;
 	}
 
 	export function loop() {
@@ -25,9 +26,8 @@ namespace tunnels {
 		}
 	}
 
-	export function find_make_tunnels(scene) {
+	export function findMakeTunnels(scene) {
 		function finder(object) {
-			// ugly guard clause
 			if (!object.name)
 				return;
 			const [kind, name, hint] = object.name?.split('_');
@@ -40,7 +40,7 @@ namespace tunnels {
 			tunnel.findAdjacentTunnels();
 	}
 
-	var tunnels: tunnel[] = [];
+	export var tunnels: tunnel[] = [];
 
 	export class tunnel extends toggle {
 		aabb
@@ -54,16 +54,11 @@ namespace tunnels {
 			tunnels.push(this);
 			this.measure();
 			this.debugBox = new common.debug_box(this, 'green', true);
-			renderer.scene.add(this.debugBox.mesh);
-			this.collect_props();
+			this.gatherContainedProps();
 		}
 		protected measure() {
-			this.object.updateMatrix();
-			this.object.updateMatrixWorld();
-			this.aabb = new THREE.Box3();
-			this.aabb.setFromObject(this.object, true);
-			this.expandedAabb = new THREE.Box3().copy(this.aabb);
-			this.expandedAabb.expandByScalar(0.1);
+			this.aabb = new THREE.Box3().setFromObject(this.object, true);
+			this.expandedAabb = this.aabb.clone().expandByScalar(0.1);
 		}
 		findAdjacentTunnels() {
 			for (const tunnel of tunnels) {
@@ -73,14 +68,16 @@ namespace tunnels {
 					this.adjacentTunnels.push(tunnel);
 			}
 		}
-		private collect_props() {
-			for (const prop of props.collection) {
+		private gatherContainedProps() {
+			for (const prop of props.props) {
 				if (prop.aabb && this.aabb.intersectsBox(prop.aabb)) {
 					this.containedObjects.push(prop);
 				}
 			}
 			console.log(this.name, 'collected', this.containedObjects.length, 'props', this.containedObjects);
-
+		}
+		cleanup() {
+			
 		}
 		show() {
 			if (this.on()) {
@@ -104,40 +101,28 @@ namespace tunnels {
 		}
 		check() {
 			const playerAABB = garbage.gplayer.aabb;
-
 			if (this.expandedAabb.containsBox(playerAABB)) {
-				if (corridor !== this) {					
-					// Collect current active tunnels
-					const currentTunnels = corridor ? [corridor, ...corridor.adjacentTunnels] : [];
-
-					// Collect new candidate tunnels
+				if (currentTunnel !== this) {
+					const currentTunnels = currentTunnel ? [currentTunnel, ...currentTunnel.adjacentTunnels] : [];
 					const newTunnels = [this, ...this.adjacentTunnels];
 
-					// Hide all current tunnels that are not in the new set
-					currentTunnels.forEach(tunnel => {
+					for (const tunnel of currentTunnels) {
 						if (!newTunnels.includes(tunnel)) {
 							tunnel.hide();
 						}
-					});
+					}
 
-					// Show all new tunnels that were not already visible
-					newTunnels.forEach(tunnel => {
+					for (const tunnel of newTunnels) {
 						if (!currentTunnels.includes(tunnel)) {
 							tunnel.show();
 						}
-					});
-					corridor = this;
+					}
+
+					currentTunnel = this;
 				}
 				return true;
-			} else if (this.aabb.intersectsBox(playerAABB)) {
-				//console.log('intersecting');
-
-				// we are intersecting, but not containing
 			}
-			// No intersection
-		}
-		cleanup() {
-			// tunnels.splice(tunnels.indexOf(this), 1);
+			return false;
 		}
 	}
 }

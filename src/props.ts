@@ -68,15 +68,16 @@ namespace props {
 	}
 
 	export function loop() {
-		for (let prop of collection)
+		for (let prop of props)
 			prop.loop();
 	}
 
 	export function clear() {
-		const array = collection.slice(0);
-		for (let prop of array)
+		// Avoid modifying the collection while iterating over it
+		const array = props.slice(0);
+		for (const prop of array)
 			prop.lod();
-		collection = [];
+		props = [];
 	}
 
 	export function take_collada_prop(prop: prop) {
@@ -117,13 +118,10 @@ namespace props {
 	export async function reload() {
 		let url = './figs/glob.json';
 		let response = await fetch(url);
-		const arrSales = await response.json();
-		presets = arrSales;
-		console.log(presets);
-		return arrSales;
+		presets = await response.json();
 	}
 
-	export var collection: prop[] = []
+	export var props: prop[] = []
 	export var markers: prop[] = []
 	export var walls: prop[] = []
 	export var sounds: psound[] = []
@@ -148,7 +146,7 @@ namespace props {
 			super();
 			this.type = 'Illegal prop';
 			this.object.visible = false;
-			collection.push(this);
+			props.push(this);
 		}
 		complete() {
 			this.array.push(this);
@@ -189,7 +187,7 @@ namespace props {
 		}
 		lod() {
 			// todo ugly and confusing splices
-			collection.splice(collection.indexOf(this), 1);
+			props.splice(props.indexOf(this), 1);
 			this.array.splice(this.array.indexOf(this), 1);
 			this._lod();
 			this.debugBox?.lod();
@@ -226,7 +224,6 @@ namespace props {
 		override _show() {
 			this.object.visible = true;
 			this.debugBox = new common.debug_box(this, 'blue', true);
-			glob.propsGroup.add(this.debugBox.mesh);
 		}
 		override _hide() {
 			this.object.visible = false;
@@ -260,7 +257,6 @@ namespace props {
 			this.object.visible = true;
 			new physics.fbox(this);
 			this.debugBox = new common.debug_box(this, 'blue', true);
-			glob.propsGroup.add(this.debugBox.mesh);
 		}
 		override _hide() {
 			this.object.visible = false;

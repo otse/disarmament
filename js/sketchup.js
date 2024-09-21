@@ -11,37 +11,38 @@ var sketchup;
     const mats = {};
     var loresToggle = false;
     var normalToggle = true;
-    async function get_matsfig() {
+    async function getMats() {
         let url = 'figs/mats.json';
         let response = await fetch(url);
         const arrSales = await response.json();
         figsMats = arrSales;
     }
-    sketchup.get_matsfig = get_matsfig;
+    sketchup.getMats = getMats;
     async function loop() {
         if (glob.developer) {
             if (app.proompt('r') == 1) {
-                await get_matsfig();
-                await make_figs_mats();
-                scene_takes_figs_mats(renderer.scene);
+                await getMats();
+                await buildMats();
+                objectsTakeMats(glob.levelGroup);
+                objectsTakeMats(glob.propsGroup);
             }
             if (app.proompt('t') == 1) {
                 console.log('[t]');
                 props.clear();
-                renderer.scene.remove(renderer.scene);
+                tunnels.clear();
+                renderer.scene.remove(glob.levelGroup);
                 await props.reload();
-                //await get_matsfig();
-                //await make_materials();
-                await load_level();
+                await loadLevel();
             }
             if (app.proompt('f3') == 1) {
                 loresToggle = !loresToggle;
                 props.clear();
-                renderer.scene.remove(renderer.scene);
+                tunnels.clear();
+                renderer.scene.remove(glob.levelGroup);
                 await props.reload();
-                await get_matsfig();
-                await make_figs_mats();
-                await load_level();
+                await getMats();
+                await buildMats();
+                await loadLevel();
             }
             if (app.proompt('n') == 1) {
                 await toggle_normalmap();
@@ -149,7 +150,7 @@ var sketchup;
         };
         mats[name] = mat;
     }
-    async function make_figs_mats() {
+    async function buildMats() {
         /* promises - nero
         */
         const funcs = [];
@@ -158,7 +159,7 @@ var sketchup;
             const promise = /*await*/ bake_material_from_tuple(name, tuple);
             funcs.push(promise);
         }
-        // wait for all of them
+        // Wait for all of them
         return Promise.all(funcs);
     }
     const downscale = true;
@@ -185,9 +186,9 @@ var sketchup;
         });
     };
     async function boot() {
-        await get_matsfig();
-        await make_figs_mats();
-        await load_level();
+        await getMats();
+        await buildMats();
+        await loadLevel();
         for (const marker of props.markers) {
             if (marker.preset === 'start') {
                 console.log('woo');
@@ -209,14 +210,7 @@ var sketchup;
         material.polygonOffsetUnits = 1;
         material.needsUpdate = true;
     }
-    function adapt_color(color) {
-        for (const i in mats) {
-            const mat = mats[i];
-            mat.color = new THREE.Color(color);
-        }
-    }
-    sketchup.adapt_color = adapt_color;
-    async function object_takes_mat(object, index) {
+    async function objectTakesMat(object, index) {
         const current = index == -1 ? object.material : object.material[index];
         let mat;
         mat = mats[current.name];
@@ -230,19 +224,18 @@ var sketchup;
         if (stickers.includes(current.name))
             fix_sticker(mat);
     }
-    let levelGroup;
-    async function scene_takes_figs_mats(scene) {
+    async function objectsTakeMats(group) {
         async function traversal(object) {
             if (object.material)
                 if (!object.material.length)
-                    await object_takes_mat(object, -1);
+                    await objectTakesMat(object, -1);
                 else
                     for (let index in object.material)
-                        await object_takes_mat(object, index);
+                        await objectTakesMat(object, index);
         }
-        scene.traverse(traversal);
+        group.traverse(traversal);
     }
-    sketchup.scene_takes_figs_mats = scene_takes_figs_mats;
+    sketchup.objectsTakeMats = objectsTakeMats;
     async function load_level_config(name) {
         let url = `./assets/${name}.json`;
         let response = await fetch(url);
@@ -250,7 +243,7 @@ var sketchup;
         return arrSales;
     }
     sketchup.load_level_config = load_level_config;
-    async function load_level() {
+    async function loadLevel() {
         const name = glob.level;
         const loadingManager = new THREE.LoadingManager(function () {
         });
@@ -272,17 +265,17 @@ var sketchup;
                     queue.push(prop);
             }
             scene.traverse(find_make_props);
-            scene_takes_figs_mats(scene);
-            for (let prop of queue)
+            objectsTakeMats(scene);
+            for (const prop of queue)
                 prop.complete();
-            tunnels.find_make_tunnels(scene);
+            tunnels.findMakeTunnels(scene);
             const group = new THREE.Group();
             group.add(scene);
             renderer.scene.add(group);
-            levelGroup = group;
+            glob.levelGroup = group;
         });
     }
-    sketchup.load_level = load_level;
+    sketchup.loadLevel = loadLevel;
     async function load_gun(name) {
         const group = new THREE.Group();
         //group.add(new THREE.AxesHelper());
@@ -296,7 +289,7 @@ var sketchup;
             scene.updateMatrix();
             scene.updateMatrixWorld(); // without this everything explodes
             console.log(' collada scene ', scene);
-            scene_takes_figs_mats(scene);
+            objectsTakeMats(scene);
             group.add(scene);
             renderer.scene.add(group);
         });

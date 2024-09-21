@@ -37,6 +37,7 @@ namespace renderer {
 		glob.propsGroup = propsGroup;
 		
 		scene = new THREE.Scene();
+		glob.scene = scene;
 		scene.add(propsGroup);
 		scene.add(yawGroup);
 		scene.background = new THREE.Color('#333');

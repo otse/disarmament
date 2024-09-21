@@ -1,5 +1,6 @@
 /// taken from the lod of wastes
 // it is both silly and brilliant
+// used by props, tunnels, etc
 export class toggle {
     _active = false;
     get active() {
@@ -8,13 +9,13 @@ export class toggle {
     constructor() {
     }
     on() {
-        if (this.active === true)
+        if (this.active)
             return true; // It was already on
         this._active = true;
         return false; // It was not on
     }
     off() {
-        if (this.active === false)
+        if (!this.active)
             return true;
         this._active = false;
         return false;

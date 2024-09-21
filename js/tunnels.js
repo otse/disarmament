@@ -5,25 +5,24 @@ import common from "./common.js";
 import garbage from "./garbage.js";
 import toggle from "./lib/toggle.js";
 import props from "./props.js";
-import renderer from "./renderer.js";
 var tunnels;
 (function (tunnels_1) {
     function clear() {
-        for (const tunnel of tunnels)
+        for (const tunnel of tunnels_1.tunnels)
             tunnel.cleanup();
-        tunnels = [];
+        tunnels_1.tunnels = [];
+        tunnels_1.currentTunnel = undefined;
     }
     tunnels_1.clear = clear;
     function loop() {
-        for (const tunnel of tunnels) {
+        for (const tunnel of tunnels_1.tunnels) {
             if (tunnel.check())
                 break;
         }
     }
     tunnels_1.loop = loop;
-    function find_make_tunnels(scene) {
+    function findMakeTunnels(scene) {
         function finder(object) {
-            // ugly guard clause
             if (!object.name)
                 return;
             const [kind, name, hint] = object.name?.split('_');
@@ -31,16 +30,16 @@ var tunnels;
                 new tunnel(object, name);
         }
         scene.traverse(finder);
-        for (const tunnel of tunnels)
+        for (const tunnel of tunnels_1.tunnels)
             tunnel.findAdjacentTunnels();
     }
-    tunnels_1.find_make_tunnels = find_make_tunnels;
-    var tunnels = [];
+    tunnels_1.findMakeTunnels = findMakeTunnels;
+    tunnels_1.tunnels = [];
     class tunnel extends toggle {
         object;
         name;
         aabb;
-        aabb2;
+        expandedAabb;
         containedObjects = [];
         adjacentTunnels = [];
         debugBox;
@@ -49,35 +48,32 @@ var tunnels;
             this.object = object;
             this.name = name;
             this.object.visible = false;
-            tunnels.push(this);
+            tunnels_1.tunnels.push(this);
             this.measure();
             this.debugBox = new common.debug_box(this, 'green', true);
-            renderer.scene.add(this.debugBox.mesh);
-            this.collect_props();
+            this.gatherContainedProps();
         }
         measure() {
-            this.object.updateMatrix();
-            this.object.updateMatrixWorld();
-            this.aabb = new THREE.Box3();
-            this.aabb.setFromObject(this.object, true);
-            this.aabb2 = new THREE.Box3().copy(this.aabb);
-            this.aabb2.expandByScalar(0.1);
+            this.aabb = new THREE.Box3().setFromObject(this.object, true);
+            this.expandedAabb = this.aabb.clone().expandByScalar(0.1);
         }
         findAdjacentTunnels() {
-            for (const tunnel of tunnels) {
+            for (const tunnel of tunnels_1.tunnels) {
                 if (this === tunnel)
                     continue;
-                if (this.aabb2.intersectsBox(tunnel.aabb2))
+                if (this.expandedAabb.intersectsBox(tunnel.expandedAabb))
                     this.adjacentTunnels.push(tunnel);
             }
         }
-        collect_props() {
-            for (const prop of props.collection) {
+        gatherContainedProps() {
+            for (const prop of props.props) {
                 if (prop.aabb && this.aabb.intersectsBox(prop.aabb)) {
                     this.containedObjects.push(prop);
                 }
             }
             console.log(this.name, 'collected', this.containedObjects.length, 'props', this.containedObjects);
+        }
+        cleanup() {
         }
         show() {
             if (this.on()) {
@@ -99,53 +95,27 @@ var tunnels;
                 prop.hide();
             }
         }
-        show_aggregate() {
-            this.show();
-            for (const tunnel of this.adjacentTunnels) {
-                tunnel.show();
-            }
-        }
-        hide_aggregate() {
-            this.hide();
-            for (const tunnel of this.adjacentTunnels) {
-                tunnel.hide();
-            }
-        }
         check() {
             const playerAABB = garbage.gplayer.aabb;
-            if (this.aabb2.containsBox(playerAABB)) {
-                if (tunnels_1.corridor !== this) {
-                    console.log('woo we are in tunnel', this.name);
-                    // Collect current active tunnels
-                    const currentTunnels = tunnels_1.corridor ? [tunnels_1.corridor, ...tunnels_1.corridor.adjacentTunnels] : [];
-                    // Collect new candidate tunnels
+            if (this.expandedAabb.containsBox(playerAABB)) {
+                if (tunnels_1.currentTunnel !== this) {
+                    const currentTunnels = tunnels_1.currentTunnel ? [tunnels_1.currentTunnel, ...tunnels_1.currentTunnel.adjacentTunnels] : [];
                     const newTunnels = [this, ...this.adjacentTunnels];
-                    // Hide all current tunnels that are not in the new set
-                    currentTunnels.forEach(tunnel => {
+                    for (const tunnel of currentTunnels) {
                         if (!newTunnels.includes(tunnel)) {
                             tunnel.hide();
                         }
-                    });
-                    // Show all new tunnels that were not already visible
-                    newTunnels.forEach(tunnel => {
+                    }
+                    for (const tunnel of newTunnels) {
                         if (!currentTunnels.includes(tunnel)) {
                             tunnel.show();
                         }
-                    });
-                    //corridor?.hide_aggregate?.();
-                    tunnels_1.corridor = this;
-                    //corridor.show_aggregate();
+                    }
+                    tunnels_1.currentTunnel = this;
                 }
                 return true;
             }
-            else if (this.aabb.intersectsBox(playerAABB)) {
-                //console.log('intersecting');
-                // we are intersecting, but not containing
-            }
-            // No intersection
-        }
-        cleanup() {
-            // tunnels.splice(tunnels.indexOf(this), 1);
+            return false;
         }
     }
     tunnels_1.tunnel = tunnel;

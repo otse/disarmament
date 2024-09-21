@@ -31,8 +31,10 @@ var common;
             this.mesh = new THREE.Mesh(undefined, material);
             this.mesh.visible = glob.wireframes;
             this.base.aabb.getSize(size);
-            if (this.absolute)
+            if (this.absolute) {
                 this.base.aabb.getCenter(this.mesh.position);
+                glob.scene.add(this.mesh);
+            }
             this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
         }
     }

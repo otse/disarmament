@@ -8,7 +8,7 @@ import app from "./app.js";
 import common from "./common.js";
 import toggle from "./lib/toggle.js";
 var props;
-(function (props) {
+(function (props_1) {
     function factory(object) {
         let prop;
         if (!object.name)
@@ -64,19 +64,20 @@ var props;
         }
         return prop;
     }
-    props.factory = factory;
+    props_1.factory = factory;
     function loop() {
-        for (let prop of props.collection)
+        for (let prop of props_1.props)
             prop.loop();
     }
-    props.loop = loop;
+    props_1.loop = loop;
     function clear() {
-        const array = props.collection.slice(0);
-        for (let prop of array)
+        // Avoid modifying the collection while iterating over it
+        const array = props_1.props.slice(0);
+        for (const prop of array)
             prop.lod();
-        props.collection = [];
+        props_1.props = [];
     }
-    props.clear = clear;
+    props_1.clear = clear;
     function take_collada_prop(prop) {
         // the prop is sitting in a rotated, scaled scene
         const group = new THREE.Group();
@@ -95,27 +96,24 @@ var props;
         prop.master = master;
         prop.group = group;
     }
-    props.take_collada_prop = take_collada_prop;
+    props_1.take_collada_prop = take_collada_prop;
     function boot() {
         reload();
     }
-    props.boot = boot;
+    props_1.boot = boot;
     async function reload() {
         let url = './figs/glob.json';
         let response = await fetch(url);
-        const arrSales = await response.json();
-        props.presets = arrSales;
-        console.log(props.presets);
-        return arrSales;
+        props_1.presets = await response.json();
     }
-    props.reload = reload;
-    props.collection = [];
-    props.markers = [];
-    props.walls = [];
-    props.sounds = [];
-    props.boxes = [];
-    props.lights = [];
-    props.presets = {};
+    props_1.reload = reload;
+    props_1.props = [];
+    props_1.markers = [];
+    props_1.walls = [];
+    props_1.sounds = [];
+    props_1.boxes = [];
+    props_1.lights = [];
+    props_1.presets = {};
     class prop extends toggle {
         object;
         parameters;
@@ -136,7 +134,7 @@ var props;
             this.parameters = parameters;
             this.type = 'Illegal prop';
             this.object.visible = false;
-            props.collection.push(this);
+            props_1.props.push(this);
         }
         complete() {
             this.array.push(this);
@@ -177,7 +175,7 @@ var props;
         }
         lod() {
             // todo ugly and confusing splices
-            props.collection.splice(props.collection.indexOf(this), 1);
+            props_1.props.splice(props_1.props.indexOf(this), 1);
             this.array.splice(this.array.indexOf(this), 1);
             this._lod();
             this.debugBox?.lod();
@@ -205,7 +203,7 @@ var props;
             this.group.position.copy(size);
         }
     }
-    props.prop = prop;
+    props_1.prop = prop;
     class pprop extends prop {
         constructor(object, parameters) {
             super(object, parameters);
@@ -214,7 +212,6 @@ var props;
         _show() {
             this.object.visible = true;
             this.debugBox = new common.debug_box(this, 'blue', true);
-            glob.propsGroup.add(this.debugBox.mesh);
         }
         _hide() {
             this.object.visible = false;
@@ -223,12 +220,12 @@ var props;
         _loop() {
         }
     }
-    props.pprop = pprop;
+    props_1.pprop = pprop;
     class pmarker extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pmarker';
-            this.array = props.markers;
+            this.array = props_1.markers;
             this.object.add(new THREE.AxesHelper(1));
         }
         _show() {
@@ -237,18 +234,17 @@ var props;
         _loop() {
         }
     }
-    props.pmarker = pmarker;
+    props_1.pmarker = pmarker;
     class pbox extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pbox';
-            this.array = props.boxes;
+            this.array = props_1.boxes;
         }
         _show() {
             this.object.visible = true;
             new physics.fbox(this);
             this.debugBox = new common.debug_box(this, 'blue', true);
-            glob.propsGroup.add(this.debugBox.mesh);
         }
         _hide() {
             this.object.visible = false;
@@ -263,12 +259,12 @@ var props;
         _lod() {
         }
     }
-    props.pbox = pbox;
+    props_1.pbox = pbox;
     class pwallorsolid extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pwallorsolid';
-            this.array = props.walls;
+            this.array = props_1.walls;
         }
         _show() {
             new physics.fbox(this);
@@ -285,12 +281,12 @@ var props;
         _loop() {
         }
     }
-    props.pwallorsolid = pwallorsolid;
+    props_1.pwallorsolid = pwallorsolid;
     class pstairstep extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pstairstep';
-            this.array = props.walls;
+            this.array = props_1.walls;
             //this.build_debug_box = true;
         }
         _show() {
@@ -303,12 +299,12 @@ var props;
         _loop() {
         }
     }
-    props.pstairstep = pstairstep;
+    props_1.pstairstep = pstairstep;
     class pconvex extends prop {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pconvex';
-            this.array = props.boxes;
+            this.array = props_1.boxes;
             this.object.visible = false;
         }
         _show() {
@@ -326,7 +322,7 @@ var props;
         _lod() {
         }
     }
-    props.pconvex = pconvex;
+    props_1.pconvex = pconvex;
     class psound extends prop {
         sound;
         _lod() {
@@ -337,14 +333,14 @@ var props;
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'psound';
-            this.array = props.sounds;
+            this.array = props_1.sounds;
             const paly = () => {
                 if (this.kind == 'env')
                     this._play();
             };
             hooks.register('audioGestured', (x) => {
                 console.warn('late playing', this.preset);
-                const preset = props.presets[this.preset];
+                const preset = props_1.presets[this.preset];
                 if (!preset)
                     return;
                 if (preset.delay)
@@ -363,7 +359,7 @@ var props;
         _play() {
             if (!audio.allDone)
                 return;
-            const preset = props.presets[this.preset];
+            const preset = props_1.presets[this.preset];
             if (!preset)
                 return;
             if (preset.disabled)
@@ -379,7 +375,7 @@ var props;
             }
         }
     }
-    props.psound = psound;
+    props_1.psound = psound;
     class pfan extends prop {
         preset_;
         constructor(object, parameters) {
@@ -387,7 +383,7 @@ var props;
             this.type = 'pfan';
         }
         _show() {
-            this.preset_ = props.presets[this.preset || 'none'];
+            this.preset_ = props_1.presets[this.preset || 'none'];
             console.log('fan preset_', this.preset_, this.preset);
             //this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
             const size = new THREE.Vector3();
@@ -419,7 +415,7 @@ var props;
             this.group.updateMatrix();
         }
     }
-    props.pfan = pfan;
+    props_1.pfan = pfan;
     class pdoor extends prop {
         constructor(object, parameters) {
             super(object, parameters);
@@ -443,7 +439,7 @@ var props;
             this.master.quaternion.copy(this.fbody.body.quaternion);
         }
     }
-    props.pdoor = pdoor;
+    props_1.pdoor = pdoor;
     class light extends prop {
         light;
         preset_;
@@ -483,7 +479,7 @@ var props;
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'plight';
-            this.array = props.lights;
+            this.array = props_1.lights;
         }
         _hide() {
             this.object.visible = false;
@@ -491,7 +487,7 @@ var props;
         }
         _show() {
             //this.object.visible = false;
-            this.preset_ = props.presets[this.preset || 'none'];
+            this.preset_ = props_1.presets[this.preset || 'none'];
             if (!this.preset_) {
                 console.log(' preset no def ', this.preset);
                 return;
@@ -515,16 +511,16 @@ var props;
         _lod() {
         }
     }
-    props.ppointlight = ppointlight;
+    props_1.ppointlight = ppointlight;
     class pspotlight extends light {
         spotlight;
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'pspotlight';
-            this.array = props.lights;
+            this.array = props_1.lights;
         }
         _show() {
-            this.preset_ = props.presets[this.preset || 'none'];
+            this.preset_ = props_1.presets[this.preset || 'none'];
             if (!this.preset_) {
                 console.warn(' preset no def ');
                 return;
@@ -558,19 +554,19 @@ var props;
             this.behavior();
         }
     }
-    props.pspotlight = pspotlight;
+    props_1.pspotlight = pspotlight;
     class prectlight extends light {
         constructor(object, parameters) {
             super(object, parameters);
             this.type = 'prectlight';
-            this.array = props.lights;
+            this.array = props_1.lights;
         }
         _hide() {
             this.light?.removeFromParent();
         }
         _show() {
             console.log('prectlight show');
-            this.preset_ = props.presets[this.preset || 'none'];
+            this.preset_ = props_1.presets[this.preset || 'none'];
             if (!this.preset_) {
                 console.log(' preset no def ', this.preset);
                 return;
@@ -618,8 +614,8 @@ var props;
         _lod() {
         }
     }
-    props.prectlight = prectlight;
-    props.impact_sounds = {
+    props_1.prectlight = prectlight;
+    props_1.impact_sounds = {
         'cardboard': {
             soft: [
                 'cardboard_box_impact_soft1',

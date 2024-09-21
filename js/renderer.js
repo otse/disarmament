@@ -16,6 +16,7 @@ var renderer;
         renderer_1.yawGroup = new THREE.Group();
         glob.propsGroup = renderer_1.propsGroup;
         renderer_1.scene = new THREE.Scene();
+        glob.scene = renderer_1.scene;
         renderer_1.scene.add(renderer_1.propsGroup);
         renderer_1.scene.add(renderer_1.yawGroup);
         renderer_1.scene.background = new THREE.Color('#333');
