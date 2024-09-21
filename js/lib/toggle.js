@@ -1,22 +1,22 @@
 /// taken from the lod of wastes
 // it is both silly and brilliant
 export class toggle {
-    _active = -1;
+    _active = false;
     get active() {
         return this._active;
     }
     constructor() {
     }
     on() {
-        if (this.active == 1)
+        if (this.active === true)
             return true; // It was already on
-        this._active = 1;
-        return false;
+        this._active = true;
+        return false; // It was not on
     }
     off() {
-        if (this.active == 0)
+        if (this.active === false)
             return true;
-        this._active = 0;
+        this._active = false;
         return false;
     }
 }

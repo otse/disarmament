@@ -44,42 +44,42 @@ namespace tunnels {
 
 	export class tunnel extends toggle {
 		aabb
-		aabb2
-		props: props.prop[] = []
+		expandedAabb
+		containedObjects: props.prop[] = []
 		adjacentTunnels: tunnel[] = []
 		debugBox
 		constructor(public readonly object, public readonly name) {
 			super();
+			this.object.visible = false;
 			tunnels.push(this);
 			this.measure();
 			this.debugBox = new common.debug_box(this, 'green', true);
 			renderer.scene.add(this.debugBox.mesh);
 			this.collect_props();
-			this.hide();
 		}
 		protected measure() {
 			this.object.updateMatrix();
 			this.object.updateMatrixWorld();
 			this.aabb = new THREE.Box3();
 			this.aabb.setFromObject(this.object, true);
-			this.aabb2 = new THREE.Box3().copy(this.aabb);
-			this.aabb2.expandByScalar(0.1);
+			this.expandedAabb = new THREE.Box3().copy(this.aabb);
+			this.expandedAabb.expandByScalar(0.1);
 		}
 		findAdjacentTunnels() {
 			for (const tunnel of tunnels) {
 				if (this === tunnel)
 					continue;
-				if (this.aabb2.intersectsBox(tunnel.aabb2))
+				if (this.expandedAabb.intersectsBox(tunnel.expandedAabb))
 					this.adjacentTunnels.push(tunnel);
 			}
 		}
 		private collect_props() {
 			for (const prop of props.collection) {
 				if (prop.aabb && this.aabb.intersectsBox(prop.aabb)) {
-					this.props.push(prop);
+					this.containedObjects.push(prop);
 				}
 			}
-			console.log(this.name, 'collected', this.props.length, 'props', this.props);
+			console.log(this.name, 'collected', this.containedObjects.length, 'props', this.containedObjects);
 
 		}
 		show() {
@@ -88,7 +88,7 @@ namespace tunnels {
 				return;
 			}
 			this.object.visible = true;
-			for (const prop of this.props) {
+			for (const prop of this.containedObjects) {
 				prop.show();
 			}
 		}
@@ -98,31 +98,35 @@ namespace tunnels {
 				return;
 			}
 			this.object.visible = false;
-			for (const prop of this.props) {
+			for (const prop of this.containedObjects) {
 				prop.hide();
-			}
-		}
-		private show_aggregate() {
-			this.show();
-			for (const tunnel of this.adjacentTunnels) {
-				tunnel.show();
-			}
-		}
-		private hide_aggregate() {
-			this.hide();
-			for (const tunnel of this.adjacentTunnels) {
-				tunnel.hide();
 			}
 		}
 		check() {
 			const playerAABB = garbage.gplayer.aabb;
 
-			if (this.aabb.intersectsBox(playerAABB)) {
-				if (corridor !== this) {
-					console.log('woo we are in tunnel', this.name);
-					corridor?.hide_aggregate?.();
+			if (this.expandedAabb.containsBox(playerAABB)) {
+				if (corridor !== this) {					
+					// Collect current active tunnels
+					const currentTunnels = corridor ? [corridor, ...corridor.adjacentTunnels] : [];
+
+					// Collect new candidate tunnels
+					const newTunnels = [this, ...this.adjacentTunnels];
+
+					// Hide all current tunnels that are not in the new set
+					currentTunnels.forEach(tunnel => {
+						if (!newTunnels.includes(tunnel)) {
+							tunnel.hide();
+						}
+					});
+
+					// Show all new tunnels that were not already visible
+					newTunnels.forEach(tunnel => {
+						if (!currentTunnels.includes(tunnel)) {
+							tunnel.show();
+						}
+					});
 					corridor = this;
-					corridor.show_aggregate();
 				}
 				return true;
 			} else if (this.aabb.intersectsBox(playerAABB)) {

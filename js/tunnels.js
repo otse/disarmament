@@ -41,19 +41,19 @@ var tunnels;
         name;
         aabb;
         aabb2;
-        props = [];
+        containedObjects = [];
         adjacentTunnels = [];
         debugBox;
         constructor(object, name) {
             super();
             this.object = object;
             this.name = name;
+            this.object.visible = false;
             tunnels.push(this);
             this.measure();
             this.debugBox = new common.debug_box(this, 'green', true);
             renderer.scene.add(this.debugBox.mesh);
             this.collect_props();
-            this.hide();
         }
         measure() {
             this.object.updateMatrix();
@@ -74,10 +74,10 @@ var tunnels;
         collect_props() {
             for (const prop of props.collection) {
                 if (prop.aabb && this.aabb.intersectsBox(prop.aabb)) {
-                    this.props.push(prop);
+                    this.containedObjects.push(prop);
                 }
             }
-            console.log(this.name, 'collected', this.props.length, 'props', this.props);
+            console.log(this.name, 'collected', this.containedObjects.length, 'props', this.containedObjects);
         }
         show() {
             if (this.on()) {
@@ -85,7 +85,7 @@ var tunnels;
                 return;
             }
             this.object.visible = true;
-            for (const prop of this.props) {
+            for (const prop of this.containedObjects) {
                 prop.show();
             }
         }
@@ -95,7 +95,7 @@ var tunnels;
                 return;
             }
             this.object.visible = false;
-            for (const prop of this.props) {
+            for (const prop of this.containedObjects) {
                 prop.hide();
             }
         }
@@ -113,12 +113,28 @@ var tunnels;
         }
         check() {
             const playerAABB = garbage.gplayer.aabb;
-            if (this.aabb.intersectsBox(playerAABB)) {
+            if (this.aabb2.containsBox(playerAABB)) {
                 if (tunnels_1.corridor !== this) {
                     console.log('woo we are in tunnel', this.name);
-                    tunnels_1.corridor?.hide_aggregate?.();
+                    // Collect current active tunnels
+                    const currentTunnels = tunnels_1.corridor ? [tunnels_1.corridor, ...tunnels_1.corridor.adjacentTunnels] : [];
+                    // Collect new candidate tunnels
+                    const newTunnels = [this, ...this.adjacentTunnels];
+                    // Hide all current tunnels that are not in the new set
+                    currentTunnels.forEach(tunnel => {
+                        if (!newTunnels.includes(tunnel)) {
+                            tunnel.hide();
+                        }
+                    });
+                    // Show all new tunnels that were not already visible
+                    newTunnels.forEach(tunnel => {
+                        if (!currentTunnels.includes(tunnel)) {
+                            tunnel.show();
+                        }
+                    });
+                    //corridor?.hide_aggregate?.();
                     tunnels_1.corridor = this;
-                    tunnels_1.corridor.show_aggregate();
+                    //corridor.show_aggregate();
                 }
                 return true;
             }

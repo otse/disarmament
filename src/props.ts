@@ -147,6 +147,7 @@ namespace props {
 		constructor(public readonly object, public readonly parameters) {
 			super();
 			this.type = 'Illegal prop';
+			this.object.visible = false;
 			collection.push(this);
 		}
 		complete() {
@@ -440,7 +441,6 @@ namespace props {
 			if (this.parameters.rotation == 'z')
 				this.group.rotation.y += speed;
 			this.group.updateMatrix();
-
 		}
 	}
 

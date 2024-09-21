@@ -30,7 +30,7 @@ var garbage;
         garbage.locker = document.querySelector('salvage-instructions');
         garbage.main = document.querySelector('salvage-body');
         glob.level = 'gen2';
-        glob.wireframes = false;
+        glob.wireframes = true;
         glob.propAxes = false;
         common.boot();
         physics.boot();

@@ -135,6 +135,7 @@ var props;
             this.object = object;
             this.parameters = parameters;
             this.type = 'Illegal prop';
+            this.object.visible = false;
             props.collection.push(this);
         }
         complete() {
