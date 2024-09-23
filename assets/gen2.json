@@ -138,8 +138,9 @@
 			"variance": 0.3
 		}
 	},
-	"rlofficehall1": {
-		"helper": true,
+	"rltloffice": {
+		"xdisabled": true,
+		"helper": false,
 		"hide": true,
 		"color": "lavender",
 		"intensity": 13.0,
@@ -156,7 +157,7 @@
 		}
 	},
 	"rlofficefloor": {
-		"xdisabled": true,
+		"disabled": true,
 		"xhelper": true,
 		"hide": true,
 		"color": "green",
@@ -171,6 +172,29 @@
 			"cycle": 5,
 			"base": 1.0,
 			"variance": 1.0
+		}
+	},
+	"sloffice": {
+		"disabled": true,
+		"lensflare": true,
+		"hide": true,
+		"color": "lavender",
+		"angle": 1.7,
+		"intensity": 1.0,
+		"distance": 7,
+		"penumbra": 1.0,
+		"decay": 2.0,
+		"shadow": false,
+		"target": [
+			0,
+			0,
+			1
+		],
+		"xbehavior": {
+			"type": "shake",
+			"cycle": 3,
+			"base": 10,
+			"variance": 0.2
 		}
 	}
 }

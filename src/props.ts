@@ -76,7 +76,7 @@ namespace props {
 		// Avoid modifying the collection while iterating over it
 		const array = props.slice(0);
 		for (const prop of array)
-			prop.lod();
+			prop.destroy();
 		props = [];
 	}
 
@@ -185,17 +185,18 @@ namespace props {
 		}
 		protected _hide() { // override
 		}
-		protected _lod() { // override
+		protected _destroy() { // override
 		}
 		protected _loop() { // override
 		}
-		lod() {
-			// todo ugly and confusing splices
+		destroy() {
+			// todo what's the difference between destroy and hide?
 			props.splice(props.indexOf(this), 1);
 			this.array.splice(this.array.indexOf(this), 1);
-			this._lod();
+			this._destroy();
+			this.hide();
 			this.debugBox?.lod();
-			glob.propsGroup.remove(this.master);
+			this.master.removeFromParent();
 			if (this.fbody)
 				this.fbody.lod();
 		}
@@ -243,15 +244,13 @@ namespace props {
 			this.array = markers;
 		}
 		override _complete() {
-			
+
 		}
 		override _show() {
 			console.log('pmarker master position', this.master.position);
 			this.debugBox = new common.debug_box(this, 'blue', true);
-			this.object.visible = true;
 		}
 		override _hide() {
-			this.object.visible = false;
 			this.debugBox?.lod();
 		}
 		override _loop() {
@@ -280,7 +279,7 @@ namespace props {
 			this.master.quaternion.copy(this.fbody.body.quaternion);
 			this.master.updateMatrix();
 		}
-		override _lod() {
+		override _destroy() {
 		}
 	}
 
@@ -343,13 +342,13 @@ namespace props {
 			this.master.position.copy(this.fbody.body.position);
 			this.master.quaternion.copy(this.fbody.body.quaternion);
 		}
-		override _lod() {
+		override _destroy() {
 		}
 	}
 
 	export class psound extends prop {
 		sound
-		override _lod() {
+		override _destroy() {
 			if (this.sound) {
 				this.sound.stop();
 			}
@@ -552,7 +551,7 @@ namespace props {
 		override _loop() {
 			this.behavior();
 		}
-		override _lod() {
+		override _destroy() {
 		}
 	}
 
@@ -574,7 +573,7 @@ namespace props {
 			let size = new THREE.Vector3();
 			this.aabb.getSize(size);
 			size.divideScalar(2.0);
-			size.multiplyScalar(garbage.spaceMultiply);
+			//size.multiplyScalar(garbage.spaceMultiply);
 			//console.log('light size, center', size, center);
 
 			let light = new THREE.SpotLight(
@@ -586,8 +585,9 @@ namespace props {
 				this.preset_.decay
 			);
 			this.light = light;
-			light.visible = !this.preset_.disabled;
+			this.spotlight = light;
 			light.position.set(0, 0, 0);
+			light.visible = !this.preset_.disabled;
 			light.castShadow = this.preset_.shadow;
 			light.shadow.camera.far = 1000;
 			light.shadow.mapSize.width = this.preset_.shadowMapSize || 512;
@@ -595,17 +595,22 @@ namespace props {
 			light.angle = this.preset_.angle || Math.PI / 3;
 
 			if (this.preset_.target)
-				light.target.position.add(new THREE.Vector3().fromArray(this.preset_.target).multiplyScalar(4));
-			light.target.position.add(size);
-			//light.target.add(new THREE.AxesHelper(10));
-			light.position.add(size);
+				light.target.position.add(new THREE.Vector3().fromArray(this.preset_.target).multiplyScalar(1));
+			light.target.updateMatrix();
+			if (glob.propAxes)
+				light.target.add(new THREE.AxesHelper(0.1));
+			light.position.copy(this.get_center());
+			if (glob.propAxes)
+				light.add(new THREE.AxesHelper(0.1));
+			light.add(light.target);
 			light.updateMatrix();
-			light.updateMatrixWorld(true);
-			this.master.add(light);
-			this.master.add(light.target);
+			glob.propsGroup.add(light);
+		}
+		override _hide() {
+			glob.propsGroup.remove(this.light);
 
-			this.spotlight = light;
-			//this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
+			//this.light?.removeFromParent();
+			//this.spotlight?.removeFromParent();
 		}
 		override _loop() {
 			this.behavior();
@@ -672,9 +677,7 @@ namespace props {
 			size.z = -size.z;
 			light.position.add(size);
 			light.updateMatrix();
-
-			const hasHelper = this.preset_.helper;
-			if (hasHelper) {
+			if (this.preset_.helper) {
 				const helper = new RectAreaLightHelper(light);
 				light.add(helper); // helper must be added as a child of the light
 			}
@@ -682,7 +685,7 @@ namespace props {
 		override _loop() {
 			this.behavior();
 		}
-		override _lod() {
+		override _destroy() {
 		}
 	}
 

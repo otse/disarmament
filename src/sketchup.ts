@@ -113,7 +113,7 @@ namespace sketchup {
 			const texture = await <any>createTextureFromImage(`${tuple[1]}_emissive.png${salt}`, 4);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 			mat.emissiveMap = texture;
-			mat.emissive.set('#82834a');
+			//mat.emissive.set('#82834a');
 			console.warn(' emis ');
 		}
 		mat.onBeforeCompile = (shader) => {
