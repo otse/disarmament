@@ -39,8 +39,8 @@ namespace garbage {
 		main = document.querySelector('salvage-body');
 
 		glob.level = 'gen2';
-		glob.wireframes = true;
-		glob.propAxes = true;
+		glob.wireframes = false;
+		glob.propAxes = false;
 
 		common.boot();
 		physics.boot();

@@ -10,6 +10,6 @@
     "locker1": ["white", "./assets/textures/locker1", 0.5, 0.3, 0.0, false],
     "door1": ["white", "./assets/textures/door1", 0.1, 0.2, 0.1, true],
     "wallsewerhole": ["white", "./assets/textures/wallsewerhole", 0.5, 0.5, 0.0, false],
-    "concretecornerdamage": ["white", "./assets/textures/concretecornerdamage", 0.5, 0.0, 0.3, true],
+    "concretecornerdamage": ["white", "./assets/textures/concretecornerdamage", 0.7, 0.0, 0.5, true],
     "rustylatch": ["white", "./assets/textures/rustylatch", 0.2, 0.3, 0.0, false]
   }

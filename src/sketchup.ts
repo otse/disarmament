@@ -61,13 +61,13 @@ namespace sketchup {
 				await loadLevel();
 			}
 			if (app.proompt('n') == 1) {
-				await toggle_normalmap();
+				await toggleNormalmap();
 
 			}
 		}
 	}
 
-	async function toggle_normalmap() {
+	async function toggleNormalmap() {
 		normalToggle = !normalToggle;
 		const funcs: any[] = [];
 		for (let name in figsMats) {
@@ -80,9 +80,7 @@ namespace sketchup {
 		}
 	}
 
-	async function bake_material_from_tuple(name, tuple: tuple) {
-		/* misnomer
-		 */
+	async function bakeMaterialFromTuple(name: string, tuple: tuple) {
 		// console.log('bake material', name, tuple);
 		const salt = `?x=same`;
 		let texture;
@@ -100,7 +98,7 @@ namespace sketchup {
 		mat.roughness = tuple[3] || 0.3;
 		mat.metalness = tuple[4] || 0;
 		mat.clearCoat = 0.5;
-		mat.iridescence = 0.2;
+		mat.iridescence = 0.3;
 		if (tuple[5] && true) {
 			const texture = await <any>createTextureFromImage(`${tuple[1]}_normal.png${salt}`, 4);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -178,7 +176,7 @@ namespace sketchup {
 		const funcs: any[] = [];
 		for (let name in figsMats) {
 			const tuple = figsMats[name];
-			const promise = /*await*/ bake_material_from_tuple(name, tuple);
+			const promise = /*await*/ bakeMaterialFromTuple(name, tuple);
 			funcs.push(promise);
 		}
 		// Wait for all of them
@@ -243,7 +241,7 @@ namespace sketchup {
 		let mat;
 		mat = mats[current.name];
 		if (!mat)
-			await bake_material_from_tuple(current.name, [current.color, '', 1] as tuple);
+			await bakeMaterialFromTuple(current.name, [current.color, '', 1] as tuple);
 		mat = mats[current.name];
 		if (index == -1)
 			object.material = mat;
