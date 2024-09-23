@@ -27,6 +27,8 @@ namespace renderer {
 
 		console.log('renderer boot');
 
+		THREE.Object3D.DEFAULT_MATRIX_AUTO_UPDATE = false;
+		THREE.Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = true;
 		THREE.ColorManagement.enabled = true;
 
 		clock = new THREE.Clock();
@@ -51,6 +53,8 @@ namespace renderer {
 
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 		camera.rotation.y = -Math.PI / 2;
+		camera.updateMatrix();
+		camera.updateMatrixWorld(true);
 		yawGroup.add(camera);
 		// yawGroup.add(new THREE.AxesHelper());
 		// cameraGroup.add(renderer.xr.getCamera());
@@ -147,9 +151,12 @@ namespace renderer {
 			}
 		}
 
+		camera.updateMatrix();
+
 		yawGroup.updateMatrix();
 		yawGroup.updateMatrixWorld(true);
-		yawGroup.updateWorldMatrix(false, true);
+
+		//scene.updateWorldMatrix(true, true);
 
 		renderer.xr.updateCamera(camera);
 		

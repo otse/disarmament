@@ -40,7 +40,7 @@ namespace garbage {
 
 		glob.level = 'gen2';
 		glob.wireframes = true;
-		glob.propAxes = false;
+		glob.propAxes = true;
 
 		common.boot();
 		physics.boot();

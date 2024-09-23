@@ -283,18 +283,26 @@ namespace sketchup {
 		await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
 			const scene = collada.scene;
 			scene.updateMatrix();
-			scene.updateMatrixWorld(); // without this everything explodes			
+			scene.updateMatrixWorld(true); // without this everything explodes
+			scene.updateWorldMatrix(true, true);
 			console.log(' collada scene ', scene);
 			const queue: props.prop[] = [];
 			// todo sheesh cleanup!
-			function find_make_props(object) {
+			function setRenderFlags(object) {
 				object.castShadow = true;
 				object.receiveShadow = true;
+				object.frustumCulled = false;
+				object.matrixAutoUpdate = false;
+				object.updateMatrix();
+				object.updateMatrixWorld(true);
+			}
+			function findMakeProps(object) {
 				const prop = props.factory(object);
 				if (prop)
 					queue.push(prop);
 			}
-			scene.traverse(find_make_props);
+			scene.traverse(setRenderFlags);
+			scene.traverse(findMakeProps);
 			objectsTakeMats(scene);
 			for (const prop of queue)
 				prop.complete();

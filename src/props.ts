@@ -85,7 +85,6 @@ namespace props {
 
 		const group = new THREE.Group();
 		const master = new THREE.Group();
-		master.add(group);
 
 		const object = prop.object;
 
@@ -97,15 +96,18 @@ namespace props {
 		object.position.set(0, 0, 0);
 		object.rotation.set(0, 0, 0);
 		object.quaternion.identity();
+		object.updateMatrix();
 
 		group.add(object);
+		group.updateMatrix();
 
+		master.add(group);
 		master.updateMatrix();
+
 		master.updateMatrixWorld(true);
+		//master.updateWorldMatrix(true, true);
 
-		// glob.propsGroup.add(master);
-
-		group.traverse((object) => object.geometry?.computeBoundingBox());
+		master.traverse((object) => object.geometry?.computeBoundingBox());
 
 		prop.master = master;
 		prop.group = group;
@@ -152,9 +154,11 @@ namespace props {
 			this.array.push(this);
 			take_collada_prop(this);
 			this.measure();
-			if (glob.propAxes)
-				this.master.add(new THREE.AxesHelper());
-			//this.hide();
+			if (glob.propAxes) {
+				this.master.add(new THREE.AxesHelper(10));
+				this.master.updateMatrix(); // Why is this necessary?
+			}
+			this._complete();
 		}
 		show() {
 			if (this.on()) {
@@ -175,11 +179,11 @@ namespace props {
 		loop() {
 			this.active && this._loop?.(); // Execute loop logic for active prop
 		}
+		protected _complete() { // override
+		}
 		protected _show() { // override
-			this.object.visible = true;
 		}
 		protected _hide() { // override
-			this.object.visible = false;
 		}
 		protected _lod() { // override
 		}
@@ -196,8 +200,6 @@ namespace props {
 				this.fbody.lod();
 		}
 		protected measure() {
-			this.master.updateMatrix();
-			this.master.updateMatrixWorld();
 			this.aabb = new THREE.Box3();
 			this.aabb.setFromObject(this.master, true);
 		}
@@ -213,6 +215,7 @@ namespace props {
 			size.divideScalar(-2);
 			size.z = -size.z;
 			this.group.position.copy(size);
+			this.group.updateMatrix();
 		}
 	}
 
@@ -227,7 +230,7 @@ namespace props {
 		}
 		override _hide() {
 			this.object.visible = false;
-			this.debugBox?.mesh.removeFromParent();
+			this.debugBox?.lod();
 		}
 		override _loop() {
 		}
@@ -238,10 +241,18 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pmarker';
 			this.array = markers;
-			this.object.add(new THREE.AxesHelper(1));
+		}
+		override _complete() {
+			
 		}
 		override _show() {
+			console.log('pmarker master position', this.master.position);
+			this.debugBox = new common.debug_box(this, 'blue', true);
 			this.object.visible = true;
+		}
+		override _hide() {
+			this.object.visible = false;
+			this.debugBox?.lod();
 		}
 		override _loop() {
 		}
@@ -267,6 +278,7 @@ namespace props {
 			this.fbody.loop();
 			this.master.position.copy(this.fbody.body.position);
 			this.master.quaternion.copy(this.fbody.body.quaternion);
+			this.master.updateMatrix();
 		}
 		override _lod() {
 		}
@@ -533,6 +545,7 @@ namespace props {
 			light.castShadow = this.preset_.shadow;
 			//light.position.fromArray(preset.offset || [0, 0, 0]);
 			light.position.add(size);
+			light.updateMatrix();
 			// light.add(new THREE.AxesHelper(10));
 			this.master.add(light);
 		}
@@ -586,8 +599,10 @@ namespace props {
 			light.target.position.add(size);
 			//light.target.add(new THREE.AxesHelper(10));
 			light.position.add(size);
-			this.group.add(light);
-			this.group.add(light.target);
+			light.updateMatrix();
+			light.updateMatrixWorld(true);
+			this.master.add(light);
+			this.master.add(light.target);
 
 			this.spotlight = light;
 			//this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
@@ -608,7 +623,7 @@ namespace props {
 		}
 		override _show() {
 			console.log('prectlight show');
-			
+
 			this.preset_ = presets[this.preset || 'none'];
 			if (!this.preset_) {
 				console.log(' preset no def ', this.preset);
@@ -635,11 +650,12 @@ namespace props {
 				height = size.y;
 			}
 
-			const light = new THREE.RectAreaLight(
+			let light = new THREE.RectAreaLight(
 				this.preset_.color,
 				this.preset_.intensity,
 				width,
 				height);
+			this.light = light;
 			light.visible = !this.preset_.disabled;
 			light.power = 100;
 			light.intensity = this.preset_.intensity;
@@ -647,18 +663,15 @@ namespace props {
 
 			// console.log('rectlight preset', this.preset_, 'intensity', this.preset_.intensity);
 
-			this.light = light;
 
 			light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
-			this.master.add(light);
 
-			const temp = new THREE.Vector3(size.x, size.z, size.y);
-			temp.multiplyScalar(garbage.spaceMultiply);
-			//this.object.position.sub(temp.divideScalar(2));
+			this.master.add(light); // If you add the light before lookAt it will be randomly turned...
 
 			size.divideScalar(2);
 			size.z = -size.z;
-			this.light.position.add(size);
+			light.position.add(size);
+			light.updateMatrix();
 
 			const hasHelper = this.preset_.helper;
 			if (hasHelper) {

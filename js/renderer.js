@@ -10,6 +10,8 @@ var renderer;
     function boot() {
         window['renderer'] = this;
         console.log('renderer boot');
+        THREE.Object3D.DEFAULT_MATRIX_AUTO_UPDATE = false;
+        THREE.Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = true;
         THREE.ColorManagement.enabled = true;
         renderer_1.clock = new THREE.Clock();
         renderer_1.propsGroup = new THREE.Group();
@@ -26,6 +28,8 @@ var renderer;
         renderer_1.scene.fog = new THREE.Fog(0x131c1d, 7, 20);
         renderer_1.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         renderer_1.camera.rotation.y = -Math.PI / 2;
+        renderer_1.camera.updateMatrix();
+        renderer_1.camera.updateMatrixWorld(true);
         renderer_1.yawGroup.add(renderer_1.camera);
         // yawGroup.add(new THREE.AxesHelper());
         // cameraGroup.add(renderer.xr.getCamera());
@@ -102,9 +106,10 @@ var renderer;
 			`);
             }
         }
+        renderer_1.camera.updateMatrix();
         renderer_1.yawGroup.updateMatrix();
         renderer_1.yawGroup.updateMatrixWorld(true);
-        renderer_1.yawGroup.updateWorldMatrix(false, true);
+        //scene.updateWorldMatrix(true, true);
         renderer_1.renderer.xr.updateCamera(renderer_1.camera);
         renderer_1.renderer.render(renderer_1.scene, renderer_1.camera);
     }

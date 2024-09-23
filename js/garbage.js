@@ -31,7 +31,7 @@ var garbage;
         garbage.main = document.querySelector('salvage-body');
         glob.level = 'gen2';
         glob.wireframes = true;
-        glob.propAxes = false;
+        glob.propAxes = true;
         common.boot();
         physics.boot();
         props.boot();

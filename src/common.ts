@@ -20,7 +20,7 @@ namespace common {
 			this.build();
 		}
 		lod() {
-			this.mesh.parent.remove(this.mesh);
+			this.mesh.removeFromParent();
 		}
 		recolor(color) {
 			this.mesh.material.color = new THREE.Color(color);
@@ -32,6 +32,7 @@ namespace common {
 				wireframe: true
 			});
 			this.mesh = new THREE.Mesh(undefined, material);
+			this.mesh.frustumCulled = false;
 			this.mesh.visible = glob.wireframes;
 			this.base.aabb.getSize(size);
 			if (this.absolute) {
@@ -39,7 +40,7 @@ namespace common {
 				glob.scene.add(this.mesh);
 			}
 			this.mesh.geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-
+			this.mesh.updateMatrix();
 		}
 	}
 }

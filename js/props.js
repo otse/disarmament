@@ -82,17 +82,19 @@ var props;
         // the prop is sitting in a rotated, scaled scene
         const group = new THREE.Group();
         const master = new THREE.Group();
-        master.add(group);
         const object = prop.object;
         object.matrixWorld.decompose(master.position, group.quaternion, group.scale);
         object.position.set(0, 0, 0);
         object.rotation.set(0, 0, 0);
         object.quaternion.identity();
+        object.updateMatrix();
         group.add(object);
+        group.updateMatrix();
+        master.add(group);
         master.updateMatrix();
         master.updateMatrixWorld(true);
-        // glob.propsGroup.add(master);
-        group.traverse((object) => object.geometry?.computeBoundingBox());
+        //master.updateWorldMatrix(true, true);
+        master.traverse((object) => object.geometry?.computeBoundingBox());
         prop.master = master;
         prop.group = group;
     }
@@ -140,9 +142,11 @@ var props;
             this.array.push(this);
             take_collada_prop(this);
             this.measure();
-            if (glob.propAxes)
-                this.master.add(new THREE.AxesHelper());
-            //this.hide();
+            if (glob.propAxes) {
+                this.master.add(new THREE.AxesHelper(10));
+                this.master.updateMatrix(); // Why is this necessary?
+            }
+            this._complete();
         }
         show() {
             if (this.on()) {
@@ -163,11 +167,11 @@ var props;
         loop() {
             this.active && this._loop?.(); // Execute loop logic for active prop
         }
+        _complete() {
+        }
         _show() {
-            this.object.visible = true;
         }
         _hide() {
-            this.object.visible = false;
         }
         _lod() {
         }
@@ -184,8 +188,6 @@ var props;
                 this.fbody.lod();
         }
         measure() {
-            this.master.updateMatrix();
-            this.master.updateMatrixWorld();
             this.aabb = new THREE.Box3();
             this.aabb.setFromObject(this.master, true);
         }
@@ -201,6 +203,7 @@ var props;
             size.divideScalar(-2);
             size.z = -size.z;
             this.group.position.copy(size);
+            this.group.updateMatrix();
         }
     }
     props_1.prop = prop;
@@ -215,7 +218,7 @@ var props;
         }
         _hide() {
             this.object.visible = false;
-            this.debugBox?.mesh.removeFromParent();
+            this.debugBox?.lod();
         }
         _loop() {
         }
@@ -226,10 +229,17 @@ var props;
             super(object, parameters);
             this.type = 'pmarker';
             this.array = props_1.markers;
-            this.object.add(new THREE.AxesHelper(1));
+        }
+        _complete() {
         }
         _show() {
+            console.log('pmarker master position', this.master.position);
+            this.debugBox = new common.debug_box(this, 'blue', true);
             this.object.visible = true;
+        }
+        _hide() {
+            this.object.visible = false;
+            this.debugBox?.lod();
         }
         _loop() {
         }
@@ -255,6 +265,7 @@ var props;
             this.fbody.loop();
             this.master.position.copy(this.fbody.body.position);
             this.master.quaternion.copy(this.fbody.body.quaternion);
+            this.master.updateMatrix();
         }
         _lod() {
         }
@@ -502,6 +513,7 @@ var props;
             light.castShadow = this.preset_.shadow;
             //light.position.fromArray(preset.offset || [0, 0, 0]);
             light.position.add(size);
+            light.updateMatrix();
             // light.add(new THREE.AxesHelper(10));
             this.master.add(light);
         }
@@ -545,8 +557,10 @@ var props;
             light.target.position.add(size);
             //light.target.add(new THREE.AxesHelper(10));
             light.position.add(size);
-            this.group.add(light);
-            this.group.add(light.target);
+            light.updateMatrix();
+            light.updateMatrixWorld(true);
+            this.master.add(light);
+            this.master.add(light.target);
             this.spotlight = light;
             //this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
         }
@@ -587,21 +601,19 @@ var props;
                 width = size.x;
                 height = size.y;
             }
-            const light = new THREE.RectAreaLight(this.preset_.color, this.preset_.intensity, width, height);
+            let light = new THREE.RectAreaLight(this.preset_.color, this.preset_.intensity, width, height);
+            this.light = light;
             light.visible = !this.preset_.disabled;
             light.power = 100;
             light.intensity = this.preset_.intensity;
             light.needsUpdate = true;
             // console.log('rectlight preset', this.preset_, 'intensity', this.preset_.intensity);
-            this.light = light;
             light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
-            this.master.add(light);
-            const temp = new THREE.Vector3(size.x, size.z, size.y);
-            temp.multiplyScalar(garbage.spaceMultiply);
-            //this.object.position.sub(temp.divideScalar(2));
+            this.master.add(light); // If you add the light before lookAt it will be randomly turned...
             size.divideScalar(2);
             size.z = -size.z;
-            this.light.position.add(size);
+            light.position.add(size);
+            light.updateMatrix();
             const hasHelper = this.preset_.helper;
             if (hasHelper) {
                 const helper = new RectAreaLightHelper(light);

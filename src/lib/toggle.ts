@@ -2,7 +2,7 @@
 
 // it is both silly and brilliant
 
-// used by props, tunnels, etc
+// derived by props, tunnels, etc
 
 export class toggle {
     _active = false;
