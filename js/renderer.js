@@ -106,9 +106,9 @@ var renderer;
 			`);
             }
         }
-        renderer_1.camera.updateMatrix();
         renderer_1.yawGroup.updateMatrix();
         renderer_1.yawGroup.updateMatrixWorld(true);
+        renderer_1.camera.updateMatrix();
         //scene.updateWorldMatrix(true, true);
         renderer_1.renderer.xr.updateCamera(renderer_1.camera);
         renderer_1.renderer.render(renderer_1.scene, renderer_1.camera);

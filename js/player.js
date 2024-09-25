@@ -151,7 +151,7 @@ class player {
         if (!glob.hasHeadset)
             glob.yawGroup.position.add(new THREE.Vector3(0, 1.65, 0));
         else // if we're sitting with a headset
-            glob.yawGroup.position.add(new THREE.Vector3(0, 0.5, 0));
+            glob.yawGroup.position.add(new THREE.Vector3(0, 0.4, 0));
         this.set_aabb();
     }
     set_aabb() {

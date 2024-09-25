@@ -83,6 +83,7 @@ var props;
         const group = new THREE.Group();
         const master = new THREE.Group();
         const object = prop.object;
+        object.frustumCulled = true;
         object.matrixWorld.decompose(master.position, group.quaternion, group.scale);
         object.position.set(0, 0, 0);
         object.rotation.set(0, 0, 0);
@@ -144,8 +145,8 @@ var props;
             this.measure();
             if (glob.propAxes) {
                 this.master.add(new THREE.AxesHelper(10));
-                this.master.updateMatrix(); // Why is this necessary?
             }
+            this.master.updateMatrix(); // Why is this necessary?
             this._complete();
         }
         show() {
@@ -614,6 +615,14 @@ var props;
             light.needsUpdate = true;
             // console.log('rectlight preset', this.preset_, 'intensity', this.preset_.intensity);
             light.lookAt(new THREE.Vector3().fromArray(this.preset_.target));
+            //light.rotation.y = Math.PI / 4;
+            // cursor told me to do it and it works great
+            const angled = this.preset_.angled;
+            if (angled) {
+                const rotationAngle = angled.degrees * (Math.PI / 180);
+                light.rotateOnAxis(new THREE.Vector3().fromArray(angled.axes), rotationAngle);
+            }
+            light.updateMatrix();
             this.master.add(light); // If you add the light before lookAt it will be randomly turned...
             size.divideScalar(2);
             size.z = -size.z;

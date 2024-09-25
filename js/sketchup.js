@@ -9,7 +9,7 @@ var sketchup;
     const stickers = ['wallsewerhole', 'concretecornerdamage', 'rustylatch'];
     var figsMats = {};
     const mats = {};
-    var loresToggle = false;
+    var loresToggle = true;
     var normalToggle = true;
     async function getMats() {
         let url = 'figs/mats.json';
@@ -189,17 +189,19 @@ var sketchup;
         await loadLevel();
         for (const marker of props.markers) {
             if (marker.preset === 'start') {
-                console.log('woo');
-                console.log('yawgroup old pos', glob.yawGroup.position);
                 glob.yawGroup.position.copy(marker.get_center());
-                console.log('yawgroup new pos', glob.yawGroup.position);
                 break;
             }
         }
-        const aks47 = await load_gun('aks-47');
-        vr.rightController.grip.add(aks47);
     }
     sketchup.boot = boot;
+    async function loadGuns() {
+        const g3a3 = await loadGun('g3a3');
+        vr.rightController.grip.add(g3a3);
+        rotateGunForGripping(g3a3);
+        const g3a32 = await loadGun('g3a3');
+        props.markers.find(marker => marker.preset === 'gunstand').master.add(g3a32);
+    }
     function fix_sticker(material) {
         // console.warn(' fix sticker ', material);
         material.transparent = true;
@@ -280,13 +282,17 @@ var sketchup;
             renderer.scene.add(group);
             glob.levelGroup = group;
         });
+        await loadGuns();
     }
     sketchup.loadLevel = loadLevel;
-    async function load_gun(name) {
-        const group = new THREE.Group();
-        //group.add(new THREE.AxesHelper());
+    function rotateGunForGripping(group) {
         group.rotation.x = -Math.PI / 2;
         group.rotation.y = Math.PI / 2;
+        group.updateMatrix();
+    }
+    sketchup.rotateGunForGripping = rotateGunForGripping;
+    async function loadGun(name) {
+        const group = new THREE.Group();
         const loadingManager = new THREE.LoadingManager(function () {
         });
         const colladaLoader = new ColladaLoader(loadingManager);
@@ -301,6 +307,6 @@ var sketchup;
         });
         return group;
     }
-    sketchup.load_gun = load_gun;
+    sketchup.loadGun = loadGun;
 })(sketchup || (sketchup = {}));
 export default sketchup;

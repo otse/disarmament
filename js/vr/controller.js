@@ -10,13 +10,17 @@ export class controller {
     grip;
     hand;
     xrinputsource;
+    controllerModel;
     constructor(index = 1) {
         this.index = index;
         this.controller = renderer.renderer.xr.getController(index);
         // console.log(' hunt ctrlr controller', this.controller);
         const that = this;
         this.controller.addEventListener('connected', function (event) {
-            this.add(buildController(event.data));
+            if (glob.gripRays)
+                this.add(buildController(event.data));
+            else
+                this.add(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial({ color: 0xff0000 })));
             that.xrinputsource = event;
             console.log(' hunt xrinputsource', that.xrinputsource);
         });
@@ -38,16 +42,22 @@ export class controller {
                     return new THREE.Mesh(geometry, material);
             }
         }
-        renderer.scene.add(this.controller);
+        //renderer.scene.add(this.controller);
+        glob.yawGroup.add(this.controller);
+        glob.yawGroup.updateMatrix();
+        this.controller.updateMatrix();
         const controllerModelFactory = new XRControllerModelFactory();
         ///const handModelFactory = new XRHandModelFactory();
         // this creates a quest 2 controller with the tracking ring
         // it can also make a black rift s controller
         this.grip = renderer.renderer.xr.getControllerGrip(index);
-        this.grip.add(controllerModelFactory.createControllerModel(this.grip));
+        this.controllerModel = controllerModelFactory.createControllerModel(this.grip);
+        this.controllerModel.updateMatrix();
+        //this.grip.add(this.controllerModel));
+        this.grip.updateMatrix();
         //this.grip.add(new THREE.AxesHelper());
         //console.log(' ctrlr grip', this.grip);
-        renderer.yawGroup.add(this.grip);
+        glob.yawGroup.add(this.grip);
         this.grip.addEventListener("connected", (e) => {
             //console.warn(' hunt vr gamepad', e.data.gamepad)
             //console.warn(' axes', this.grip.data.gamepad.axes[3]);
@@ -66,7 +76,7 @@ export class controller {
             this.userData.isSelecting = false;
             if (floorIntersect) {
                 const offsetPosition = { x: -floorIntersect.x, y: -floorIntersect.y, z: -floorIntersect.z, w: 1 };
-                renderer.yawGroup.position.copy(offsetPosition);
+                glob.yawGroup.position.copy(offsetPosition);
                 /*
                 const offsetRotation = new THREE.Quaternion();
                 const transform1 = new XRRigidTransform(offsetPosition, offsetRotation);
@@ -111,7 +121,7 @@ export class controller {
         if (Math.abs(axes[2]) > 0.9 && !this.turned) {
             let quarterTurn = new THREE.Quaternion();
             const turn = axes[2] < 0.5 ? Math.PI / 4 : -Math.PI / 4;
-            renderer.yawGroup.rotation.y += turn;
+            glob.yawGroup.rotation.y += turn;
             //renderer.cameraGroup.updateMatrix();
             //renderer.cameraGroup._onChangeCallback(); // this is a hack
             this.turned = true;
@@ -123,7 +133,7 @@ export class controller {
         if (snap) {
             const offsetPosition = new THREE.Vector3();
             const offsetRotation = new THREE.Quaternion();
-            const transform = new XRRigidTransform(renderer.yawGroup.position, offsetRotation);
+            const transform = new XRRigidTransform(glob.yawGroup.position, offsetRotation);
             const thumbstickSpace = vr.baseReferenceSpace.getOffsetReferenceSpace(transform);
             renderer.renderer.xr.setReferenceSpace(thumbstickSpace);
         }

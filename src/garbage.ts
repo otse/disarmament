@@ -41,6 +41,7 @@ namespace garbage {
 		glob.level = 'gen2';
 		glob.wireframes = false;
 		glob.propAxes = false;
+		glob.gripRays = false;
 
 		common.boot();
 		physics.boot();

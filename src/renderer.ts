@@ -150,11 +150,11 @@ namespace renderer {
 			`);
 			}
 		}
-
-		camera.updateMatrix();
-
+		
 		yawGroup.updateMatrix();
 		yawGroup.updateMatrixWorld(true);
+		
+		camera.updateMatrix();
 
 		//scene.updateWorldMatrix(true, true);
 

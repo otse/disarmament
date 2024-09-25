@@ -19,7 +19,6 @@ namespace tunnels {
 	}
 
 	export function loop() {
-
 		for (const tunnel of tunnels) {
 			if (tunnel.check())
 				break;
@@ -35,7 +34,6 @@ namespace tunnels {
 				new tunnel(object, name);
 		}
 		scene.traverse(finder);
-
 		for (const tunnel of tunnels)
 			tunnel.findAdjacentTunnels();
 	}
@@ -43,14 +41,17 @@ namespace tunnels {
 	export var tunnels: tunnel[] = [];
 
 	export class tunnel extends toggle {
+		private static visibleTunnels: Set<tunnel> = new Set();
 		aabb
 		expandedAabb
 		containedObjects: props.prop[] = []
+		spanningObjects: props.prop[] = [];
 		adjacentTunnels: tunnel[] = []
 		debugBox
 		constructor(public readonly object, public readonly name) {
 			super();
 			this.object.visible = false;
+			this.object.frustumCulled = true;
 			tunnels.push(this);
 			this.measure();
 			this.debugBox = new common.debug_box(this, 'green', true);
@@ -71,21 +72,29 @@ namespace tunnels {
 		private gatherContainedProps() {
 			for (const prop of props.props) {
 				if (prop.aabb && this.aabb.intersectsBox(prop.aabb)) {
-					this.containedObjects.push(prop);
+					if (this.aabb.containsBox(prop.aabb)) {
+						this.containedObjects.push(prop);
+					} else {
+						this.spanningObjects.push(prop);
+					}
 				}
 			}
 			console.log(this.name, 'collected', this.containedObjects.length, 'props', this.containedObjects);
 		}
 		cleanup() {
-			
+
 		}
 		show() {
 			if (this.on()) {
 				console.warn(`Oops: Tunnel ${this.name} is already showing.`);
 				return;
 			}
+			tunnel.visibleTunnels.add(this);
 			this.object.visible = true;
 			for (const prop of this.containedObjects) {
+				prop.show();
+			}
+			for (const prop of this.spanningObjects) {
 				prop.show();
 			}
 		}
@@ -95,8 +104,17 @@ namespace tunnels {
 				return;
 			}
 			this.object.visible = false;
+			tunnel.visibleTunnels.delete(this);
 			for (const prop of this.containedObjects) {
 				prop.hide();
+			}
+			for (const prop of this.spanningObjects) {
+				// If no visible tunnel has this ambiguous prop, hide it
+				if (!Array.from(tunnel.visibleTunnels).some(
+					tunnel => tunnel.spanningObjects.includes(prop))) {
+					console.log('no visible tunnel has this spanning object prop', prop);
+					prop.hide();
+				}
 			}
 		}
 		check() {
