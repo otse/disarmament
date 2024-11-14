@@ -395,6 +395,9 @@ namespace physics {
 		constructor(prop: props.prop) {
 			super(prop);
 
+			console.log('fdoor');
+			
+
 			const size = new THREE.Vector3();
 			const center = new THREE.Vector3();
 			this.prop.aabb.getSize(size);

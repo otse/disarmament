@@ -39,7 +39,7 @@ namespace garbage {
 		main = document.querySelector('salvage-body');
 
 		glob.level = 'gen2';
-		glob.wireframes = false;
+		glob.wireframes = true;
 		glob.propAxes = false;
 		glob.gripRays = false;
 

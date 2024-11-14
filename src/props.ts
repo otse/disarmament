@@ -457,7 +457,6 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pdoor'; '⛪️'
 			//console.log('pdoor hint', parameters.rotation || 0);
-
 		}
 		override _hide() {
 			this.object.visible = false;
