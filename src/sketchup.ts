@@ -118,7 +118,7 @@ namespace sketchup {
 			console.warn(' emis ');
 		}
 		if (tuple[8] && true) {
-			const texture = await <any>createTextureFromImage(`${tuple[1]}_displacement.png${salt}`, 8);
+			const texture = await <any>createTextureFromImage(`${tuple[1]}_displacement.png${salt}`, 1);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 			mat.displacementMap = texture;
 			mat.displacementScale = 3;
