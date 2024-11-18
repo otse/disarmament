@@ -117,7 +117,10 @@ var tunnels;
         }
         check() {
             const playerAABB = garbage.gplayer.aabb;
-            if (this.expandedAabb.containsBox(playerAABB)) {
+            let checkme = this.expandedAabb.containsBox(playerAABB);
+            if (!tunnels_1.currentTunnel)
+                checkme = this.expandedAabb.intersectsBox(playerAABB);
+            if (checkme) {
                 if (tunnels_1.currentTunnel !== this) {
                     const currentTunnels = tunnels_1.currentTunnel ? [tunnels_1.currentTunnel, ...tunnels_1.currentTunnel.adjacentTunnels] : [];
                     const newTunnels = [this, ...this.adjacentTunnels];

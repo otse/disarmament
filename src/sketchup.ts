@@ -15,8 +15,9 @@ namespace sketchup {
 		roughness?: number,
 		metalness?: number,
 		normal?: boolean,
-		emissive?: string,
 		transparent?: boolean,
+		emissive?: boolean,
+		displacement?: boolean,
 	]
 
 	const stickers = ['wallsewerhole', 'concretecornerdamage', 'rustylatch']
@@ -108,13 +109,20 @@ namespace sketchup {
 				mat.normalScale.set(tuple[2], -tuple[2]!);
 			mat.normalMap = texture;
 		}
-		if (tuple[6] && true) {
+		if (tuple[7] && true) {
 			mat.emissive = new THREE.Color('white');
 			const texture = await <any>createTextureFromImage(`${tuple[1]}_emissive.png${salt}`, 4);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 			mat.emissiveMap = texture;
 			//mat.emissive.set('#82834a');
 			console.warn(' emis ');
+		}
+		if (tuple[8] && true) {
+			const texture = await <any>createTextureFromImage(`${tuple[1]}_displacement.png${salt}`, 8);
+			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+			mat.displacementMap = texture;
+			mat.displacementScale = 3;
+			console.warn(' displaces ');
 		}
 		mat.onBeforeCompile = (shader) => {
 			console.warn('onbeforecompile');

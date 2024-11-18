@@ -448,6 +448,7 @@ var props;
             this.fbody.loop();
             this.master.position.copy(this.fbody.body.position);
             this.master.quaternion.copy(this.fbody.body.quaternion);
+            this.master.updateMatrix();
         }
     }
     props_1.pdoor = pdoor;

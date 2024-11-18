@@ -119,7 +119,11 @@ namespace tunnels {
 		}
 		check() {
 			const playerAABB = garbage.gplayer.aabb;
-			if (this.expandedAabb.containsBox(playerAABB)) {
+			let checkme = this.expandedAabb.containsBox(playerAABB);
+			if (!currentTunnel)
+				checkme = this.expandedAabb.intersectsBox(playerAABB);
+			
+			if (checkme) {
 				if (currentTunnel !== this) {
 					const currentTunnels = currentTunnel ? [currentTunnel, ...currentTunnel.adjacentTunnels] : [];
 					const newTunnels = [this, ...this.adjacentTunnels];

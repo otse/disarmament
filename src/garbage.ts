@@ -60,11 +60,9 @@ namespace garbage {
 
 	export async function loop(delta: number) {
 		dt = delta;
-
 		if (app.proompt('f2')) {
 			garbage.locker.style.display = 'none';
 		}
-
 		vr.loop();
 		gplayer?.loop(delta);
 		tunnels.loop();

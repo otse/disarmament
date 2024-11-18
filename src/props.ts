@@ -410,8 +410,7 @@ namespace props {
 		override _show() {
 			this.preset_ = presets[this.preset || 'none'];
 			console.log('fan preset_', this.preset_, this.preset);
-
-
+			
 			//this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
 			const size = new THREE.Vector3();
 			const center = new THREE.Vector3();
@@ -472,6 +471,7 @@ namespace props {
 			this.fbody.loop();
 			this.master.position.copy(this.fbody.body.position);
 			this.master.quaternion.copy(this.fbody.body.quaternion);
+			this.master.updateMatrix();
 		}
 	}
 

@@ -323,6 +323,7 @@ var physics;
         }
         constructor(prop) {
             super(prop);
+            console.log('fdoor');
             const size = new THREE.Vector3();
             const center = new THREE.Vector3();
             this.prop.aabb.getSize(size);
