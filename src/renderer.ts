@@ -68,7 +68,7 @@ namespace renderer {
 		});
 
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		renderer.toneMappingExposure = 5.0;
+		renderer.toneMappingExposure = 4.0;
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;
