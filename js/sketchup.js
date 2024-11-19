@@ -18,6 +18,18 @@ var sketchup;
         figsMats = arrSales;
     }
     sketchup.getMats = getMats;
+    async function boot() {
+        await getMats();
+        await buildMats();
+        await loadLevel();
+        for (const marker of props.markers) {
+            if (marker.preset === 'start') {
+                glob.yawGroup.position.copy(marker.get_center());
+                break;
+            }
+        }
+    }
+    sketchup.boot = boot;
     async function loop() {
         if (glob.developer) {
             if (app.proompt('r') == 1) {
@@ -102,7 +114,7 @@ var sketchup;
             const texture = await createTextureFromImage(`${tuple[1]}_displacement.png${salt}`, 1);
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             mat.displacementMap = texture;
-            mat.displacementScale = 3;
+            mat.displacementScale = 4;
             console.warn(' displaces ');
         }
         mat.onBeforeCompile = (shader) => {
@@ -161,10 +173,10 @@ var sketchup;
         const funcs = [];
         for (let name in figsMats) {
             const tuple = figsMats[name];
-            const promise = /*await*/ bakeMaterialFromTuple(name, tuple);
+            const promise = /*don't await*/ bakeMaterialFromTuple(name, tuple);
             funcs.push(promise);
         }
-        // Wait for all of them
+        // Instead of awaiting one, wait for all of them
         return Promise.all(funcs);
     }
     const downscale = true;
@@ -190,18 +202,6 @@ var sketchup;
             }
         });
     };
-    async function boot() {
-        await getMats();
-        await buildMats();
-        await loadLevel();
-        for (const marker of props.markers) {
-            if (marker.preset === 'start') {
-                glob.yawGroup.position.copy(marker.get_center());
-                break;
-            }
-        }
-    }
-    sketchup.boot = boot;
     async function loadGuns() {
         const g3a3 = await loadGun('g3a3');
         vr.rightController.grip.add(g3a3);

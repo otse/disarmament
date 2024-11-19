@@ -27,8 +27,8 @@ var garbage;
     garbage.clamp = clamp;
     async function boot() {
         console.log('day setting up');
-        garbage.locker = document.querySelector('salvage-instructions');
-        garbage.main = document.querySelector('salvage-body');
+        garbage.locker = document.querySelector('garbage-instructions');
+        garbage.main = document.querySelector('garbage-body');
         glob.level = 'gen2';
         glob.wireframes = false;
         glob.propAxes = false;

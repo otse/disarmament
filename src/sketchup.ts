@@ -35,6 +35,18 @@ namespace sketchup {
 		figsMats = arrSales;
 	}
 
+	export async function boot() {
+		await getMats();
+		await buildMats();
+		await loadLevel();
+		for (const marker of props.markers) {
+			if (marker.preset === 'start') {
+				glob.yawGroup.position.copy(marker.get_center());
+				break;
+			}
+		}
+	}
+
 	export async function loop() {
 		if (glob.developer) {
 			if (app.proompt('r') == 1) {
@@ -121,7 +133,7 @@ namespace sketchup {
 			const texture = await <any>createTextureFromImage(`${tuple[1]}_displacement.png${salt}`, 1);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 			mat.displacementMap = texture;
-			mat.displacementScale = 3;
+			mat.displacementScale = 4;
 			console.warn(' displaces ');
 		}
 		mat.onBeforeCompile = (shader) => {
@@ -184,10 +196,10 @@ namespace sketchup {
 		const funcs: any[] = [];
 		for (let name in figsMats) {
 			const tuple = figsMats[name];
-			const promise = /*await*/ bakeMaterialFromTuple(name, tuple);
+			const promise = /*don't await*/ bakeMaterialFromTuple(name, tuple);
 			funcs.push(promise);
 		}
-		// Wait for all of them
+		// Instead of awaiting one, wait for all of them
 		return Promise.all(funcs);
 	}
 
@@ -214,18 +226,6 @@ namespace sketchup {
 				});
 			}
 		});
-	}
-
-	export async function boot() {
-		await getMats();
-		await buildMats();
-		await loadLevel();
-		for (const marker of props.markers) {
-			if (marker.preset === 'start') {
-				glob.yawGroup.position.copy(marker.get_center());
-				break;
-			}
-		}
 	}
 
 	async function loadGuns() {

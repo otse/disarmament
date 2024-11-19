@@ -56,6 +56,35 @@
 		"distance": 2,
 		"decay": 1.0
 	},
+	"plsconceshade": {
+		"hide": false,
+		"color": "0xfff8a4",
+		"intensity": 0.15,
+		"distance": 2.5,
+		"decay": 1.0,
+		"shadow": true,
+		"xbehavior": {
+			"type": "shake",
+			"cycle": 5,
+			"base": 1.0,
+			"variance": 2.0
+		}
+	},
+	"sltestshade": {
+		"hide": false,
+		"color": "white",
+		"intensity": 1.0,
+		"distance": 2,
+		"decay": 1.0,
+		"shadow": true,
+		"shadowMapSize": 256,
+		"target": [
+			-1,
+			0,
+			0
+		]
+	},
+	
 	"slsewerworld": {
 		"hide": true,
 		"lensflare": true,

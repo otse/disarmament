@@ -410,7 +410,7 @@ namespace props {
 		override _show() {
 			this.preset_ = presets[this.preset || 'none'];
 			console.log('fan preset_', this.preset_, this.preset);
-			
+
 			//this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
 			const size = new THREE.Vector3();
 			const center = new THREE.Vector3();
@@ -542,9 +542,13 @@ namespace props {
 			this.light = light;
 			light.visible = !this.preset_.disabled;
 			light.castShadow = this.preset_.shadow;
+			light.shadow.camera.near = 0.5;
+			light.shadow.camera.far = 10;
+
 			//light.position.fromArray(preset.offset || [0, 0, 0]);
 			light.position.add(size);
 			light.updateMatrix();
+			light.updateMatrixWorld();
 			// light.add(new THREE.AxesHelper(10));
 			this.master.add(light);
 		}

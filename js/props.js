@@ -512,9 +512,12 @@ var props;
             this.light = light;
             light.visible = !this.preset_.disabled;
             light.castShadow = this.preset_.shadow;
+            light.shadow.camera.near = 0.5;
+            light.shadow.camera.far = 10;
             //light.position.fromArray(preset.offset || [0, 0, 0]);
             light.position.add(size);
             light.updateMatrix();
+            light.updateMatrixWorld();
             // light.add(new THREE.AxesHelper(10));
             this.master.add(light);
         }

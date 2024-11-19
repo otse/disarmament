@@ -10,7 +10,7 @@ var renderer;
     function boot() {
         window['renderer'] = this;
         console.log('renderer boot');
-        THREE.Object3D.DEFAULT_MATRIX_AUTO_UPDATE = false;
+        THREE.Object3D.DEFAULT_MATRIX_AUTO_UPDATE = true;
         THREE.Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = true;
         THREE.ColorManagement.enabled = true;
         renderer_1.clock = new THREE.Clock();
@@ -40,17 +40,17 @@ var renderer;
             antialias: true
         });
         renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer_1.renderer.toneMappingExposure = 4.5;
+        renderer_1.renderer.toneMappingExposure = 5.0;
         renderer_1.renderer.setPixelRatio(window.devicePixelRatio);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer_1.renderer.shadowMap.enabled = true;
+        renderer_1.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer_1.maxAnisotropy = renderer_1.renderer.capabilities.getMaxAnisotropy();
         if (glob.hasHeadset)
             renderer_1.renderer.setAnimationLoop(app.base_loop);
         renderer_1.renderer.xr.setFramebufferScaleFactor(1);
-        renderer_1.renderer.shadowMap.enabled = true;
-        renderer_1.maxAnisotropy = renderer_1.renderer.capabilities.getMaxAnisotropy();
-        renderer_1.renderer.xr.enabled = true;
+        // renderer.xr.enabled = true;
         renderer_1.renderer.xr.cameraAutoUpdate = false;
-        renderer_1.renderer.shadowMap.type = THREE.BasicShadowMap;
         // renderer.setClearColor(0xffffff, 0.0);
         const percent = 1 / 100;
         renderer_1.ambiance = new THREE.AmbientLight(0xffffff, percent);
@@ -71,9 +71,9 @@ var renderer;
         // scene.add(new THREE.CameraHelper(sun.shadow.camera));
         if (glob.hasHeadset) {
             renderer_1.statsEnabled = true;
-            app.selector_style('salvage-stats', 'visibility', 'visible');
+            app.selector_style('garbage-stats', 'visibility', 'visible');
         }
-        document.querySelector('salvage-body').appendChild(renderer_1.renderer.domElement);
+        document.querySelector('garbage-body').appendChild(renderer_1.renderer.domElement);
         window.addEventListener('resize', onWindowResize);
     }
     renderer_1.boot = boot;
@@ -88,7 +88,7 @@ var renderer;
     function loop_and_render() {
         if (app.proompt('h') == 1) {
             renderer_1.statsEnabled = !renderer_1.statsEnabled;
-            app.selector_style('salvage-stats', 'visibility', renderer_1.statsEnabled ? 'visible' : 'hidden');
+            app.selector_style('garbage-stats', 'visibility', renderer_1.statsEnabled ? 'visible' : 'hidden');
         }
         renderer_1.dt = renderer_1.clock.getDelta();
         const min_dt = 1.0 / 10.0;
@@ -100,7 +100,7 @@ var renderer;
             prevTime = time;
             frames = 0;
             if (renderer_1.statsEnabled) {
-                app.selector_innerhtml('salvage-stats', `
+                app.selector_innerhtml('garbage-stats', `
 					fps: ${renderer_1.fps.toFixed(1)}<br />
 					bounce hdr: ${(renderer_1.headacheMode)}<br />
 			`);
@@ -108,6 +108,8 @@ var renderer;
         }
         renderer_1.yawGroup.updateMatrix();
         renderer_1.yawGroup.updateMatrixWorld(true);
+        renderer_1.renderer.shadowMap.autoUpdate = true;
+        renderer_1.renderer.shadowMap.needsUpdate = true;
         renderer_1.camera.updateMatrix();
         //scene.updateWorldMatrix(true, true);
         renderer_1.renderer.xr.updateCamera(renderer_1.camera);

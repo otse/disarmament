@@ -90,7 +90,7 @@ var app;
             //return false;
         }
         function onerror(message) {
-            document.querySelectorAll('salvage-stats')[0].innerHTML = message;
+            document.querySelectorAll('garbage-stats')[0].innerHTML = message;
         }
         if (glob.mobile) {
             document.ontouchstart = ontouchstart;

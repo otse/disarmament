@@ -27,7 +27,7 @@ namespace renderer {
 
 		console.log('renderer boot');
 
-		THREE.Object3D.DEFAULT_MATRIX_AUTO_UPDATE = false;
+		THREE.Object3D.DEFAULT_MATRIX_AUTO_UPDATE = true;
 		THREE.Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = true;
 		THREE.ColorManagement.enabled = true;
 
@@ -37,7 +37,7 @@ namespace renderer {
 		yawGroup = new THREE.Group();
 
 		glob.propsGroup = propsGroup;
-		
+
 		scene = new THREE.Scene();
 		glob.scene = scene;
 		scene.add(propsGroup);
@@ -45,7 +45,7 @@ namespace renderer {
 		scene.background = new THREE.Color('#333');
 
 		RectAreaLightUniformsLib.init();
-		
+
 		let helepr = new THREE.AxesHelper();
 		scene.add(helepr);
 
@@ -59,7 +59,7 @@ namespace renderer {
 		// yawGroup.add(new THREE.AxesHelper());
 		// cameraGroup.add(renderer.xr.getCamera());
 		yawGroup.updateMatrix();
-		
+
 		glob.camera = camera;
 		glob.yawGroup = yawGroup;
 
@@ -68,19 +68,19 @@ namespace renderer {
 		});
 
 		renderer.toneMapping = THREE.ACESFilmicToneMapping;
-		renderer.toneMappingExposure = 4.5;
+		renderer.toneMappingExposure = 5.0;
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight);
-		if (glob.hasHeadset)
-			renderer.setAnimationLoop(app.base_loop);
-		renderer.xr.setFramebufferScaleFactor(1);
 		renderer.shadowMap.enabled = true;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 		maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
 
-		renderer.xr.enabled = true;
+		if (glob.hasHeadset)
+			renderer.setAnimationLoop(app.base_loop);
+		renderer.xr.setFramebufferScaleFactor(1);
+		// renderer.xr.enabled = true;
 		renderer.xr.cameraAutoUpdate = false;
-		renderer.shadowMap.type = THREE.BasicShadowMap;
 		// renderer.setClearColor(0xffffff, 0.0);
 
 		const percent = 1 / 100;
@@ -105,10 +105,10 @@ namespace renderer {
 
 		if (glob.hasHeadset) {
 			statsEnabled = true;
-			app.selector_style('salvage-stats', 'visibility', 'visible');
+			app.selector_style('garbage-stats', 'visibility', 'visible');
 		}
 
-		document.querySelector('salvage-body')!.appendChild(renderer.domElement);
+		document.querySelector('garbage-body')!.appendChild(renderer.domElement);
 
 		window.addEventListener('resize', onWindowResize);
 	}
@@ -130,9 +130,9 @@ namespace renderer {
 
 		if (app.proompt('h') == 1) {
 			statsEnabled = !statsEnabled;
-			app.selector_style('salvage-stats', 'visibility', statsEnabled ? 'visible' : 'hidden');
+			app.selector_style('garbage-stats', 'visibility', statsEnabled ? 'visible' : 'hidden');
 		}
-		
+
 		dt = clock.getDelta();
 
 		const min_dt = 1.0 / 10.0;
@@ -144,22 +144,25 @@ namespace renderer {
 			prevTime = time;
 			frames = 0;
 			if (statsEnabled) {
-				app.selector_innerhtml('salvage-stats', `
+				app.selector_innerhtml('garbage-stats', `
 					fps: ${fps.toFixed(1)}<br />
 					bounce hdr: ${(headacheMode)}<br />
 			`);
 			}
 		}
-		
+
 		yawGroup.updateMatrix();
 		yawGroup.updateMatrixWorld(true);
-		
+
+		renderer.shadowMap.autoUpdate = true;
+		renderer.shadowMap.needsUpdate = true;
+
 		camera.updateMatrix();
 
 		//scene.updateWorldMatrix(true, true);
 
 		renderer.xr.updateCamera(camera);
-		
+
 		renderer.render(scene, camera);
 	}
 }

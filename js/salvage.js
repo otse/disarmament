@@ -26,8 +26,8 @@ var salvage;
     salvage.clamp = clamp;
     async function boot() {
         console.log('day setting up');
-        salvage.locker = document.querySelector('salvage-instructions');
-        salvage.main = document.querySelector('salvage-body');
+        salvage.locker = document.querySelector('garbage-instructions');
+        salvage.main = document.querySelector('garbage-body');
         points.add([0, 0], [1, 1]);
         physics.boot();
         props.boot();

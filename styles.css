@@ -1,9 +1,8 @@
 body {
   margin: 0;
   background: black;
-  font-family: 'Waiting for the Sunrise', cursive;
 }
-salvage-body {
+garbage-body {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -11,14 +10,18 @@ salvage-body {
   height: 100%;
   bbackground: green;
 }
-salvage-instructions {
+garbage-instructions {
   display: flex;
   position: absolute;
   color: white;
   text-shadow: 1px 1px 5px black;
   text-align: center;
+  font-family: "Bungee Tint", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 30px;
 }
-salvage-stats {
+garbage-stats {
   display: flex;
   position: absolute;
   visibility: hidden;
