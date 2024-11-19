@@ -39,7 +39,7 @@ var renderer;
         renderer_1.renderer = new THREE.WebGLRenderer({
             antialias: true
         });
-        renderer_1.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer_1.renderer.toneMapping = THREE.NeutralToneMapping;
         renderer_1.renderer.toneMappingExposure = 4.0;
         renderer_1.renderer.setPixelRatio(window.devicePixelRatio);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);

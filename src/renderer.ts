@@ -67,7 +67,7 @@ namespace renderer {
 			antialias: true
 		});
 
-		renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		renderer.toneMapping = THREE.NeutralToneMapping;
 		renderer.toneMappingExposure = 4.0;
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight);

@@ -4,8 +4,8 @@
         <contributor>
             <authoring_tool>SketchUp 17.2.2555</authoring_tool>
         </contributor>
-        <created>2024-11-19T14:53:33Z</created>
-        <modified>2024-11-19T14:53:33Z</modified>
+        <created>2024-11-19T21:54:23Z</created>
+        <modified>2024-11-19T21:54:23Z</modified>
         <unit meter="0.0254" name="inch" />
         <up_axis>Z_UP</up_axis>
     </asset>
@@ -51,7 +51,7 @@
         <visual_scene id="ID4">
             <node name="SketchUp">
                 <node name="skp_camera_Last_Saved_SketchUp_View">
-                    <matrix>-0.2708507 -0.1448692 0.951658 6.799002 0.9626214 -0.04076153 0.267766 -266.153 6.938894e-18 0.9886109 0.1504945 65.52048 0 0 0 1</matrix>
+                    <matrix>0.006973106 0.7903093 -0.6126685 -225.779 -0.9999757 0.005511044 -0.004272306 -167.5488 -4.336809e-19 0.6126834 0.7903284 203.7766 0 0 0 1</matrix>
                     <instance_camera url="#ID1" />
                 </node>
                 <node name="skp_camera_office">
@@ -549,7 +549,7 @@
                     </node>
                 </node>
                 <node id="ID428" name="light_plsconceshade">
-                    <matrix>1 0 0 -106.2977 0 1 0 -159.6422 0 0 1 46.06299 0 0 0 1</matrix>
+                    <matrix>1 0 0 -101.1245 0 1 0 -162.7682 0 0 1 46.06299 0 0 0 1</matrix>
                     <instance_geometry url="#ID429">
                         <bind_material>
                             <technique_common>
@@ -561,7 +561,7 @@
                     </instance_geometry>
                 </node>
                 <node id="ID435" name="instance_0">
-                    <matrix>-0.2708507 -0.9626214 0 -21.72477 0.9626214 -0.2708507 0 -90.31206 0 0 1 -7.105427e-15 0 0 0 1</matrix>
+                    <matrix>0.006973106 0.9999757 0 -21.72477 -0.9999757 0.006973106 0 -90.31206 0 -0 1 -7.105427e-15 0 0 0 1</matrix>
                     <instance_node url="#ID436" />
                 </node>
                 <node id="ID539" name="prop">

@@ -59,7 +59,7 @@
 	"plsconceshade": {
 		"hide": false,
 		"color": "0xfff8a4",
-		"intensity": 0.15,
+		"intensity": 0.1,
 		"distance": 2.5,
 		"decay": 1.0,
 		"shadow": true,

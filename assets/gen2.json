@@ -164,7 +164,7 @@
 		"xdisabled": true,
 		"xhelper": true,
 		"hide": true,
-		"color": "lavender",
+		"color": "green",
 		"intensity": 0.01,
 		"target": [
 			0,
