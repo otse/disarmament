@@ -67,6 +67,10 @@ namespace renderer {
 			antialias: true
 		});
 
+		// CineonToneMapping looks colorful
+		// ACESFilmicToneMapping looks photographic but very cold
+		// NeutralToneMapping has deep darks
+
 		renderer.toneMapping = THREE.NeutralToneMapping;
 		renderer.toneMappingExposure = 4.0;
 		renderer.setPixelRatio(window.devicePixelRatio);

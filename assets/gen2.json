@@ -165,7 +165,7 @@
 		"xhelper": true,
 		"hide": true,
 		"color": "green",
-		"intensity": 0.01,
+		"intensity": 0.02,
 		"target": [
 			0,
 			1,

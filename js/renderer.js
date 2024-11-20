@@ -39,6 +39,9 @@ var renderer;
         renderer_1.renderer = new THREE.WebGLRenderer({
             antialias: true
         });
+        // CineonToneMapping looks colorful
+        // ACESFilmicToneMapping looks photographic but very cold
+        // NeutralToneMapping has deep darks
         renderer_1.renderer.toneMapping = THREE.NeutralToneMapping;
         renderer_1.renderer.toneMappingExposure = 4.0;
         renderer_1.renderer.setPixelRatio(window.devicePixelRatio);
