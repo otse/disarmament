@@ -296,10 +296,9 @@ namespace props {
 				this.object.visible = false;
 			this.master.position.copy(this.fbody.body.position);
 			this.master.quaternion.copy(this.fbody.body.quaternion);
+			this.master.updateMatrix();
 		}
 		override _hide() {
-			this.object.visible = false;
-			this.debugBox?.mesh.removeFromParent();
 			this.fbody?.lod();
 		}
 		override _loop() {
@@ -311,14 +310,23 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pstairstep';
 			this.array = walls;
+			console.log(' stairstep ');
+			
 			//this.build_debug_box = true;
 		}
 		override _show() {
 			console.log('finish stairstep');
+			this.object.visible = true;
+			this.debugBox = new common.debug_box(this, 'blue', true);
 			new physics.fstairstep(this);
 			this.master.position.copy(this.fbody.body.position);
 			this.master.quaternion.copy(this.fbody.body.quaternion);
+			this.master.updateMatrix();
 			//this.object.visible = false;
+		}
+		override _hide() {
+			this.object.visible = false;
+			this.debugBox?.lod();
 		}
 		override _loop() {
 		}

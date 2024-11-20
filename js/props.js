@@ -283,10 +283,9 @@ var props;
                 this.object.visible = false;
             this.master.position.copy(this.fbody.body.position);
             this.master.quaternion.copy(this.fbody.body.quaternion);
+            this.master.updateMatrix();
         }
         _hide() {
-            this.object.visible = false;
-            this.debugBox?.mesh.removeFromParent();
             this.fbody?.lod();
         }
         _loop() {
@@ -298,14 +297,22 @@ var props;
             super(object, parameters);
             this.type = 'pstairstep';
             this.array = props_1.walls;
+            console.log(' stairstep ');
             //this.build_debug_box = true;
         }
         _show() {
             console.log('finish stairstep');
+            this.object.visible = true;
+            this.debugBox = new common.debug_box(this, 'blue', true);
             new physics.fstairstep(this);
             this.master.position.copy(this.fbody.body.position);
             this.master.quaternion.copy(this.fbody.body.quaternion);
+            this.master.updateMatrix();
             //this.object.visible = false;
+        }
+        _hide() {
+            this.object.visible = false;
+            this.debugBox?.lod();
         }
         _loop() {
         }

@@ -89,8 +89,8 @@ var sketchup;
             map: texture
         });
         // material.clearcoat = 1.0;
-        mat.roughness = tuple[3] || 0.3;
-        mat.metalness = tuple[4] || 0;
+        mat.roughness = tuple[3] ?? 0.3;
+        mat.metalness = tuple[4] ?? 0;
         // mat.clearCoat = 0.5;
         mat.iridescence = 0.15;
         if (tuple[5] && true) {

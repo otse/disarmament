@@ -62,7 +62,7 @@
 		"intensity": 0.1,
 		"distance": 2.5,
 		"decay": 1.0,
-		"shadow": true,
+		"shadow": false,
 		"xbehavior": {
 			"type": "shake",
 			"cycle": 5,
