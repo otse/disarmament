@@ -143,20 +143,20 @@
 		"helper": false,
 		"hide": true,
 		"color": "lavender",
-		"intensity": 15.0,
+		"intensity": 20.0,
 		"target": [
 			0.0,
 			0.0,
 			1.0
 		],
-		"xbehavior": {
+		"behavior": {
 			"type": "bounce",
 			"cycle": 5,
 			"base": 1.0,
-			"variance": 0.1
+			"variance": 0.15
 		},
-		"xangled": {
-			"degrees": 7,
+		"angled": {
+			"degrees": -4,
 			"axes": [0, 0, 1]
 		}
 	},

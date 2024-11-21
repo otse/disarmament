@@ -16,7 +16,7 @@ var garbage;
     garbage.inchMeter = (1 / 0.0254); // 39.3700787
     garbage.spaceMultiply = garbage.inchMeter;
     garbage.timeStep = (1 / 60);
-    garbage.dt = 0;
+    garbage.frameTime = 0;
     function sample(a) {
         return a[Math.floor(Math.random() * a.length)];
     }
@@ -46,7 +46,9 @@ var garbage;
     }
     garbage.boot = boot;
     async function loop(delta) {
-        garbage.dt = delta;
+        garbage.frameTime = delta;
+        if (garbage.frameTime > 1.0)
+            garbage.frameTime = 1;
         if (app.proompt('f2')) {
             garbage.locker.style.display = 'none';
         }

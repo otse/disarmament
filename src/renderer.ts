@@ -49,7 +49,7 @@ namespace renderer {
 		let helepr = new THREE.AxesHelper();
 		scene.add(helepr);
 
-		scene.fog = new THREE.Fog(0x131c1d, 7, 20);
+		scene.fog = new THREE.Fog(0x131c1d, 1, 10);
 
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 		camera.rotation.y = -Math.PI / 2;

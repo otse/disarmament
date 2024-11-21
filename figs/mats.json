@@ -1,7 +1,7 @@
 {
     "ebony": ["white", "./assets/textures/black", 0.5, 0.5, 0, false],
-    "floor1": ["white", "./assets/textures/floor1", 0.5, 0.1, 0.1, true, false, false, false],
-    "floor2": ["white", "./assets/textures/floor2", 0.5, 0.4, 0.1, true],
+    "floor1": ["white", "./assets/textures/floor1", 0.3, 0.1, 0.1, true, false, false, false],
+    "floor2": ["white", "./assets/textures/floor2", 0.5, 0.1, 0.1, true],
     "floorfycjy": ["white", "./assets/textures/floorfycjy", 0.7, 0.1, 0.2, true, false, false, false],
     "concrete1": ["white", "./assets/textures/concrete1", 0.2, 0.3, 0.8, false],
     "floormossy": ["white", "./assets/textures/mossyfloor", 0.1, 0.3, 0, true, false],

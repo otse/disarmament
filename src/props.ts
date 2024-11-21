@@ -502,7 +502,7 @@ namespace props {
 			if (this.timer >= 2)
 				this.timer -= 2;
 			let intensity = 1;
-			this.timer += garbage.dt / (cycle / 2);
+			this.timer += garbage.frameTime / (cycle / 2);
 			let value = (() => {
 				switch (behavior.type) {
 					case 'bounce':
@@ -648,8 +648,6 @@ namespace props {
 			}
 
 			this.object.visible = !this.preset_.hide;
-
-
 
 			const size = new THREE.Vector3();
 			this.aabb.getSize(size);

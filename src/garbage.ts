@@ -20,7 +20,8 @@ namespace garbage {
 	export const timeStep = (1 / 60);
 
 	export var main, locker
-	export var dt = 0
+	
+	export var frameTime = 0
 
 	export var gplayer: player
 
@@ -59,7 +60,9 @@ namespace garbage {
 	}
 
 	export async function loop(delta: number) {
-		dt = delta;
+		frameTime = delta;
+		if (frameTime > 1.0)
+			frameTime = 1;
 		if (app.proompt('f2')) {
 			garbage.locker.style.display = 'none';
 		}
