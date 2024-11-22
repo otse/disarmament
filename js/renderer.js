@@ -25,7 +25,7 @@ var renderer;
         RectAreaLightUniformsLib.init();
         let helepr = new THREE.AxesHelper();
         renderer_1.scene.add(helepr);
-        renderer_1.scene.fog = new THREE.Fog(0x131c1d, 1, 10);
+        renderer_1.scene.fog = new THREE.Fog(0x131c1d, 1, 7);
         renderer_1.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         renderer_1.camera.rotation.y = -Math.PI / 2;
         renderer_1.camera.updateMatrix();

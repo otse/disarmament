@@ -1,6 +1,6 @@
 {
     "ebony": ["white", "./assets/textures/black", 0.5, 0.5, 0, false],
-    "floor1": ["white", "./assets/textures/floor1", 0.3, 0.1, 0.1, true, false, false, false],
+    "floor1": ["white", "./assets/textures/floor1", 0.5, 0.1, 0.1, true, false, false, false],
     "floor2": ["white", "./assets/textures/floor2", 0.5, 0.1, 0.1, true],
     "floorfycjy": ["white", "./assets/textures/floorfycjy", 0.7, 0.1, 0.2, true, false, false, false],
     "concrete1": ["white", "./assets/textures/concrete1", 0.2, 0.3, 0.8, false],
@@ -11,7 +11,7 @@
     "locker1": ["white", "./assets/textures/locker1", 0.5, 0.3, 0.0, false],
     "door1": ["white", "./assets/textures/door1", 0.1, 0.2, 0.1, true],
     "wallsewerhole": ["white", "./assets/textures/wallsewerhole", 0.5, 0.5, 0.0, false],
-    "concretecornerdamage": ["white", "./assets/textures/concretecornerdamage", 0.8, 0.3, 0.02, true],
+    "concretecornerdamage": ["white", "./assets/textures/concretecornerdamage", 1.0, 0.4, 0.2, true],
     "tubelight": ["white", "./assets/textures/tubelight", 0.0, 0.0, 0.5, false, true, true],
     "rustylatch": ["white", "./assets/textures/rustylatch", 0.2, 0.3, 0.0, false],
     "g3a3": ["white", "./assets/textures/g3a3", 1.0, 0.3, 0.3, true]
