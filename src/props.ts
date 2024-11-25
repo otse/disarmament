@@ -8,6 +8,7 @@ import easings from "./easings.js";
 import app from "./app.js";
 import common from "./common.js";
 import toggle from "./lib/toggle.js";
+import tunnels from "./tunnels.js";
 
 namespace props {
 
@@ -134,6 +135,7 @@ namespace props {
 	export var presets = {}
 
 	export abstract class prop extends toggle {
+		tunnel?: tunnels.tunnel
 		debugBox?: common.debug_box
 		array: prop[] = []
 		type
