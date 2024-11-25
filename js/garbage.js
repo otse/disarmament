@@ -53,7 +53,7 @@ var garbage;
             garbage.locker.style.display = 'none';
         }
         vr.loop();
-        garbage.gplayer?.loop(delta);
+        garbage.gplayer?.loop(garbage.frameTime);
         tunnels.loop();
         physics.loop(garbage.timeStep);
         props.loop();

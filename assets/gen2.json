@@ -140,7 +140,7 @@
 	},
 	"rltloffice": {
 		"xdisabled": true,
-		"helper": false,
+		"xhelper": true,
 		"hide": true,
 		"color": "lavender",
 		"intensity": 30.0,
@@ -164,7 +164,7 @@
 		"xdisabled": true,
 		"xhelper": true,
 		"hide": true,
-		"color": "green",
+		"color": "lavender",
 		"intensity": 0.02,
 		"target": [
 			0,

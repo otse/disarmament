@@ -67,7 +67,7 @@ namespace garbage {
 			garbage.locker.style.display = 'none';
 		}
 		vr.loop();
-		gplayer?.loop(delta);
+		gplayer?.loop(frameTime);
 		tunnels.loop();
 		physics.loop(garbage.timeStep);
 		props.loop();

@@ -120,6 +120,7 @@ var props;
     class prop extends toggle {
         object;
         parameters;
+        tunnel;
         debugBox;
         array = [];
         type;
