@@ -9,6 +9,8 @@ import props from "./props.js";
 import renderer from "./renderer.js";
 
 namespace tunnels {
+	const arbitrary_expand = 0.1;
+
 	export var currentTunnel: tunnel | undefined;
 
 	export function clear() {
@@ -34,8 +36,10 @@ namespace tunnels {
 				new tunnel(object, name);
 		}
 		scene.traverse(finder);
-		for (const tunnel of tunnels)
+		for (const tunnel of tunnels) {
 			tunnel.findAdjacentTunnels();
+			__dirtyConvertContainedToSpanning(tunnel);
+		}
 	}
 
 	export var tunnels: tunnel[] = [];
@@ -44,7 +48,9 @@ namespace tunnels {
 		private static visibleTunnels: Set<tunnel> = new Set();
 		aabb
 		expandedAabb
+		// Props that are fully contained within this tunnel's bounding box
 		containedObjects: props.prop[] = []
+		// Objects that intersect but are not fully contained within this tunnel's bounding box
 		spanningObjects: props.prop[] = [];
 		adjacentTunnels: tunnel[] = []
 		debugBox
@@ -59,7 +65,7 @@ namespace tunnels {
 		}
 		protected measure() {
 			this.aabb = new THREE.Box3().setFromObject(this.object, true);
-			this.expandedAabb = this.aabb.clone().expandByScalar(0.1);
+			this.expandedAabb = this.aabb.clone().expandByScalar(arbitrary_expand);
 		}
 		findAdjacentTunnels() {
 			for (const tunnel of tunnels) {
@@ -70,6 +76,7 @@ namespace tunnels {
 			}
 		}
 		private gatherContainedProps() {
+			// Gather props that are either fully contained within or intersect with this tunnel
 			for (const prop of props.props) {
 				if (prop.aabb && this.aabb.intersectsBox(prop.aabb)) {
 					if (this.aabb.containsBox(prop.aabb)) {
@@ -110,8 +117,7 @@ namespace tunnels {
 			}
 			for (const prop of this.spanningObjects) {
 				// If no visible tunnel has this ambiguous prop, hide it
-				if (!Array.from(tunnel.visibleTunnels).some(
-					tunnel => tunnel.spanningObjects.includes(prop))) {
+				if (!Array.from(tunnel.visibleTunnels).some(tunnel => tunnel.spanningObjects.includes(prop))) {
 					console.log('no visible tunnel has this spanning object prop', prop);
 					prop.hide();
 				}
@@ -122,7 +128,7 @@ namespace tunnels {
 			let checkme = this.expandedAabb.containsBox(playerAABB);
 			if (!currentTunnel)
 				checkme = this.expandedAabb.intersectsBox(playerAABB);
-			
+
 			if (checkme) {
 				if (currentTunnel !== this) {
 					const currentTunnels = currentTunnel ? [currentTunnel, ...currentTunnel.adjacentTunnels] : [];
@@ -145,6 +151,32 @@ namespace tunnels {
 				return true;
 			}
 			return false;
+		}
+	}
+
+	function __dirtyConvertContainedToSpanning(tunnel: tunnel) {
+		for (const prop of [...tunnel.containedObjects]) {
+			// Check if any other tunnel also contains this prop
+			const otherTunnel = tunnels.find(otherTunnel =>
+				otherTunnel !== tunnel &&
+				otherTunnel.containedObjects.includes(prop)
+			);
+
+			if (otherTunnel) {
+				console.warn(' Prop Overlap ', prop.type);
+
+				// Remove from contained objects of both tunnels
+				tunnel.containedObjects = tunnel.containedObjects.filter(p => p !== prop);
+				otherTunnel.containedObjects = otherTunnel.containedObjects.filter(p => p !== prop);
+
+				// Add to spanning objects of both tunnels if not already there
+				if (!tunnel.spanningObjects.includes(prop)) {
+					tunnel.spanningObjects.push(prop);
+				}
+				if (!otherTunnel.spanningObjects.includes(prop)) {
+					otherTunnel.spanningObjects.push(prop);
+				}
+			}
 		}
 	}
 }

@@ -8,6 +8,8 @@ import vr from "./vr/vr.js";
 
 namespace sketchup {
 
+	const disable_fake_ambient_occlusion = false;
+
 	type tuple = [
 		color?: string,
 		path?: string,
@@ -20,7 +22,7 @@ namespace sketchup {
 		displacement?: boolean,
 	]
 
-	const stickers = ['wallsewerhole', 'concretecornerdamage', 'rustylatch']
+	const stickers = ['wallsewerhole', 'concretecornerdamage', 'ambientocclusion', 'rustylatch']
 
 	var figsMats = {}
 	const mats = {}
@@ -95,10 +97,10 @@ namespace sketchup {
 
 	async function bakeMaterialFromTuple(name: string, tuple: tuple) {
 		// console.log('bake material', name, tuple);
-		const salt = `?x=same`;
+		const seed = `?x=same`;
 		let texture;
 		if (tuple[1]) {
-			texture = await <any>createTextureFromImage(`${tuple[1]}.png${salt}`, 8);
+			texture = await <any>createTextureFromImage(`${tuple[1]}.png${seed}`, 8);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 			texture.minFilter = texture.magFilter = THREE.LinearFilter;
 		}
@@ -110,10 +112,19 @@ namespace sketchup {
 		// material.clearcoat = 1.0;
 		mat.roughness = tuple[3] ?? 0.3;
 		mat.metalness = tuple[4] ?? 0;
+		mat.transparent = tuple[6];
 		// mat.clearCoat = 0.5;
 		mat.iridescence = 0.15;
+		if (name == 'ambientocclusion') {
+			console.warn('we r ao');
+			//mat.aoMap = mat.map;
+			//mat.aoMapIntensity = 10;
+			//mat.map =  await <any>createTextureFromImage(`./assets/textures/transparent.png${seed}`, 1);
+			if (disable_fake_ambient_occlusion)
+				mat.opacity = 0;
+		}
 		if (tuple[5] && true) {
-			const texture = await <any>createTextureFromImage(`${tuple[1]}_normal.png${salt}`, 4);
+			const texture = await <any>createTextureFromImage(`${tuple[1]}_normal.png${seed}`, 4);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 			if (!normalToggle)
 				mat.normalScale.set(0, 0);
@@ -123,14 +134,14 @@ namespace sketchup {
 		}
 		if (tuple[7] && true) {
 			mat.emissive = new THREE.Color('white');
-			const texture = await <any>createTextureFromImage(`${tuple[1]}_emissive.png${salt}`, 4);
+			const texture = await <any>createTextureFromImage(`${tuple[1]}_emissive.png${seed}`, 4);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 			mat.emissiveMap = texture;
 			//mat.emissive.set('#82834a');
 			console.warn(' emis ');
 		}
 		if (tuple[8] && true) {
-			const texture = await <any>createTextureFromImage(`${tuple[1]}_displacement.png${salt}`, 1);
+			const texture = await <any>createTextureFromImage(`${tuple[1]}_displacement.png${seed}`, 1);
 			texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 			mat.displacementMap = texture;
 			mat.displacementScale = 4;
@@ -238,17 +249,22 @@ namespace sketchup {
 	}
 
 	function fix_sticker(material) {
-		// console.warn(' fix sticker ', material);
-
-		material.transparent = true;
 		material.polygonOffset = true;
-		material.polygonOffsetFactor = -1;
+		material.polygonOffsetFactor = -2;
 		material.polygonOffsetUnits = 1;
 		material.needsUpdate = true;
+		if (material.name == 'ambientocclusion') {
+			material.polygonOffsetFactor = -1;
+		}
 	}
 
 	async function objectTakesMat(object, index) {
 		const current = index == -1 ? object.material : object.material[index];
+		//console.log('object', object);
+		//if (!object.geometry.attributes.uv2) {
+		//	console.warn('new uv2');
+		//	object.geometry.setAttribute('uv2', new THREE.BufferAttribute(object.geometry.attributes.uv.array, 2));
+		//}
 		let mat;
 		mat = mats[current.name];
 		if (!mat)

@@ -7,6 +7,7 @@ import toggle from "./lib/toggle.js";
 import props from "./props.js";
 var tunnels;
 (function (tunnels_1) {
+    const arbitrary_expand = 0.1;
     function clear() {
         for (const tunnel of tunnels_1.tunnels)
             tunnel.cleanup();
@@ -30,8 +31,10 @@ var tunnels;
                 new tunnel(object, name);
         }
         scene.traverse(finder);
-        for (const tunnel of tunnels_1.tunnels)
+        for (const tunnel of tunnels_1.tunnels) {
             tunnel.findAdjacentTunnels();
+            __dirtyConvertContainedToSpanning(tunnel);
+        }
     }
     tunnels_1.findMakeTunnels = findMakeTunnels;
     tunnels_1.tunnels = [];
@@ -41,7 +44,9 @@ var tunnels;
         static visibleTunnels = new Set();
         aabb;
         expandedAabb;
+        // Props that are fully contained within this tunnel's bounding box
         containedObjects = [];
+        // Objects that intersect but are not fully contained within this tunnel's bounding box
         spanningObjects = [];
         adjacentTunnels = [];
         debugBox;
@@ -58,7 +63,7 @@ var tunnels;
         }
         measure() {
             this.aabb = new THREE.Box3().setFromObject(this.object, true);
-            this.expandedAabb = this.aabb.clone().expandByScalar(0.1);
+            this.expandedAabb = this.aabb.clone().expandByScalar(arbitrary_expand);
         }
         findAdjacentTunnels() {
             for (const tunnel of tunnels_1.tunnels) {
@@ -69,6 +74,7 @@ var tunnels;
             }
         }
         gatherContainedProps() {
+            // Gather props that are either fully contained within or intersect with this tunnel
             for (const prop of props.props) {
                 if (prop.aabb && this.aabb.intersectsBox(prop.aabb)) {
                     if (this.aabb.containsBox(prop.aabb)) {
@@ -142,5 +148,25 @@ var tunnels;
         }
     }
     tunnels_1.tunnel = tunnel;
+    function __dirtyConvertContainedToSpanning(tunnel) {
+        for (const prop of [...tunnel.containedObjects]) {
+            // Check if any other tunnel also contains this prop
+            const otherTunnel = tunnels_1.tunnels.find(otherTunnel => otherTunnel !== tunnel &&
+                otherTunnel.containedObjects.includes(prop));
+            if (otherTunnel) {
+                console.warn(' Prop Overlap ', prop.type);
+                // Remove from contained objects of both tunnels
+                tunnel.containedObjects = tunnel.containedObjects.filter(p => p !== prop);
+                otherTunnel.containedObjects = otherTunnel.containedObjects.filter(p => p !== prop);
+                // Add to spanning objects of both tunnels if not already there
+                if (!tunnel.spanningObjects.includes(prop)) {
+                    tunnel.spanningObjects.push(prop);
+                }
+                if (!otherTunnel.spanningObjects.includes(prop)) {
+                    otherTunnel.spanningObjects.push(prop);
+                }
+            }
+        }
+    }
 })(tunnels || (tunnels = {}));
 export default tunnels;
