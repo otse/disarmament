@@ -30,7 +30,7 @@ var garbage;
         garbage.locker = document.querySelector('garbage-instructions');
         garbage.main = document.querySelector('garbage-body');
         glob.level = 'gen2';
-        glob.wireframes = false;
+        glob.wireframes = true;
         glob.propAxes = false;
         glob.gripRays = false;
         common.boot();

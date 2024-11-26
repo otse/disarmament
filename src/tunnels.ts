@@ -78,13 +78,12 @@ namespace tunnels {
 			}
 			tunnel.visibleTunnels.add(this);
 			this.object.visible = true;
-			
 			for (const prop of this.props) {
 				prop.show();
 			}
 		}
 
-		hide() {
+		hide(newTunnels: tunnel[]) {
 			if (this.off()) {
 				console.warn(`Oops: Tunnel ${this.name} is already hidden.`);
 				return;
@@ -93,8 +92,8 @@ namespace tunnels {
 			tunnel.visibleTunnels.delete(this);
 
 			for (const prop of this.props) {
-				// Only hide if no other visible tunnel has this prop
-				if (!Array.from(tunnel.visibleTunnels).some(t => t.props.includes(prop))) {
+				// Only hide if no new tunnel has this prop
+				if (!Array.from(newTunnels).some(t => t.props.includes(prop))) {
 					prop.hide();
 				}
 			}
@@ -115,35 +114,37 @@ namespace tunnels {
 		cleanup() {
 
 		}
-		check() {
-			const playerAABB = garbage.gplayer.aabb;
-			let checkme = this.expandedAabb.containsBox(playerAABB);
-			if (!currentTunnel)
-				checkme = this.expandedAabb.intersectsBox(playerAABB);
+check() {
+	if (!this.expandedAabb.intersectsBox(garbage.gplayer.aabb))
+		return false;
 
-			if (checkme) {
-				if (currentTunnel !== this) {
-					const currentTunnels = currentTunnel ? [currentTunnel, ...currentTunnel.adjacentTunnels] : [];
-					const newTunnels = [this, ...this.adjacentTunnels];
+	// Get all tunnels we're currently inside
+	const activeTunnels = tunnels.filter(t => 
+		t.expandedAabb.intersectsBox(garbage.gplayer.aabb)
+	);
 
-					for (const tunnel of currentTunnels) {
-						if (!newTunnels.includes(tunnel)) {
-							tunnel.hide();
-						}
-					}
+	// Get all adjacent tunnels to our active set
+	const newTunnels = [...new Set([
+		...activeTunnels,
+		...activeTunnels.flatMap(t => t.adjacentTunnels)
+	])];
 
-					for (const tunnel of newTunnels) {
-						if (!currentTunnels.includes(tunnel)) {
-							tunnel.show();
-						}
-					}
-
-					currentTunnel = this;
-				}
-				return true;
-			}
-			return false;
+	// Compare against currently visible tunnels
+	for (const t of tunnel.visibleTunnels) {
+		if (!newTunnels.includes(t)) {
+			t.hide(newTunnels);
 		}
+	}
+
+	for (const t of newTunnels) {
+		if (!tunnel.visibleTunnels.has(t)) {
+			t.show();
+		}
+	}
+
+	currentTunnel = this;
+	return true;
+}
 	}
 }
 

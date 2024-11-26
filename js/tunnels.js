@@ -77,7 +77,7 @@ var tunnels;
                 prop.show();
             }
         }
-        hide() {
+        hide(newTunnels) {
             if (this.off()) {
                 console.warn(`Oops: Tunnel ${this.name} is already hidden.`);
                 return;
@@ -85,8 +85,8 @@ var tunnels;
             this.object.visible = false;
             tunnel.visibleTunnels.delete(this);
             for (const prop of this.props) {
-                // Only hide if no other visible tunnel has this prop
-                if (!Array.from(tunnel.visibleTunnels).some(t => t.props.includes(prop))) {
+                // Only hide if no new tunnel has this prop
+                if (!Array.from(newTunnels).some(t => t.props.includes(prop))) {
                     prop.hide();
                 }
             }
@@ -106,29 +106,28 @@ var tunnels;
         cleanup() {
         }
         check() {
-            const playerAABB = garbage.gplayer.aabb;
-            let checkme = this.expandedAabb.containsBox(playerAABB);
-            if (!tunnels_1.currentTunnel)
-                checkme = this.expandedAabb.intersectsBox(playerAABB);
-            if (checkme) {
-                if (tunnels_1.currentTunnel !== this) {
-                    const currentTunnels = tunnels_1.currentTunnel ? [tunnels_1.currentTunnel, ...tunnels_1.currentTunnel.adjacentTunnels] : [];
-                    const newTunnels = [this, ...this.adjacentTunnels];
-                    for (const tunnel of currentTunnels) {
-                        if (!newTunnels.includes(tunnel)) {
-                            tunnel.hide();
-                        }
-                    }
-                    for (const tunnel of newTunnels) {
-                        if (!currentTunnels.includes(tunnel)) {
-                            tunnel.show();
-                        }
-                    }
-                    tunnels_1.currentTunnel = this;
+            if (!this.expandedAabb.intersectsBox(garbage.gplayer.aabb))
+                return false;
+            // Get all tunnels we're currently inside
+            const activeTunnels = tunnels_1.tunnels.filter(t => t.expandedAabb.intersectsBox(garbage.gplayer.aabb));
+            // Get all adjacent tunnels to our active set
+            const newTunnels = [...new Set([
+                    ...activeTunnels,
+                    ...activeTunnels.flatMap(t => t.adjacentTunnels)
+                ])];
+            // Compare against currently visible tunnels
+            for (const t of tunnel.visibleTunnels) {
+                if (!newTunnels.includes(t)) {
+                    t.hide(newTunnels);
                 }
-                return true;
             }
-            return false;
+            for (const t of newTunnels) {
+                if (!tunnel.visibleTunnels.has(t)) {
+                    t.show();
+                }
+            }
+            tunnels_1.currentTunnel = this;
+            return true;
         }
     }
     tunnels_1.tunnel = tunnel;
