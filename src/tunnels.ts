@@ -11,7 +11,7 @@ import renderer from "./renderer.js";
 namespace tunnels {
 	const arbitrary_expand = 0.1;
 
-	const currentTunnels: Set<tunnel> = new Set();
+	let previousTunnels: tunnel[] = [];
 
 	export function clear() {
 		for (const tunnel of tunnels)
@@ -43,26 +43,31 @@ namespace tunnels {
 			t.expandedAabb.intersectsBox(garbage.gplayer.aabb)
 		);
 
+		// We're out of bounds, keep showing current tunnels
+		if (activeTunnels.length == 0)
+			return;
+
 		// Get all adjacent tunnels to our active set
 		const newTunnels = [...new Set([
 			...activeTunnels,
 			...activeTunnels.flatMap(t => t.adjacentTunnels)
 		])];
 
-		// Compare against currently visible tunnels
-		for (const t of currentTunnels) {
+		// Hide tunnels that are no longer visible
+		for (const t of previousTunnels) {
 			if (!newTunnels.includes(t)) {
 				t.hide(newTunnels);
 			}
 		}
 
+		// Show newly visible tunnels
 		for (const t of newTunnels) {
-			if (!currentTunnels.has(t)) {
+			if (!previousTunnels.includes(t)) {
 				t.show();
 			}
 		}
 
-		return true;
+		previousTunnels = newTunnels;
 	}
 
 	export var tunnels: tunnel[] = [];
@@ -102,7 +107,6 @@ namespace tunnels {
 				console.warn(`Oops: Tunnel ${this.name} is already showing.`);
 				return;
 			}
-			currentTunnels.add(this);
 			this.object.visible = true;
 			for (const prop of this.props) {
 				prop.show();
@@ -114,8 +118,6 @@ namespace tunnels {
 				return;
 			}
 			this.object.visible = false;
-			currentTunnels.delete(this);
-
 			for (const prop of this.props) {
 				// Only hide if no new tunnel has this prop
 				if (!Array.from(newTunnels).some(t => t.props.includes(prop))) {

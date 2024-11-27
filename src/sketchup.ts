@@ -148,7 +148,7 @@ namespace sketchup {
 			console.warn(' displaces ');
 		}
 		mat.onBeforeCompile = (shader) => {
-			console.warn('onbeforecompile');
+			console.warn(' onbeforecompile ', mat.name);
 			shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
 			shader.fragmentShader = shader.fragmentShader.replace(
 				`#include <tonemapping_fragment>`,

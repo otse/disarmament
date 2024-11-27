@@ -16,7 +16,7 @@ unexplained setting with caches:
 the question where you are is unanswered. you are in a bunker. with tunnels.
 
 kyshtym:
-the idea is an exclusion zone that has catched the interests of adventurers.
+the idea is an exclusion zone that has catched the interests of adventurers. 
 
 travel based system with local instances:
 using a map you travel to levels. levels have multiple extractions from which players may come.
