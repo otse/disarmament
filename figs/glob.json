@@ -17,12 +17,13 @@
 			"variance": 0.15
 		}
 	},
-	"plgendim": {
+	"plhalltypea": {
 		"xdisabled": true,
 		"hide": true,
-		"color": "cadetblue",
-		"intensity": 0.15,
-		"distance": 2
+		"color": "azure",
+		"intensity": 0.1,
+		"distance": 2,
+		"decay": 2.0
 	},
 	"plgen": {
 		"hide": true,
@@ -62,7 +63,7 @@
 		"intensity": 0.1,
 		"distance": 2.5,
 		"decay": 1.0,
-		"shadow": true,
+		"shadow": false,
 		"xbehavior": {
 			"type": "shake",
 			"cycle": 5,

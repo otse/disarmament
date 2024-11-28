@@ -129,7 +129,7 @@ var sketchup;
         }
         mat.onBeforeCompile = (shader) => {
             console.warn(' onbeforecompile ', mat.name);
-            shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
+            shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', xREREDUCE: '' };
             shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
 
 			vec3 lumaWeights = vec3(.25,.50,.25);
@@ -216,8 +216,8 @@ var sketchup;
         const g3a3 = await loadGun('g3a3');
         vr.rightController.grip.add(g3a3);
         rotateGunForGripping(g3a3);
-        const g3a32 = await loadGun('g3a3');
-        props.markers.find(marker => marker.preset === 'gunstand').master.add(g3a32);
+        //const g3a32 = await loadGun('g3a3');
+        //props.markers.find(marker => marker.preset === 'gunstand')!.master.add(g3a32);
     }
     function fix_sticker(material) {
         material.polygonOffset = true;

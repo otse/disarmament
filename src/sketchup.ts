@@ -149,7 +149,7 @@ namespace sketchup {
 		}
 		mat.onBeforeCompile = (shader) => {
 			console.warn(' onbeforecompile ', mat.name);
-			shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
+			shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', xREREDUCE: '' };
 			shader.fragmentShader = shader.fragmentShader.replace(
 				`#include <tonemapping_fragment>`,
 				`#include <tonemapping_fragment>
@@ -244,8 +244,8 @@ namespace sketchup {
 		vr.rightController.grip.add(g3a3);
 		rotateGunForGripping(g3a3);
 
-		const g3a32 = await loadGun('g3a3');
-		props.markers.find(marker => marker.preset === 'gunstand')!.master.add(g3a32);
+		//const g3a32 = await loadGun('g3a3');
+		//props.markers.find(marker => marker.preset === 'gunstand')!.master.add(g3a32);
 	}
 
 	function fix_sticker(material) {

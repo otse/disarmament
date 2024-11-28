@@ -83,7 +83,7 @@ namespace renderer {
 		if (glob.hasHeadset)
 			renderer.setAnimationLoop(app.base_loop);
 		renderer.xr.setFramebufferScaleFactor(1);
-		// renderer.xr.enabled = true;
+		renderer.xr.enabled = true;
 		renderer.xr.cameraAutoUpdate = false;
 		// renderer.setClearColor(0xffffff, 0.0);
 

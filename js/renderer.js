@@ -52,7 +52,7 @@ var renderer;
         if (glob.hasHeadset)
             renderer_1.renderer.setAnimationLoop(app.base_loop);
         renderer_1.renderer.xr.setFramebufferScaleFactor(1);
-        // renderer.xr.enabled = true;
+        renderer_1.renderer.xr.enabled = true;
         renderer_1.renderer.xr.cameraAutoUpdate = false;
         // renderer.setClearColor(0xffffff, 0.0);
         const percent = 1 / 100;
