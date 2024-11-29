@@ -25,7 +25,7 @@ var renderer;
         RectAreaLightUniformsLib.init();
         let helepr = new THREE.AxesHelper();
         renderer_1.scene.add(helepr);
-        renderer_1.scene.fog = new THREE.Fog(0x131c1d, 1, 7);
+        renderer_1.scene.fog = new THREE.Fog(0x0e1516, 1, 7);
         renderer_1.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         renderer_1.camera.rotation.y = -Math.PI / 2;
         renderer_1.camera.updateMatrix();
@@ -43,7 +43,7 @@ var renderer;
         // ACESFilmicToneMapping looks photographic but very cold
         // NeutralToneMapping has deep darks
         renderer_1.renderer.toneMapping = THREE.NeutralToneMapping;
-        renderer_1.renderer.toneMappingExposure = 4.0;
+        renderer_1.renderer.toneMappingExposure = 3.0;
         renderer_1.renderer.setPixelRatio(window.devicePixelRatio);
         renderer_1.renderer.setSize(window.innerWidth, window.innerHeight);
         renderer_1.renderer.shadowMap.enabled = true;
