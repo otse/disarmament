@@ -12,7 +12,7 @@ namespace attribrush {
 		console.log(' AttriBrush Boot ');
 		hooks.registerIndex('levelLoaded', 0, loaded);
 		hooks.registerIndex('levelWipe', 0, clear);
-		hooks.registerIndex('levelLoop', 0, loop);
+		hooks.registerIndex('garbageStep', 0, loop);
 	}
 
 	async function loaded() {

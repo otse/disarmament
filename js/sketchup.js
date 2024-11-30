@@ -22,7 +22,7 @@ var sketchup;
     async function boot() {
         hooks.create('levelLoaded');
         hooks.create('levelWipe');
-        hooks.create('levelLoop');
+        hooks.create('garbageStep');
         await getMats();
         await buildMats();
         await loadLevel();

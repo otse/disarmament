@@ -15,7 +15,7 @@ var props;
         reload();
         hooks.registerIndex('levelLoaded', 2, loaded);
         hooks.registerIndex('levelWipe', 2, clear);
-        hooks.registerIndex('levelLoop', 1, loop);
+        hooks.registerIndex('garbageStep', 1, loop);
     }
     props_1.boot = boot;
     async function loaded(scene) {

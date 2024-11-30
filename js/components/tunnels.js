@@ -15,7 +15,7 @@ var tunnels;
         console.log(' Tunnels Boot ');
         hooks.registerIndex('levelLoaded', 1, loaded);
         hooks.registerIndex('levelWipe', 1, clear);
-        hooks.registerIndex('levelLoop', 2, loop);
+        hooks.registerIndex('garbageStep', 2, loop);
     }
     tunnels_1.boot = boot;
     async function clear() {
