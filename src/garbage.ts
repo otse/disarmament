@@ -46,6 +46,7 @@ namespace garbage {
 
 		common.boot();
 		physics.boot();
+		tunnels.boot();
 		props.boot();
 		renderer.boot();
 		vr.boot();

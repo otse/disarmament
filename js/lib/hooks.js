@@ -5,7 +5,8 @@ export class hooks {
     static register(name, f) {
         if (!hooks[name])
             hooks[name] = [];
-        hooks[name].push(f);
+        if (f)
+            hooks[name].push(f);
     }
     static unregister(name, f) {
         hooks[name] = hooks[name].filter(e => e != f);

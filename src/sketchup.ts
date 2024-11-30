@@ -1,6 +1,7 @@
 import app from "./app.js";
 import garbage from "./garbage.js";
 import glob from "./lib/glob.js";
+import { hooks } from "./lib/hooks.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
 import tunnels from "./tunnels.js";
@@ -38,6 +39,7 @@ namespace sketchup {
 	}
 
 	export async function boot() {
+		hooks.register('levelLoaded', undefined);
 		await getMats();
 		await buildMats();
 		await loadLevel();
@@ -149,7 +151,7 @@ namespace sketchup {
 		}
 		mat.onBeforeCompile = (shader) => {
 			console.warn(' onbeforecompile ', mat.name);
-			shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', xREREDUCE: '' };
+			shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
 			shader.fragmentShader = shader.fragmentShader.replace(
 				`#include <tonemapping_fragment>`,
 				`#include <tonemapping_fragment>
@@ -331,9 +333,11 @@ namespace sketchup {
 			objectsTakeMats(scene);
 			for (const prop of queue)
 				prop.complete();
-			tunnels.findMakeTunnels(scene);
+			hooks.call('levelLoaded', scene);
+			//(tunnels as any).findMakeTunnels(scene);
 			const group = new THREE.Group();
 			group.add(scene);
+			
 			renderer.scene.add(group);
 			glob.levelGroup = group;
 		});

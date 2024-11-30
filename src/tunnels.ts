@@ -4,6 +4,7 @@
 
 import common from "./common.js";
 import garbage from "./garbage.js";
+import { hooks } from "./lib/hooks.js";
 import toggle from "./lib/toggle.js";
 import props from "./props.js";
 import renderer from "./renderer.js";
@@ -12,6 +13,14 @@ namespace tunnels {
 	const arbitrary_expand = 0.1;
 
 	let previousTunnels: tunnel[] = [];
+
+	export var componentName = "boo";
+
+	export function boot() {
+		console.log(' tunnels boot ');
+		
+		hooks.register('levelLoaded', findMakeTunnels);
+	}
 
 	export function clear() {
 		for (const tunnel of tunnels)
@@ -136,4 +145,6 @@ namespace tunnels {
 	}
 }
 
-export default tunnels;
+const cast: mycomponent & typeof tunnels = tunnels;
+
+export default cast;

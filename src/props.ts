@@ -135,7 +135,7 @@ namespace props {
 	export var presets = {}
 
 	export abstract class prop extends toggle {
-		tunnel?: tunnels.tunnel
+		tunnel?: typeof tunnels.tunnel
 		debugBox?: common.debug_box
 		array: prop[] = []
 		type

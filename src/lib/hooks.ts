@@ -12,10 +12,11 @@ namespace hooks {
 export class hooks<T = never> {
 	static readonly hooks: { [name: string]: hooks.func[] }
 	list: hooks.func[] = []
-	static register(name: string, f: hooks.func) {
+	static register(name: string, f?: hooks.func) {
 		if (!hooks[name])
 			hooks[name] = [];
-		hooks[name].push(f);
+		if (f)
+			hooks[name].push(f);
 	}
 	static unregister(name: string, f: hooks.func) {
 		hooks[name] = hooks[name].filter(e => e != f);

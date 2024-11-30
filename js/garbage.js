@@ -35,6 +35,7 @@ var garbage;
         glob.gripRays = false;
         common.boot();
         physics.boot();
+        tunnels.boot();
         props.boot();
         renderer.boot();
         vr.boot();

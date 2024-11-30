@@ -21,7 +21,7 @@ var renderer;
         glob.scene = renderer_1.scene;
         renderer_1.scene.add(renderer_1.propsGroup);
         renderer_1.scene.add(renderer_1.yawGroup);
-        renderer_1.scene.background = new THREE.Color('#333');
+        renderer_1.scene.background = new THREE.Color('#111');
         RectAreaLightUniformsLib.init();
         let helepr = new THREE.AxesHelper();
         renderer_1.scene.add(helepr);

@@ -42,7 +42,7 @@ namespace renderer {
 		glob.scene = scene;
 		scene.add(propsGroup);
 		scene.add(yawGroup);
-		scene.background = new THREE.Color('#333');
+		scene.background = new THREE.Color('#111');
 
 		RectAreaLightUniformsLib.init();
 

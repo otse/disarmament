@@ -3,12 +3,19 @@
 // works intensively with the props system to group props and handle visibility
 import common from "./common.js";
 import garbage from "./garbage.js";
+import { hooks } from "./lib/hooks.js";
 import toggle from "./lib/toggle.js";
 import props from "./props.js";
 var tunnels;
 (function (tunnels_1) {
     const arbitrary_expand = 0.1;
     let previousTunnels = [];
+    tunnels_1.componentName = "boo";
+    function boot() {
+        console.log(' tunnels boot ');
+        hooks.register('levelLoaded', findMakeTunnels);
+    }
+    tunnels_1.boot = boot;
     function clear() {
         for (const tunnel of tunnels_1.tunnels)
             tunnel.clear();
@@ -127,4 +134,5 @@ var tunnels;
     }
     tunnels_1.tunnel = tunnel;
 })(tunnels || (tunnels = {}));
-export default tunnels;
+const cast = tunnels;
+export default cast;
