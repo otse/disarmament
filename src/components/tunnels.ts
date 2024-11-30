@@ -2,48 +2,56 @@
 // every other tunnel is culled
 // works intensively with the props system to group props and handle visibility
 
-import common from "./common.js";
-import garbage from "./garbage.js";
-import { hooks } from "./lib/hooks.js";
-import toggle from "./lib/toggle.js";
+import { hooks } from "../lib/hooks.js";
+import mycomponent from "../lib/component.js";
+import common from "../common.js";
+import garbage from "../garbage.js";
+import toggle from "../lib/toggle.js";
 import props from "./props.js";
-import renderer from "./renderer.js";
+import renderer from "../renderer.js";
 
 namespace tunnels {
-	const arbitrary_expand = 0.1;
+
+	const tunnelExpand = .1;
 
 	let previousTunnels: tunnel[] = [];
 
-	export var componentName = "boo";
+	export var componentName = 'Tunnels Component';
 
-	export function boot() {
-		console.log(' tunnels boot ');
-		
-		hooks.register('levelLoaded', findMakeTunnels);
+	export async function boot() {
+		console.log(' Tunnels Boot ');
+
+		hooks.registerIndex('levelLoaded', 1, loaded);
+		hooks.registerIndex('levelWipe', 1, clear);
+		hooks.registerIndex('levelLoop', 2, loop);
 	}
 
-	export function clear() {
-		for (const tunnel of tunnels)
+	async function clear() {
+		for (const tunnel of tunnels) {
 			tunnel.clear();
+		}
 		tunnels = [];
+		return false;
 	}
 
-	export function loop() {
+	async function loop() {
 		check();
+		return false;
 	}
 
-	export function findMakeTunnels(scene) {
-		function finder(object) {
+	async function loaded(scene) {
+		function findTunnels(object) {
 			if (!object.name)
 				return;
 			const [kind, name, hint] = object.name?.split('_');
 			if (kind === 'tunnel')
 				new tunnel(object, name);
 		}
-		scene.traverse(finder);
+		scene.traverse(findTunnels);
 		for (const tunnel of tunnels) {
-			tunnel.findAdjacentTunnels();
+			tunnel.mesh();
 		}
+		return false;
 	}
 
 	export function check() {
@@ -100,7 +108,7 @@ namespace tunnels {
 		}
 		protected measure() {
 			this.aabb = new THREE.Box3().setFromObject(this.object, true);
-			this.expandedAabb = this.aabb.clone().expandByScalar(arbitrary_expand);
+			this.expandedAabb = this.aabb.clone().expandByScalar(tunnelExpand);
 		}
 		private gatherProps() {
 			for (const prop of props.props) {
@@ -134,7 +142,7 @@ namespace tunnels {
 				}
 			}
 		}
-		findAdjacentTunnels() {
+		mesh() {
 			for (const tunnel of tunnels) {
 				if (this === tunnel)
 					continue;
@@ -145,6 +153,6 @@ namespace tunnels {
 	}
 }
 
-const cast: mycomponent & typeof tunnels = tunnels;
+const check: mycomponent = tunnels;
 
-export default cast;
+export default tunnels;

@@ -3,13 +3,15 @@ import audio from "./audio.js";
 import glob from "./lib/glob.js";
 import physics from "./physics.js";
 import player from "./player.js";
-import props from "./props.js";
+import props from "./components/props.js";
 import points from "./lib/pts.js";
 import renderer from "./renderer.js";
 import vr from "./vr/vr.js";
 import sketchup from "./sketchup.js";
-import tunnels from "./tunnels.js";
+import tunnels from "./components/tunnels.js";
 import common from "./common.js";
+import attribrush from "./components/attribrush.js";
+import { hooks } from "./lib/hooks.js";
 
 glob.developer = true;
 
@@ -34,7 +36,7 @@ namespace garbage {
 	}
 
 	export async function boot() {
-		console.log('day setting up');
+		console.log(' day setting up '); // Day is the name of the joke game that started it
 
 		locker = document.querySelector('garbage-instructions')! as HTMLElement;
 		main = document.querySelector('garbage-body');
@@ -46,8 +48,9 @@ namespace garbage {
 
 		common.boot();
 		physics.boot();
-		tunnels.boot();
+		attribrush.boot();
 		props.boot();
+		tunnels.boot();
 		renderer.boot();
 		vr.boot();
 		await sketchup.boot();
@@ -69,9 +72,10 @@ namespace garbage {
 		}
 		vr.loop();
 		gplayer?.loop(frameTime);
-		tunnels.loop();
+		//tunnels.loop();
+		//props.loop();
 		physics.loop(garbage.timeStep);
-		props.loop();
+		hooks.call('levelLoop', 0);
 		await sketchup.loop();
 		renderer.loop_and_render();
 	}

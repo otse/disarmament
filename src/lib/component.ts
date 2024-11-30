@@ -2,7 +2,7 @@
 
 interface mycomponent {
     componentName: string;
-    boot: () => void;
-    loop: () => void;
-    clear: () => void;
+    boot: () => Promise<void>;
 }
+
+export default mycomponent;

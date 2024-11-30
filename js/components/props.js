@@ -1,14 +1,53 @@
-import audio from "./audio.js";
-import glob from "./lib/glob.js";
-import hooks from "./lib/hooks.js";
-import garbage from "./garbage.js";
-import physics from "./physics.js";
-import easings from "./easings.js";
-import app from "./app.js";
-import common from "./common.js";
-import toggle from "./lib/toggle.js";
+import { hooks } from "../lib/hooks.js";
+import glob from "../lib/glob.js";
+import toggle from "../lib/toggle.js";
+import audio from "../audio.js";
+import garbage from "../garbage.js";
+import physics from "../physics.js";
+import easings from "../easings.js";
+import app from "../app.js";
+import common from "../common.js";
 var props;
 (function (props_1) {
+    props_1.componentName = 'Props Component';
+    async function boot() {
+        console.log(' Stagehand Boot ');
+        reload();
+        hooks.registerIndex('levelLoaded', 2, loaded);
+        hooks.registerIndex('levelWipe', 2, clear);
+        hooks.registerIndex('levelLoop', 1, loop);
+    }
+    props_1.boot = boot;
+    async function loaded(scene) {
+        const queue = [];
+        function findProps(object) {
+            const prop = factory(object);
+            if (prop) {
+                queue.push(prop);
+            }
+        }
+        scene.traverse(findProps);
+        for (const prop of queue) {
+            prop.complete();
+        }
+        return false;
+    }
+    async function clear() {
+        // Avoid modifying the collection while iterating over it
+        const array = props_1.props.slice(0);
+        for (const prop of array) {
+            prop.destroy();
+        }
+        props_1.props = [];
+        await reload();
+        return false;
+    }
+    async function loop() {
+        for (let prop of props_1.props) {
+            prop.loop();
+        }
+        return false;
+    }
     function factory(object) {
         let prop;
         if (!object.name)
@@ -65,19 +104,6 @@ var props;
         return prop;
     }
     props_1.factory = factory;
-    function loop() {
-        for (let prop of props_1.props)
-            prop.loop();
-    }
-    props_1.loop = loop;
-    function clear() {
-        // Avoid modifying the collection while iterating over it
-        const array = props_1.props.slice(0);
-        for (const prop of array)
-            prop.destroy();
-        props_1.props = [];
-    }
-    props_1.clear = clear;
     function take_collada_prop(prop) {
         // the prop is sitting in a rotated, scaled scene
         const group = new THREE.Group();
@@ -100,13 +126,9 @@ var props;
         prop.group = group;
     }
     props_1.take_collada_prop = take_collada_prop;
-    function boot() {
-        reload();
-    }
-    props_1.boot = boot;
     async function reload() {
-        let url = './figs/glob.json';
-        let response = await fetch(url);
+        const url = './figs/glob.json';
+        const response = await fetch(url);
         props_1.presets = await response.json();
     }
     props_1.reload = reload;
@@ -357,11 +379,11 @@ var props;
                 if (this.kind == 'env')
                     this._play();
             };
-            hooks.register('audioGestured', (x) => {
+            hooks.register('audioGestured', async (x) => {
                 console.warn('late playing', this.preset);
                 const preset = props_1.presets[this.preset];
                 if (!preset)
-                    return;
+                    return true;
                 if (preset.delay)
                     setTimeout(paly, preset.delay[0] + preset.delay[1] * Math.random() * 1000);
                 else
@@ -701,4 +723,5 @@ var props;
         }
     };
 })(props || (props = {}));
+const validate = props;
 export default props;

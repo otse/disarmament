@@ -1,45 +1,48 @@
 // this is the lod
 // every other tunnel is culled
 // works intensively with the props system to group props and handle visibility
-import common from "./common.js";
-import garbage from "./garbage.js";
-import { hooks } from "./lib/hooks.js";
-import toggle from "./lib/toggle.js";
+import { hooks } from "../lib/hooks.js";
+import common from "../common.js";
+import garbage from "../garbage.js";
+import toggle from "../lib/toggle.js";
 import props from "./props.js";
 var tunnels;
 (function (tunnels_1) {
-    const arbitrary_expand = 0.1;
+    const tunnelExpand = .1;
     let previousTunnels = [];
-    tunnels_1.componentName = "boo";
-    function boot() {
-        console.log(' tunnels boot ');
-        hooks.register('levelLoaded', findMakeTunnels);
+    tunnels_1.componentName = 'Tunnels Component';
+    async function boot() {
+        console.log(' Tunnels Boot ');
+        hooks.registerIndex('levelLoaded', 1, loaded);
+        hooks.registerIndex('levelWipe', 1, clear);
+        hooks.registerIndex('levelLoop', 2, loop);
     }
     tunnels_1.boot = boot;
-    function clear() {
-        for (const tunnel of tunnels_1.tunnels)
+    async function clear() {
+        for (const tunnel of tunnels_1.tunnels) {
             tunnel.clear();
+        }
         tunnels_1.tunnels = [];
+        return false;
     }
-    tunnels_1.clear = clear;
-    function loop() {
+    async function loop() {
         check();
+        return false;
     }
-    tunnels_1.loop = loop;
-    function findMakeTunnels(scene) {
-        function finder(object) {
+    async function loaded(scene) {
+        function findTunnels(object) {
             if (!object.name)
                 return;
             const [kind, name, hint] = object.name?.split('_');
             if (kind === 'tunnel')
                 new tunnel(object, name);
         }
-        scene.traverse(finder);
+        scene.traverse(findTunnels);
         for (const tunnel of tunnels_1.tunnels) {
-            tunnel.findAdjacentTunnels();
+            tunnel.mesh();
         }
+        return false;
     }
-    tunnels_1.findMakeTunnels = findMakeTunnels;
     function check() {
         // Get all tunnels we're currently inside
         const activeTunnels = tunnels_1.tunnels.filter(t => t.expandedAabb.intersectsBox(garbage.gplayer.aabb));
@@ -89,7 +92,7 @@ var tunnels;
         }
         measure() {
             this.aabb = new THREE.Box3().setFromObject(this.object, true);
-            this.expandedAabb = this.aabb.clone().expandByScalar(arbitrary_expand);
+            this.expandedAabb = this.aabb.clone().expandByScalar(tunnelExpand);
         }
         gatherProps() {
             for (const prop of props.props) {
@@ -123,7 +126,7 @@ var tunnels;
                 }
             }
         }
-        findAdjacentTunnels() {
+        mesh() {
             for (const tunnel of tunnels_1.tunnels) {
                 if (this === tunnel)
                     continue;
@@ -134,5 +137,5 @@ var tunnels;
     }
     tunnels_1.tunnel = tunnel;
 })(tunnels || (tunnels = {}));
-const cast = tunnels;
-export default cast;
+const check = tunnels;
+export default tunnels;
