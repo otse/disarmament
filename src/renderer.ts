@@ -42,14 +42,14 @@ namespace renderer {
 		glob.scene = scene;
 		scene.add(propsGroup);
 		scene.add(yawGroup);
-		scene.background = new THREE.Color('#333');
+		scene.background = new THREE.Color('#111');
 
 		RectAreaLightUniformsLib.init();
 
 		let helepr = new THREE.AxesHelper();
 		scene.add(helepr);
 
-		scene.fog = new THREE.Fog(0x131c1d, 1, 7);
+		scene.fog = new THREE.Fog(0x0e1516, 1, 7);
 
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 		camera.rotation.y = -Math.PI / 2;
@@ -72,7 +72,7 @@ namespace renderer {
 		// NeutralToneMapping has deep darks
 
 		renderer.toneMapping = THREE.NeutralToneMapping;
-		renderer.toneMappingExposure = 4.0;
+		renderer.toneMappingExposure = 3.0;
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.shadowMap.enabled = true;

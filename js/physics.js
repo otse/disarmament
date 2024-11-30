@@ -1,6 +1,6 @@
 import audio from "./audio.js";
 import garbage from "./garbage.js";
-import props from "./props.js";
+import props from "./components/props.js";
 import renderer from "./renderer.js";
 var physics;
 (function (physics) {

@@ -1,18 +1,62 @@
-import audio from "./audio.js";
-import glob from "./lib/glob.js";
-import hooks from "./lib/hooks.js";
-import garbage from "./garbage.js";
-import physics from "./physics.js";
-import renderer from "./renderer.js";
-import easings from "./easings.js";
-import app from "./app.js";
-import common from "./common.js";
-import toggle from "./lib/toggle.js";
+import { hooks } from "../lib/hooks.js";
+import glob from "../lib/glob.js";
+import toggle from "../lib/toggle.js";
+import mycomponent from "../lib/component.js";
+
+import audio from "../audio.js";
+import garbage from "../garbage.js";
+import physics from "../physics.js";
+import renderer from "../renderer.js";
+import easings from "../easings.js";
+import app from "../app.js";
+import common from "../common.js";
 import tunnels from "./tunnels.js";
 
 namespace props {
 
-	export function factory(object: any) {
+	export var componentName = 'Props Component';
+
+	export async function boot() {
+		console.log(' Stagehand Boot ');
+		reload();
+		hooks.registerIndex('levelLoaded', 2, loaded);
+		hooks.registerIndex('levelWipe', 2, clear);
+		hooks.registerIndex('garbageStep', 1, loop);
+	}
+
+	async function loaded(scene) {
+		const queue: prop[] = [];
+		function findProps(object) {
+			const prop = factory(object);
+			if (prop) {
+				queue.push(prop);
+			}
+		}
+		scene.traverse(findProps);
+		for (const prop of queue) {
+			prop.complete();
+		}
+		return false;
+	}
+
+	async function clear() {
+		// Avoid modifying the collection while iterating over it
+		const array = props.slice(0);
+		for (const prop of array) {
+			prop.destroy();
+		}
+		props = [];
+		await reload();
+		return false;
+	}
+
+	async function loop() {
+		for (let prop of props) {
+			prop.loop();
+		}
+		return false;
+	}
+	export function factory(object: any): prop | undefined {
 		let prop: prop | undefined;
 		if (!object.name)
 			return;
@@ -68,19 +112,6 @@ namespace props {
 		return prop;
 	}
 
-	export function loop() {
-		for (let prop of props)
-			prop.loop();
-	}
-
-	export function clear() {
-		// Avoid modifying the collection while iterating over it
-		const array = props.slice(0);
-		for (const prop of array)
-			prop.destroy();
-		props = [];
-	}
-
 	export function take_collada_prop(prop: prop) {
 		// the prop is sitting in a rotated, scaled scene
 
@@ -115,13 +146,9 @@ namespace props {
 		prop.group = group;
 	}
 
-	export function boot() {
-		reload();
-	}
-
 	export async function reload() {
-		let url = './figs/glob.json';
-		let response = await fetch(url);
+		const url = './figs/glob.json';
+		const response = await fetch(url);
 		presets = await response.json();
 	}
 
@@ -135,7 +162,7 @@ namespace props {
 	export var presets = {}
 
 	export abstract class prop extends toggle {
-		tunnel?: tunnels.tunnel
+		tunnel?: typeof tunnels.tunnel
 		debugBox?: common.debug_box
 		array: prop[] = []
 		type
@@ -313,7 +340,7 @@ namespace props {
 			this.type = 'pstairstep';
 			this.array = walls;
 			console.log(' stairstep ');
-			
+
 			//this.build_debug_box = true;
 		}
 		override _show() {
@@ -372,11 +399,11 @@ namespace props {
 				if (this.kind == 'env')
 					this._play();
 			}
-			hooks.register('audioGestured', (x) => {
+			hooks.register('audioGestured', async (x) => {
 				console.warn('late playing', this.preset);
 				const preset = presets[this.preset];
 				if (!preset)
-					return;
+					return true;
 				if (preset.delay)
 					setTimeout(paly, preset.delay[0] + preset.delay[1] * Math.random() * 1000);
 				else
@@ -755,5 +782,7 @@ namespace props {
 		}
 	}
 }
+
+const validate: mycomponent = props as any;
 
 export default props;

@@ -20,10 +20,10 @@
 	"plhalltypea": {
 		"xdisabled": true,
 		"hide": true,
-		"color": "azure",
+		"color": "lavender",
 		"intensity": 0.1,
 		"distance": 2,
-		"decay": 2.0
+		"decay": 1.0
 	},
 	"plgen": {
 		"hide": true,

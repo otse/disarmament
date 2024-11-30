@@ -1,8 +1,8 @@
 import app from "./app.js";
 import glob from "./lib/glob.js";
-import props from "./props.js";
+import { hooks } from "./lib/hooks.js";
 import renderer from "./renderer.js";
-import tunnels from "./tunnels.js";
+import props from "./components/props.js";
 import vr from "./vr/vr.js";
 var sketchup;
 (function (sketchup) {
@@ -20,6 +20,9 @@ var sketchup;
     }
     sketchup.getMats = getMats;
     async function boot() {
+        hooks.create('levelLoaded');
+        hooks.create('levelWipe');
+        hooks.create('garbageStep');
         await getMats();
         await buildMats();
         await loadLevel();
@@ -41,16 +44,14 @@ var sketchup;
             }
             if (app.proompt('t') == 1) {
                 console.log('[t]');
-                props.clear();
-                tunnels.clear();
+                hooks.call('levelWipe', 0);
                 renderer.scene.remove(glob.levelGroup);
                 await props.reload();
                 await loadLevel();
             }
             if (app.proompt('f3') == 1) {
                 loresToggle = !loresToggle;
-                props.clear();
-                tunnels.clear();
+                hooks.call('levelWipe', 0);
                 renderer.scene.remove(glob.levelGroup);
                 await props.reload();
                 await getMats();
@@ -129,7 +130,7 @@ var sketchup;
         }
         mat.onBeforeCompile = (shader) => {
             console.warn(' onbeforecompile ', mat.name);
-            shader.defines = { SAT: '', xREDUCE: '', xRESAT: '', xREREDUCE: '' };
+            shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
             shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
 
 			vec3 lumaWeights = vec3(.25,.50,.25);
@@ -279,7 +280,6 @@ var sketchup;
             scene.updateMatrixWorld(true); // without this everything explodes
             scene.updateWorldMatrix(true, true);
             console.log(' collada scene ', scene);
-            const queue = [];
             // todo sheesh cleanup!
             function setRenderFlags(object) {
                 object.castShadow = true;
@@ -289,17 +289,9 @@ var sketchup;
                 object.updateMatrix();
                 object.updateMatrixWorld(true);
             }
-            function findMakeProps(object) {
-                const prop = props.factory(object);
-                if (prop)
-                    queue.push(prop);
-            }
             scene.traverse(setRenderFlags);
-            scene.traverse(findMakeProps);
             objectsTakeMats(scene);
-            for (const prop of queue)
-                prop.complete();
-            tunnels.findMakeTunnels(scene);
+            hooks.call('levelLoaded', scene);
             const group = new THREE.Group();
             group.add(scene);
             renderer.scene.add(group);
