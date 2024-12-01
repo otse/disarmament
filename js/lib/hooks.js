@@ -5,24 +5,24 @@ export class hooks {
         if (!(name in this.hooks))
             this.hooks[name] = [];
     }
-    static register(name, f) {
+    static addListener(name, callback) {
         this.create(name);
-        this.hooks[name].push(f);
+        this.hooks[name].push(callback);
     }
-    static registerIndex(name, index, f) {
+    static removeListener(name, callback) {
+        this.hooks[name] = this.hooks[name].filter(e => e !== callback);
+    }
+    static placeListener(name, index, callback) {
         this.create(name);
         if (this.hooks[name][index] !== undefined)
             console.error(`Error: Hook '${name}' already has a function registered at index ${index}`);
-        this.hooks[name][index] = f;
+        this.hooks[name][index] = callback;
     }
-    static unregister(name, f) {
-        this.hooks[name] = this.hooks[name].filter(e => e != f);
-    }
-    static async call(name, x) {
-        if (!this.hooks[name])
+    static async emit(name, x) {
+        if (!(name in this.hooks))
             return;
         for (let i = this.hooks[name].length; i--;)
-            if (await (hooks[name][i]?.(x)))
+            if (await (this.hooks[name][i]?.(x)))
                 return;
     }
 }

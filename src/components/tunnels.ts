@@ -10,6 +10,7 @@ import toggle from "../lib/toggle.js";
 import props from "./props.js";
 import renderer from "../renderer.js";
 
+// Tunnels are meant
 namespace tunnels {
 
 	const tunnelExpand = .1;
@@ -21,9 +22,9 @@ namespace tunnels {
 	export async function boot() {
 		console.log(' Tunnels Boot ');
 
-		hooks.registerIndex('levelLoaded', 1, loaded);
-		hooks.registerIndex('levelWipe', 1, clear);
-		hooks.registerIndex('garbageStep', 2, loop);
+		hooks.placeListener('levelLoaded', 1, loaded);
+		hooks.placeListener('levelWipe', 1, clear);
+		hooks.placeListener('garbageStep', 2, loop);
 	}
 
 	async function clear() {

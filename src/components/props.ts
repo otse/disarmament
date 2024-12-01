@@ -19,9 +19,9 @@ namespace props {
 	export async function boot() {
 		console.log(' Stagehand Boot ');
 		reload();
-		hooks.registerIndex('levelLoaded', 2, loaded);
-		hooks.registerIndex('levelWipe', 2, clear);
-		hooks.registerIndex('garbageStep', 1, loop);
+		hooks.placeListener('levelLoaded', 2, loaded);
+		hooks.placeListener('levelWipe', 2, clear);
+		hooks.placeListener('garbageStep', 1, loop);
 	}
 
 	async function loaded(scene) {
@@ -399,7 +399,7 @@ namespace props {
 				if (this.kind == 'env')
 					this._play();
 			}
-			hooks.register('audioGestured', async (x) => {
+			hooks.addListener('audioGestured', async (x) => {
 				console.warn('late playing', this.preset);
 				const preset = presets[this.preset];
 				if (!preset)

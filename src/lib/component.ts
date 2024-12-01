@@ -1,5 +1,4 @@
-/// Game Components have to follow the
-// boot, loop and clear idiom
+/// Client game component
 
 interface mycomponent {
     componentName: string;

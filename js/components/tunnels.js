@@ -6,6 +6,7 @@ import common from "../common.js";
 import garbage from "../garbage.js";
 import toggle from "../lib/toggle.js";
 import props from "./props.js";
+// Tunnels are meant
 var tunnels;
 (function (tunnels_1) {
     const tunnelExpand = .1;
@@ -13,9 +14,9 @@ var tunnels;
     tunnels_1.componentName = 'Tunnels Component';
     async function boot() {
         console.log(' Tunnels Boot ');
-        hooks.registerIndex('levelLoaded', 1, loaded);
-        hooks.registerIndex('levelWipe', 1, clear);
-        hooks.registerIndex('garbageStep', 2, loop);
+        hooks.placeListener('levelLoaded', 1, loaded);
+        hooks.placeListener('levelWipe', 1, clear);
+        hooks.placeListener('garbageStep', 2, loop);
     }
     tunnels_1.boot = boot;
     async function clear() {

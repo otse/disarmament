@@ -2,6 +2,7 @@
 
 import { hooks } from "../lib/hooks.js";
 import mycomponent from "../lib/component.js";
+import tunnels from "./tunnels.js";
 
 namespace attribrush {
 	const privateProp = 'Zuc';
@@ -10,12 +11,20 @@ namespace attribrush {
 
 	export async function boot() {
 		console.log(' AttriBrush Boot ');
-		hooks.registerIndex('levelLoaded', 0, loaded);
-		hooks.registerIndex('levelWipe', 0, clear);
-		hooks.registerIndex('garbageStep', 0, loop);
+		hooks.placeListener('levelLoaded', 0, loaded);
+		hooks.placeListener('levelWipe', 0, clear);
+		hooks.placeListener('garbageStep', 0, loop);
 	}
 
-	async function loaded() {
+	async function loaded(scene) {
+		console.log(`AttriBrush: There are ${tunnels.tunnels.length} tunnels.`);
+		function findTunnels(object) {
+			console.log('child objects');
+		}
+		for (const tunnel of tunnels.tunnels) {
+			const { object } = tunnel;
+		}
+		scene.traverse(findTunnels);
 		return false;
 	}
 

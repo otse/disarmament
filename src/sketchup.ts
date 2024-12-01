@@ -63,14 +63,14 @@ namespace sketchup {
 			}
 			if (app.proompt('t') == 1) {
 				console.log('[t]');
-				hooks.call('levelWipe', 0);
+				hooks.emit('levelWipe', 0);
 				renderer.scene.remove(glob.levelGroup);
 				await props.reload();
 				await loadLevel();
 			}
 			if (app.proompt('f3') == 1) {
 				loresToggle = !loresToggle;
-				hooks.call('levelWipe', 0);
+				hooks.emit('levelWipe', 0);
 				renderer.scene.remove(glob.levelGroup);
 				await props.reload();
 				await getMats();
@@ -323,7 +323,7 @@ namespace sketchup {
 			}
 			scene.traverse(setRenderFlags);
 			objectsTakeMats(scene);
-			hooks.call('levelLoaded', scene);
+			hooks.emit('levelLoaded', scene);
 			const group = new THREE.Group();
 			group.add(scene);
 			

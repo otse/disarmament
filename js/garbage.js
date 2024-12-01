@@ -58,7 +58,7 @@ var garbage;
         }
         vr.loop();
         garbage.gplayer?.loop(garbage.frameTime);
-        hooks.call('garbageStep', 0);
+        hooks.emit('garbageStep', 0);
         physics.loop(garbage.timeStep);
         await sketchup.loop();
         renderer.loop_and_render();
