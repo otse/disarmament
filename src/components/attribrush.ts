@@ -100,43 +100,45 @@ namespace attribrush {
 			gcone.quaternion.copy(quaternion);
 			gcone.position.copy(point);
 			gcone.updateMatrix();
-			//console.log('Nearest Vertex:', nearestVertex);
+
+			// Get the actual world vertex nearest to our Cone
+			// We place a Ball here
 			const worldVertices = collectWorldVertices(intersects);
-			let nearestVertex = null;
 			let minDistance = Infinity;
 			for (const vertex of worldVertices) {
-				const distance = vertex.distanceTo(point);
+				const distance = vertex[3].distanceTo(point);
 				if (distance < minDistance) {
 					minDistance = distance;
 					nearestVertex = vertex;
 				}
 			}
 			if (nearestVertex) {
-				gball.position.copy(nearestVertex);
+				gball.position.copy(nearestVertex[3]);
 				gball.updateMatrix();
 			}
 			return point;
 		}
-
 		return null;
 	}
 
-	function collectWorldVertices(intersects) {
-		const nearestVertices: any[] = []; // Array to hold nearest vertices
-		for (const int of intersects) {
-			const geometry = int.object.geometry; // Get the geometry of the intersected object
-			const worldMatrix = int.object.matrixWorld; // Get the world matrix
+	var nearestVertex: vertexTuple | undefined;
 
-			// Loop through all vertices in the geometry
+	type vertexTuple = [index: number, object: any, geometry: any, vertex: any]
+
+	function collectWorldVertices(intersects) {
+		const nearestVertices: vertexTuple[] = [];
+		for (const intersect of intersects) {
+			const { object } = intersect;
+			const { geometry, matrixWorld } = object;
 			geometry.attributes.position.array.forEach((_, index) => {
-				if (index % 3 === 0) { // Ensure we are at the start of a vertex (x, y, z)
+				if (index % 3 === 0) {
 					const vertex = new THREE.Vector3(
 						geometry.attributes.position.array[index],
 						geometry.attributes.position.array[index + 1],
 						geometry.attributes.position.array[index + 2]
 					);
-					vertex.applyMatrix4(worldMatrix); // Transform the vertex by the world matrix
-					nearestVertices.push(vertex); // Collect transformed vertex
+					vertex.applyMatrix4(matrixWorld);
+					nearestVertices.push([index, object, geometry, vertex]);
 				}
 			});
 		}
