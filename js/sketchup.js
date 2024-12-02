@@ -6,7 +6,7 @@ import props from "./components/props.js";
 import vr from "./vr/vr.js";
 var sketchup;
 (function (sketchup) {
-    const disable_fake_ambient_occlusion = false;
+    const disable_fake_ambient_occlusion = true;
     const stickers = ['wallsewerhole', 'concretecornerdamage', 'ambientocclusion', 'rustylatch'];
     var figsMats = {};
     const mats = {};
@@ -229,6 +229,7 @@ var sketchup;
             material.polygonOffsetFactor = -1;
         }
     }
+    // Todo Jesus christ clean this up
     async function objectTakesMat(object, index) {
         const current = index == -1 ? object.material : object.material[index];
         //console.log('object', object);
@@ -254,6 +255,8 @@ var sketchup;
                 if (!object.material.length)
                     await objectTakesMat(object, -1);
                 else
+                    // Why would there be multiple materials in object?
+                    // This complicates things
                     for (let index in object.material)
                         await objectTakesMat(object, index);
         }

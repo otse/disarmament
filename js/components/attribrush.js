@@ -81,25 +81,25 @@ var attribrush;
             // We place a Ball here
             const vertices = collectVertices(intersects);
             let nearestDistance = Infinity;
-            let tuple;
+            let nearestTupleToCone;
             for (const vertex of vertices) {
                 const distance = vertex[3].distanceTo(point);
                 if (distance < nearestDistance) {
                     nearestDistance = distance;
-                    tuple = vertex;
+                    nearestTupleToCone = vertex;
                 }
             }
-            if (tuple) {
-                gball.position.copy(tuple[3]);
+            if (nearestTupleToCone) {
+                gball.position.copy(nearestTupleToCone[3]);
                 gball.updateMatrix();
-                if (currentTuple)
-                    colorConedObject(currentTuple, '#fff');
-                colorConedObject(tuple, '#faeaff');
-                currentTuple = tuple;
+                if (currentVertexTuple)
+                    colorMaterialAtVertexTuple(currentVertexTuple, '#fff');
+                colorMaterialAtVertexTuple(nearestTupleToCone, '#faeaff');
+                currentVertexTuple = nearestTupleToCone;
             }
         }
     }
-    var currentTuple;
+    var currentVertexTuple;
     // Taken all our intersections
     function collectVertices(intersects) {
         const vertices = [];
@@ -116,8 +116,8 @@ var attribrush;
         }
         return vertices;
     }
-    function colorConedObject(tuple, color = 'salmon') {
-        const [, object] = tuple;
+    function colorMaterialAtVertexTuple(vertexTuple, color = 'salmon') {
+        const [, object] = vertexTuple;
         const salmonSheen = new THREE.Color(color);
         function setColor(material) {
             material.color.copy(salmonSheen);

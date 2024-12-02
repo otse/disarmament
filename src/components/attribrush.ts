@@ -93,26 +93,26 @@ namespace attribrush {
 			// We place a Ball here
 			const vertices = collectVertices(intersects);
 			let nearestDistance = Infinity;
-			let tuple: vertexTuple | undefined;
+			let nearestTupleToCone: vertexTuple | undefined;
 			for (const vertex of vertices) {
 				const distance = vertex[3].distanceTo(point);
 				if (distance < nearestDistance) {
 					nearestDistance = distance;
-					tuple = vertex;
+					nearestTupleToCone = vertex;
 				}
 			}
-			if (tuple) {
-				gball.position.copy(tuple[3]);
+			if (nearestTupleToCone) {
+				gball.position.copy(nearestTupleToCone[3]);
 				gball.updateMatrix();
-				if (currentTuple)
-					colorConedObject(currentTuple, '#fff');
-				colorConedObject(tuple, '#faeaff');
-				currentTuple = tuple;
+				if (currentVertexTuple)
+					colorMaterialAtVertexTuple(currentVertexTuple, '#fff');
+				colorMaterialAtVertexTuple(nearestTupleToCone, '#faeaff');
+				currentVertexTuple = nearestTupleToCone;
 			}
 		}
 	}
 
-	var currentTuple: vertexTuple | undefined;
+	var currentVertexTuple: vertexTuple | undefined;
 
 	type vertexTuple = [index: number, object: any, geometry: any, vertex: any]
 
@@ -137,8 +137,8 @@ namespace attribrush {
 		return vertices;
 	}
 
-	function colorConedObject(tuple: vertexTuple, color = 'salmon') {
-		const [, object] = tuple;
+	function colorMaterialAtVertexTuple(vertexTuple: vertexTuple, color = 'salmon') {
+		const [, object] = vertexTuple;
 		const salmonSheen = new THREE.Color(color);
 		function setColor(material) {
 			material.color.copy(salmonSheen);

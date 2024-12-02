@@ -9,9 +9,9 @@ import vr from "./vr/vr.js";
 
 namespace sketchup {
 
-	const disable_fake_ambient_occlusion = false;
+	const disable_fake_ambient_occlusion = true;
 
-	type tuple = [
+	type matTuple = [
 		color?: string,
 		path?: string,
 		normalScale?: number,
@@ -96,7 +96,7 @@ namespace sketchup {
 		}
 	}
 
-	async function bakeMaterialFromTuple(name: string, tuple: tuple) {
+	async function bakeMaterialFromTuple(name: string, tuple: matTuple) {
 		// console.log('bake material', name, tuple);
 		const seed = `?x=same`;
 		let texture;
@@ -259,6 +259,7 @@ namespace sketchup {
 		}
 	}
 
+	// Todo Jesus christ clean this up
 	async function objectTakesMat(object, index) {
 		const current = index == -1 ? object.material : object.material[index];
 		//console.log('object', object);
@@ -269,7 +270,7 @@ namespace sketchup {
 		let mat;
 		mat = mats[current.name];
 		if (!mat)
-			await bakeMaterialFromTuple(current.name, [current.color, '', 1] as tuple);
+			await bakeMaterialFromTuple(current.name, [current.color, '', 1] as matTuple);
 		mat = mats[current.name];
 		if (index == -1)
 			object.material = mat;
@@ -286,6 +287,8 @@ namespace sketchup {
 					await objectTakesMat(object, -1);
 
 				else
+					// Why would there be multiple materials in object?
+					// This complicates things
 					for (let index in object.material)
 						await objectTakesMat(object, index);
 		}
@@ -340,7 +343,7 @@ namespace sketchup {
 		group.rotation.y = Math.PI / 2;
 		group.updateMatrix();
 	}
-	
+
 	export async function loadGun(name) {
 		const group = new THREE.Group();
 		const loadingManager = new THREE.LoadingManager(function () {
