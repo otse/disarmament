@@ -26,6 +26,13 @@ export class hooks<T = never> {
 	}
 	static async emit(name: string, x: any) {
 		if (!(name in this.hooks)) return;
+		const reversedHooks = this.hooks[name].slice().reverse();
+		for (const hook of reversedHooks) {
+			if (await (hook?.(x))) return;
+		}
+	}
+	static async _emitFast(name: string, x: any) {
+		if (!(name in this.hooks)) return;
 		for (let i = this.hooks[name].length; i--;)
 			if (await (this.hooks[name][i]?.(x))) return;
 	}

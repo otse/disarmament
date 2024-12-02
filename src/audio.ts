@@ -1,4 +1,4 @@
-import hooks from "./lib/hooks.js";
+import { hooks } from "./lib/hooks.js";
 import garbage from "./garbage.js";
 import renderer from "./renderer.js";
 
@@ -106,8 +106,8 @@ namespace audio {
 					buffers[basename] = buffer;
 					loaded++;
 					if (loaded == queue) {
-						console.log( ' done loading audios ', loaded);
-						hooks.call('audioGestured', 1);
+						console.log(' done loading audios ', loaded);
+						hooks.emit('audioGestured', 1);
 					}
 
 				},

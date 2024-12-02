@@ -9,6 +9,7 @@ import garbage from "../garbage.js";
 import toggle from "../lib/toggle.js";
 import props from "./props.js";
 import renderer from "../renderer.js";
+import glob from "../lib/glob.js";
 
 // Tunnels are meant
 namespace tunnels {
@@ -22,12 +23,14 @@ namespace tunnels {
 	export async function boot() {
 		console.log(' Tunnels Boot ');
 
-		hooks.placeListener('levelLoaded', 1, loaded);
-		hooks.placeListener('levelWipe', 1, clear);
+		hooks.placeListener('environmentReady', 1, loaded);
+		hooks.placeListener('environmentCleared', 1, clear);
 		hooks.placeListener('garbageStep', 2, loop);
 	}
 
 	async function clear() {
+		console.log('tunnels wipe');
+
 		for (const tunnel of tunnels) {
 			tunnel.clear();
 		}
@@ -104,7 +107,8 @@ namespace tunnels {
 			this.object.frustumCulled = true;
 			tunnels.push(this);
 			this.measure();
-			this.debugBox = new common.debug_box(this, 'green', true);
+			if (glob.wireframes)
+				this.debugBox = new common.debug_box(this, 'green', true);
 			this.gatherProps();
 		}
 		protected measure() {

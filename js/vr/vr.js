@@ -1,5 +1,5 @@
 import glob from "../lib/glob.js";
-import hooks from "../lib/hooks.js";
+import { hooks } from "../lib/hooks.js";
 import renderer from "../renderer.js";
 import controller from "./controller.js";
 var vr;
@@ -29,11 +29,11 @@ var vr;
             });
             const teleportSpaceOffset = vr.baseReferenceSpace.getOffsetReferenceSpace(transform);
             renderer.renderer.xr.setReferenceSpace(teleportSpaceOffset);
-            hooks.call('xrStart', 1);
+            hooks.emit('xrStart', 1);
         });
         renderer.renderer.xr.addEventListener('sessionend', () => {
             glob.xr = false;
-            hooks.call('xrEnd', 1);
+            hooks.emit('xrEnd', 1);
         });
         vr.marker = new THREE.Mesh(new THREE.CircleGeometry(0.25, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xbcbcbc }));
         renderer.scene.add(vr.marker);

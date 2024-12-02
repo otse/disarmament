@@ -1,4 +1,4 @@
-import hooks from "./lib/hooks.js";
+import { hooks } from "./lib/hooks.js";
 import garbage from "./garbage.js";
 import renderer from "./renderer.js";
 class asd {
@@ -87,7 +87,7 @@ var audio;
                 loaded++;
                 if (loaded == queue) {
                     console.log(' done loading audios ', loaded);
-                    hooks.call('audioGestured', 1);
+                    hooks.emit('audioGestured', 1);
                 }
             }, function () { }, function () {
                 console.warn(' hunt audio cannot load ', basename);

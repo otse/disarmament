@@ -1,6 +1,6 @@
 import app from "../app.js";
 import glob from "../lib/glob.js";
-import hooks from "../lib/hooks.js";
+import { hooks } from "../lib/hooks.js";
 import renderer from "../renderer.js";
 import controller from "./controller.js";
 
@@ -30,7 +30,7 @@ namespace vr {
 
 			document.body.appendChild(button);
 		}
-		
+
 		renderer.renderer.xr.addEventListener('sessionstart', () => {
 			glob.xr = true;
 
@@ -55,12 +55,12 @@ namespace vr {
 
 			renderer.renderer.xr.setReferenceSpace(teleportSpaceOffset);
 
-			hooks.call('xrStart', 1);
+			hooks.emit('xrStart', 1);
 		});
 
 		renderer.renderer.xr.addEventListener('sessionend', () => {
 			glob.xr = false;
-			hooks.call('xrEnd', 1);
+			hooks.emit('xrEnd', 1);
 		});
 
 		marker = new THREE.Mesh(

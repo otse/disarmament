@@ -46,13 +46,13 @@ namespace garbage {
 		glob.propAxes = false;
 		glob.gripRays = false;
 
+		renderer.boot();
+		vr.boot();
 		common.boot();
 		physics.boot();
 		attribrush.boot();
 		props.boot();
 		tunnels.boot();
-		renderer.boot();
-		vr.boot();
 		await sketchup.boot();
 		audio.boot();
 

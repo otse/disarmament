@@ -6,6 +6,7 @@ import common from "../common.js";
 import garbage from "../garbage.js";
 import toggle from "../lib/toggle.js";
 import props from "./props.js";
+import glob from "../lib/glob.js";
 // Tunnels are meant
 var tunnels;
 (function (tunnels_1) {
@@ -14,12 +15,13 @@ var tunnels;
     tunnels_1.componentName = 'Tunnels Component';
     async function boot() {
         console.log(' Tunnels Boot ');
-        hooks.placeListener('levelLoaded', 1, loaded);
-        hooks.placeListener('levelWipe', 1, clear);
+        hooks.placeListener('environmentReady', 1, loaded);
+        hooks.placeListener('environmentCleared', 1, clear);
         hooks.placeListener('garbageStep', 2, loop);
     }
     tunnels_1.boot = boot;
     async function clear() {
+        console.log('tunnels wipe');
         for (const tunnel of tunnels_1.tunnels) {
             tunnel.clear();
         }
@@ -88,7 +90,8 @@ var tunnels;
             this.object.frustumCulled = true;
             tunnels_1.tunnels.push(this);
             this.measure();
-            this.debugBox = new common.debug_box(this, 'green', true);
+            if (glob.wireframes)
+                this.debugBox = new common.debug_box(this, 'green', true);
             this.gatherProps();
         }
         measure() {

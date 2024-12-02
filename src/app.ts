@@ -1,5 +1,5 @@
 import glob from "./lib/glob.js";
-import hooks from "./lib/hooks.js";
+import { hooks } from "./lib/hooks.js";
 import points from "./lib/pts.js";
 import garbage from "./garbage.js";
 
@@ -18,6 +18,10 @@ namespace app {
 	var pos: vec2 = [0, 0]
 
 	export var wheel = 0
+
+	export function mousepos() {
+		return [...pos] as vec2;
+	}
 
 	export function onkeys(event) {
 		const key = event.key.toLowerCase();
@@ -38,10 +42,10 @@ namespace app {
 
 		console.log(' app boot ');
 
-		hooks.call('appBoot', null);
+		hooks.emit('appBoot', null);
 
 		if ('xr' in navigator)
-			await (navigator as any).xr.isSessionSupported( 'immersive-vr' ).then(x => glob.hasHeadset = x);
+			await (navigator as any).xr.isSessionSupported('immersive-vr').then(x => glob.hasHeadset = x);
 
 		await garbage.boot();
 

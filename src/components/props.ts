@@ -19,8 +19,8 @@ namespace props {
 	export async function boot() {
 		console.log(' Stagehand Boot ');
 		reload();
-		hooks.placeListener('levelLoaded', 2, loaded);
-		hooks.placeListener('levelWipe', 2, clear);
+		hooks.placeListener('environmentReady', 2, loaded);
+		hooks.placeListener('environmentCleanup', 2, clear);
 		hooks.placeListener('garbageStep', 1, loop);
 	}
 
@@ -40,6 +40,8 @@ namespace props {
 	}
 
 	async function clear() {
+		console.log('props wipe');
+
 		// Avoid modifying the collection while iterating over it
 		const array = props.slice(0);
 		for (const prop of array) {

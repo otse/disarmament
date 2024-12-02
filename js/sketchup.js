@@ -20,8 +20,8 @@ var sketchup;
     }
     sketchup.getMats = getMats;
     async function boot() {
-        hooks.create('levelLoaded');
-        hooks.create('levelWipe');
+        hooks.create('environmentReady');
+        hooks.create('environmentCleanup');
         hooks.create('garbageStep');
         await getMats();
         await buildMats();
@@ -44,14 +44,14 @@ var sketchup;
             }
             if (app.proompt('t') == 1) {
                 console.log('[t]');
-                hooks.emit('levelWipe', 0);
+                hooks.emit('environmentCleanup', 0);
                 renderer.scene.remove(glob.levelGroup);
                 await props.reload();
                 await loadLevel();
             }
             if (app.proompt('f3') == 1) {
                 loresToggle = !loresToggle;
-                hooks.emit('levelWipe', 0);
+                hooks.emit('environmentCleanup', 0);
                 renderer.scene.remove(glob.levelGroup);
                 await props.reload();
                 await getMats();
@@ -291,10 +291,12 @@ var sketchup;
             }
             scene.traverse(setRenderFlags);
             objectsTakeMats(scene);
-            hooks.emit('levelLoaded', scene);
+            hooks.emit('environmentReady', scene);
             const group = new THREE.Group();
             group.add(scene);
-            renderer.scene.add(group);
+            group.updateMatrix();
+            group.updateMatrixWorld();
+            glob.scene.add(group);
             glob.levelGroup = group;
         });
         await loadGuns();

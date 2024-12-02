@@ -1,6 +1,6 @@
 import app from "./app.js";
 import glob from "./lib/glob.js";
-import hooks from "./lib/hooks.js";
+import { hooks } from "./lib/hooks.js";
 import garbage from "./garbage.js";
 import physics from "./physics.js";
 import renderer from "./renderer.js";
@@ -25,7 +25,7 @@ class player {
         this.set_aabb();
         this.vdb = new common.debug_box(this, 'purple');
         renderer.scene.add(this.vdb.mesh);
-        hooks.register('xrStart', () => this.xr_takes_over());
+        hooks.addListener('xrStart', async () => { this.xr_takes_over(); return false; });
     }
     setup() {
         this.controls = new PointerLockControls(renderer.camera, renderer.renderer.domElement);
