@@ -18,7 +18,8 @@ namespace attribrush {
 		hooks.placeListener('environmentCleanup', 0, clear);
 		hooks.placeListener('garbageStep', 0, loop);
 
-		makeVertexCone();
+		createCone();
+		createBall();
 	}
 
 	async function loaded(scene) {
@@ -45,19 +46,27 @@ namespace attribrush {
 		return false;
 	}
 
-	var gcone;
-	function makeVertexCone() {
-		const geometry = new THREE.ConeGeometry(0.1, 0.2, 32); // Create a cone geometry
-		const material = new THREE.MeshBasicMaterial({ color: 0xffff00 }); // Create a basic yellow material
-		const cone = new THREE.Mesh(geometry, material); // Create a mesh with the geometry and material
-		gcone = cone;
-		// Set the position of the cone (optional)
-		cone.position.set(0, 0, 0); // Adjust the position as needed
-		cone.updateMatrix();
+	var gcone, gball
 
-		// Add the cone to the scene (assuming you have access to the scene)
-		// Replace 'scene' with your actual scene variable
-		glob.scene.add(cone); // Ensure 'scene' is defined in your context
+	function createCone() {
+		const geometry = new THREE.ConeGeometry(0.1, 0.2, 32);
+		const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+		const cone = new THREE.Mesh(geometry, material);
+		gcone = cone;
+
+		cone.position.set(0, 0, 0);
+		cone.updateMatrix();
+		glob.scene.add(cone);
+	}
+
+	function createBall() {
+		const geometry = new THREE.SphereGeometry(0.05, 32, 32);
+		const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+		const ball = new THREE.Mesh(geometry, material);
+		gball = ball;
+		ball.position.set(0, 0, 0);
+		ball.updateMatrix();
+		glob.scene.add(ball);
 	}
 
 	function detectNearestVertices(object3D) {
@@ -77,28 +86,61 @@ namespace attribrush {
 		// Calculate objects intersecting the ray
 		const intersects = raycaster.intersectObject(object3D, true);
 
-
 		if (intersects.length > 0) {
 			const int = intersects[0];
-			const nearestVertex = int.point;
-			if (!int.face)
+			const point = int.point;
+			collectWorldVertices(intersects);
+			if (!int.face || !int.object)
 				return;
 			const localNormal = int.face.normal.clone();
 			localNormal.applyMatrix3(
 				new THREE.Matrix3().getNormalMatrix(int.object.matrixWorld)).normalize();
-
 			const coneDirection = new THREE.Vector3(0, 1, 0);
 			const quaternion = new THREE.Quaternion().setFromUnitVectors(coneDirection, localNormal.negate());
 			gcone.quaternion.copy(quaternion);
-			gcone.position.copy(nearestVertex);
-			gcone.updateMatrix();
-
+			gcone.position.copy(point);
 			gcone.updateMatrix();
 			//console.log('Nearest Vertex:', nearestVertex);
-			return nearestVertex;
+			const worldVertices = collectWorldVertices(intersects);
+			let nearestVertex = null;
+			let minDistance = Infinity;
+			for (const vertex of worldVertices) {
+				const distance = vertex.distanceTo(point);
+				if (distance < minDistance) {
+					minDistance = distance;
+					nearestVertex = vertex;
+				}
+			}
+			if (nearestVertex) {
+				gball.position.copy(nearestVertex);
+				gball.updateMatrix();
+			}
+			return point;
 		}
 
 		return null;
+	}
+
+	function collectWorldVertices(intersects) {
+		const nearestVertices: any[] = []; // Array to hold nearest vertices
+		for (const int of intersects) {
+			const geometry = int.object.geometry; // Get the geometry of the intersected object
+			const worldMatrix = int.object.matrixWorld; // Get the world matrix
+
+			// Loop through all vertices in the geometry
+			geometry.attributes.position.array.forEach((_, index) => {
+				if (index % 3 === 0) { // Ensure we are at the start of a vertex (x, y, z)
+					const vertex = new THREE.Vector3(
+						geometry.attributes.position.array[index],
+						geometry.attributes.position.array[index + 1],
+						geometry.attributes.position.array[index + 2]
+					);
+					vertex.applyMatrix4(worldMatrix); // Transform the vertex by the world matrix
+					nearestVertices.push(vertex); // Collect transformed vertex
+				}
+			});
+		}
+		return nearestVertices;
 	}
 }
 
