@@ -49,47 +49,36 @@ namespace attribrush {
 	var gcone, gball
 
 	function createCone() {
-		const geometry = new THREE.ConeGeometry(0.1, 0.2, 32);
+		const geometry = new THREE.ConeGeometry(0.05, 0.1, 32);
 		const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
 		const cone = new THREE.Mesh(geometry, material);
-		gcone = cone;
-
-		cone.position.set(0, 0, 0);
-		cone.updateMatrix();
 		glob.scene.add(cone);
+		gcone = cone;
 	}
 
 	function createBall() {
-		const geometry = new THREE.SphereGeometry(0.05, 32, 32);
+		const geometry = new THREE.SphereGeometry(0.025, 32, 32);
 		const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 		const ball = new THREE.Mesh(geometry, material);
-		gball = ball;
-		ball.position.set(0, 0, 0);
-		ball.updateMatrix();
 		glob.scene.add(ball);
+		gball = ball;
 	}
 
 	function detectNearestVertices(object3D) {
 		const raycaster = new THREE.Raycaster();
 		const mouse = new THREE.Vector2();
-
 		const pos = app.mousepos();
 		mouse.set(pos[0], pos[1]);
-
 		// Convert mouse coordinates to normalized device coordinates
 		mouse.x = (mouse.x / window.innerWidth) * 2 - 1;
 		mouse.y = -(mouse.y / window.innerHeight) * 2 + 1;
-
-		// Set the raycaster from the camera to the mouse position
-		raycaster.setFromCamera(mouse, renderer.camera); // Ensure 'camera' is defined in your context
-
-		// Calculate objects intersecting the ray
+		raycaster.setFromCamera(mouse, renderer.camera);
 		const intersects = raycaster.intersectObject(object3D, true);
-
+		// The intersects array has doubles when hovering decals or cornerdamage props
+		// Besides the static level geometry
 		if (intersects.length > 0) {
 			const int = intersects[0];
 			const point = int.point;
-			collectWorldVertices(intersects);
 			if (!int.face || !int.object)
 				return;
 			const localNormal = int.face.normal.clone();
@@ -100,33 +89,36 @@ namespace attribrush {
 			gcone.quaternion.copy(quaternion);
 			gcone.position.copy(point);
 			gcone.updateMatrix();
-
 			// Get the actual world vertex nearest to our Cone
 			// We place a Ball here
-			const worldVertices = collectWorldVertices(intersects);
-			let minDistance = Infinity;
-			for (const vertex of worldVertices) {
+			const vertices = collectVertices(intersects);
+			let nearestDistance = Infinity;
+			let tuple: vertexTuple | undefined;
+			for (const vertex of vertices) {
 				const distance = vertex[3].distanceTo(point);
-				if (distance < minDistance) {
-					minDistance = distance;
-					nearestVertex = vertex;
+				if (distance < nearestDistance) {
+					nearestDistance = distance;
+					tuple = vertex;
 				}
 			}
-			if (nearestVertex) {
-				gball.position.copy(nearestVertex[3]);
+			if (tuple) {
+				gball.position.copy(tuple[3]);
 				gball.updateMatrix();
+				if (currentTuple)
+					colorConedObject(currentTuple, '#fff');
+				colorConedObject(tuple, '#faeaff');
+				currentTuple = tuple;
 			}
-			return point;
 		}
-		return null;
 	}
 
-	var nearestVertex: vertexTuple | undefined;
+	var currentTuple: vertexTuple | undefined;
 
 	type vertexTuple = [index: number, object: any, geometry: any, vertex: any]
 
-	function collectWorldVertices(intersects) {
-		const nearestVertices: vertexTuple[] = [];
+	// Taken all our intersections
+	function collectVertices(intersects) {
+		const vertices: vertexTuple[] = [];
 		for (const intersect of intersects) {
 			const { object } = intersect;
 			const { geometry, matrixWorld } = object;
@@ -138,11 +130,27 @@ namespace attribrush {
 						geometry.attributes.position.array[index + 2]
 					);
 					vertex.applyMatrix4(matrixWorld);
-					nearestVertices.push([index, object, geometry, vertex]);
+					vertices.push([index, object, geometry, vertex]);
 				}
 			});
 		}
-		return nearestVertices;
+		return vertices;
+	}
+
+	function colorConedObject(tuple: vertexTuple, color = 'salmon') {
+		const [, object] = tuple;
+		const salmonSheen = new THREE.Color(color);
+		function setColor(material) {
+			material.color.copy(salmonSheen);
+			if (material.materials) {
+				setColor(material.materials); // Recursively handle multi-materials
+			}
+		}
+		object.traverse((child) => {
+			if (child.material) {
+				setColor(child.material);
+			}
+		});
 	}
 }
 
