@@ -8,6 +8,8 @@ import app from "../app.js";
 import glob from "../lib/glob.js";
 
 namespace attribrush {
+	var enabled = false;
+
 	const privateProp = 'Zuc';
 
 	export var componentName = 'AttriBrush Component';
@@ -39,6 +41,13 @@ namespace attribrush {
 	}
 
 	async function loop() {
+		if (app.proompt('f2') == 1) {
+			enabled = !enabled;
+			gball.visible = enabled;
+			gcone.visible = enabled;
+			if (!enabled && currentVertexTuple)
+				colorMaterialAtTuple(currentVertexTuple, '#fff');
+		}
 		for (const tunnel of tunnels.tunnels) {
 			const { object } = tunnel;
 		}
@@ -52,6 +61,7 @@ namespace attribrush {
 		const geometry = new THREE.ConeGeometry(0.05, 0.1, 32);
 		const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
 		const cone = new THREE.Mesh(geometry, material);
+		cone.visible = enabled;
 		glob.scene.add(cone);
 		gcone = cone;
 	}
@@ -60,11 +70,13 @@ namespace attribrush {
 		const geometry = new THREE.SphereGeometry(0.025, 32, 32);
 		const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 		const ball = new THREE.Mesh(geometry, material);
+		ball.visible = enabled;
 		glob.scene.add(ball);
 		gball = ball;
 	}
 
 	function detectNearestVertices(object3D) {
+		if (!enabled) return;
 		const raycaster = new THREE.Raycaster();
 		const mouse = new THREE.Vector2();
 		const pos = app.mousepos();
@@ -105,13 +117,14 @@ namespace attribrush {
 				gball.position.copy(nearestTupleToCone[3]);
 				gball.updateMatrix();
 				if (currentVertexTuple)
-					colorMaterialAtVertexTuple(currentVertexTuple, '#fff');
-				colorMaterialAtVertexTuple(nearestTupleToCone, '#faeaff');
+					colorMaterialAtTuple(currentVertexTuple, '#fff');
+				colorMaterialAtTuple(nearestTupleToCone, '#faeaff');
 				currentVertexTuple = nearestTupleToCone;
 			}
 		}
 	}
 
+	
 	var currentVertexTuple: vertexTuple | undefined;
 
 	type vertexTuple = [index: number, object: any, geometry: any, vertex: any]
@@ -137,18 +150,12 @@ namespace attribrush {
 		return vertices;
 	}
 
-	function colorMaterialAtVertexTuple(vertexTuple: vertexTuple, color = 'salmon') {
+	function colorMaterialAtTuple(vertexTuple: vertexTuple, color = 'salmon') {
 		const [, object] = vertexTuple;
-		const salmonSheen = new THREE.Color(color);
-		function setColor(material) {
-			material.color.copy(salmonSheen);
-			if (material.materials) {
-				setColor(material.materials); // Recursively handle multi-materials
-			}
-		}
+		const sheen = new THREE.Color(color);
 		object.traverse((child) => {
 			if (child.material) {
-				setColor(child.material);
+				child.material.color.copy(sheen);
 			}
 		});
 	}

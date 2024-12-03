@@ -16,7 +16,7 @@ var tunnels;
     async function boot() {
         console.log(' Tunnels Boot ');
         hooks.placeListener('environmentReady', 1, loaded);
-        hooks.placeListener('environmentCleared', 1, clear);
+        hooks.placeListener('environmentCleanup', 1, clear);
         hooks.placeListener('garbageStep', 2, loop);
     }
     tunnels_1.boot = boot;

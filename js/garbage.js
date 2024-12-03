@@ -31,7 +31,7 @@ var garbage;
         console.log(' day setting up '); // Day is the name of the joke game that started it
         garbage.locker = document.querySelector('garbage-instructions');
         garbage.main = document.querySelector('garbage-body');
-        glob.level = 'gen2';
+        glob.level = 'starwars';
         glob.wireframes = false;
         glob.propAxes = false;
         glob.gripRays = false;

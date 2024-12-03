@@ -24,7 +24,7 @@ namespace tunnels {
 		console.log(' Tunnels Boot ');
 
 		hooks.placeListener('environmentReady', 1, loaded);
-		hooks.placeListener('environmentCleared', 1, clear);
+		hooks.placeListener('environmentCleanup', 1, clear);
 		hooks.placeListener('garbageStep', 2, loop);
 	}
 
@@ -100,7 +100,6 @@ namespace tunnels {
 		props: props.prop[] = [];
 		adjacentTunnels: tunnel[] = [];
 		debugBox;
-
 		constructor(public readonly object, public readonly name) {
 			super();
 			this.object.visible = false;

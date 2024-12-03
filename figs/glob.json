@@ -1,30 +1,4 @@
 {
-	"rlmossy": {
-		"xdisabled": true,
-		"xhelper": true,
-		"hide": true,
-		"color": "chartreuse",
-		"intensity": 0.007,
-		"target": [
-			0,
-			0,
-			1
-		],
-		"xbehavior": {
-			"type": "bounce",
-			"cycle": 6,
-			"base": 1.0,
-			"variance": 0.15
-		}
-	},
-	"plhalltypea": {
-		"xdisabled": true,
-		"hide": true,
-		"color": "lavender",
-		"intensity": 0.1,
-		"distance": 2,
-		"decay": 1.0
-	},
 	"plgen": {
 		"hide": true,
 		"color": "white",
@@ -63,7 +37,7 @@
 		"intensity": 0.1,
 		"distance": 2.5,
 		"decay": 1.0,
-		"shadow": false,
+		"shadow": true,
 		"xbehavior": {
 			"type": "shake",
 			"cycle": 5,
@@ -85,69 +59,9 @@
 			0
 		]
 	},
-	
-	"slsewerworld": {
-		"hide": true,
-		"lensflare": true,
-		"lensflareSize": 3,
-		"color": "lightblue",
-		"angle": 0.47,
-		"intensity": 1.0,
-		"distance": 20.0,
-		"penumbra": 0.1,
-		"decay": 1.0,
-		"shadow": true,
-		"shadowMapSize": 256,
-		"target": [
-			0,
-			1,
-			0
-		],
-		"behavior": {
-			"type": "shake",
-			"cycle": 5,
-			"base": 1.0,
-			"variance": 2.0
-		}
-	},
-	"slsewerworldlockers": {
-		"hide": true,
-		"lensflare": true,
-		"lensflareSize": 3,
-		"color": "lightblue",
-		"angle": 0.5,
-		"intensity": 1.0,
-		"distance": 20.0,
-		"penumbra": 0.1,
-		"decay": 1.0,
-		"shadow": true,
-		"shadowMapSize": 256,
-		"target": [
-			0,
-			1,
-			0
-		],
-		"behavior": {
-			"type": "shake",
-			"cycle": 3,
-			"base": 1.0,
-			"variance": 1.0
-		}
-	},
 	"radio": {
 		"disabled": true,
 		"name": "alien_cycletone",
-		"volume": 0.4,
-		"loop": true,
-		"distance": 3,
-		"delay": [
-			0,
-			1
-		]
-	},
-	"swedge": {
-		"disabled": true,
-		"name": "ambience6",
 		"volume": 0.4,
 		"loop": true,
 		"distance": 3,
