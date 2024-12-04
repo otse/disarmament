@@ -1,5 +1,79 @@
 in this setting your main base are abandoned places like an old warehouse
-
 here you can walk around and modify your guns
-
 the main arena for now is another nearby warehouse where you can fight
+
+warehouse where you start is your base
+Here you have gun crates and a laptop which has locations of caches
+A cache could be a duffle
+You grab your gun(crates) and load them into your car
+Then you drive to the mission you selected earlier
+Maps are abandoned places and include: hospital, warehouse, alleys, train tunnel
+You have a tracker like in no country for old men
+The game has a photorealistic appearance, not a pretty game art appearance 
+It uses photo textures and advanced lighting
+I will work hard on a bodycam style camera for vr and aim for Steam
+
+why will it work:
+a gunfighting game in vr with a bodycam style seems almost obvious
+a bodycam has a natural round vignette just like a vr headset does
+geometry can be relatively simple
+textures can mipmap unless you're very close
+levels don't have to be big
+i love guns
+three.js has advanced lighting systems like rectangle lights, physically based materials, spot and point light shadows, 5 types of shadow stencil and soft types, 5 types of tonemapping shaders, color space management, and tons more
+i have over 10 years of experience with three.js game dev
+i love the early access game bodycam on steam
+
+development cycle will look like this:
+steal pbr materials from commonly publicly accessible resources (there are many)
+draw a simple layout for a level with cool places, like a warehouse or an abandoned hospital in italy
+i don't need to create textures myself
+there don't need to be many levels to make an early access game about realistic violence
+like i said i will work on attribrush to detail levels, this will be an in engine component that works on top of the sketchup export
+the main menu is accessible via a cellphone, you will never leave the simulation
+there doesn't need to be a lot of code, mostly art
+reloading guns and interacting with guns will require a lot of code but i have things like ai code assistants now
+pointing a gun is pointing your controller, no time consuming animations necessary
+three.js can be ported to electron and released on steam as a desktop vr title
+
+vr post processing is tricky:
+three.js has no planned web xr post processing support
+what i can do is something very unnatural
+render the scene normally to a texture in "scene 1"
+render a rectangle that spans our entire field of view into scene 2
+this rectangle has a fisheye and vignette shader
+render this scene 2 as the main output that the headset gets to see
+problem with this approach is that the orientation of the headset is only used in scene 1
+this information is then discarded for a static camera that somehow follows the vr headset perfectly
+thus creating the illusion of post processing, but you're actually showing a crude rectangle
+in other words you're projecting a 3d rectangle from an arbitrary distance from the camera
+rather than use the traditional orthographic device coordinates or 2d space
+so it's not so much post-processing as an aggressive illusion
+
+there are other challenges:
+besides doing lots of static architectural modelling i have to create guns
+a pistol would be a good start
+coding this will take a week at least before that works
+then a month of doing reloads, slide logic, casings and clip animations
+the amount of stuff you need to do to make a working pistol will be huge
+then i will add a remington
+modelling characters will be a big deal as well which i have no experience with
+besides that players hands movements will need to be reflected to 3d characters
+whowhich requires tons of specialist math
+
+to sum it up:
+cache is a realistic shooter for vr that uses a bodycam style camera
+the fisheye and vignette will look good in the binocular vision that a headset already has
+levels are short but sweet and draw from counter-strike maps and real life locations
+the three.js renderer is up for the task, 8k textures, physically based rendering
+the game will be playable very quickly because my software stack is sketchup and javascript
+you can playtest in the browser and give input to how awful (or awe-ful) the game is
+i won't have to hurt my head thinking about stories for a dumb indie game
+gameplay will be very simple and realistic, so there doesn't need to be strictly speaking "game design"
+
+problems:
+i forgot you can't place a rectangle in front of a vr headset it will kill the 3d
+i could lower the output resolution and can defijnitelly do vignette, but lens distortion will be very tricky
+
+<https://github.com/borismus/webvr-boilerplate/>
+
