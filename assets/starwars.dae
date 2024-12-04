@@ -4,8 +4,8 @@
         <contributor>
             <authoring_tool>SketchUp 17.2.2555</authoring_tool>
         </contributor>
-        <created>2024-12-03T14:28:11Z</created>
-        <modified>2024-12-03T14:28:11Z</modified>
+        <created>2024-12-03T15:49:52Z</created>
+        <modified>2024-12-03T15:49:52Z</modified>
         <unit meter="0.0254" name="inch" />
         <up_axis>Z_UP</up_axis>
     </asset>
@@ -27,7 +27,7 @@
         <visual_scene id="ID2">
             <node name="SketchUp">
                 <node name="skp_camera_Last_Saved_SketchUp_View">
-                    <matrix>0.4887955 0.6957696 -0.5262923 -29.29502 -0.8723984 0.3898323 -0.2948759 -23.83151 -2.775558e-17 0.6032706 0.7975366 276.3571 0 0 0 1</matrix>
+                    <matrix>0.9779223 0.1402506 -0.1549123 40.8745 -0.208969 0.6563374 -0.7249505 -104.2964 1.387779e-17 0.7413171 0.6711549 235.1219 0 0 0 1</matrix>
                     <instance_camera url="#ID1" />
                 </node>
                 <node id="ID3" name="tunnel_start">
@@ -79,7 +79,7 @@
                     </instance_geometry>
                 </node>
                 <node id="ID42" name="instance_0">
-                    <matrix>0.4887955 0.8723984 0 18.5 -0.8723984 0.4887955 0 14 0 -0 1 0 0 0 0 1</matrix>
+                    <matrix>0.9779223 0.208969 0 18.5 -0.208969 0.9779223 0 14 0 -0 1 0 0 0 0 1</matrix>
                     <instance_node url="#ID43" />
                 </node>
             </node>
@@ -89,9 +89,9 @@
         <geometry id="ID4">
             <mesh>
                 <source id="ID10">
-                    <float_array id="ID14" count="120">393.7008 0 0 0 78.74016 0 0 0 0 393.7008 78.74016 0 393.7008 78.74016 0 393.7008 0 0 0 78.74016 0 0 0 0 393.7008 78.74016 118.1102 0 78.74016 0 393.7008 78.74016 0 0 78.74016 118.1102 0 78.74016 118.1102 393.7008 78.74016 118.1102 0 78.74016 0 393.7008 78.74016 0 0 78.74016 0 0 0 118.1102 0 0 0 0 78.74016 118.1102 0 78.74016 118.1102 0 78.74016 0 0 0 118.1102 0 0 0 0 0 118.1102 393.7008 0 0 0 0 0 393.7008 0 118.1102 393.7008 0 118.1102 0 0 118.1102 393.7008 0 0 0 0 0 393.7008 78.74016 118.1102 393.7008 0 0 393.7008 0 118.1102 393.7008 78.74016 0 393.7008 78.74016 0 393.7008 78.74016 118.1102 393.7008 0 0 393.7008 0 118.1102</float_array>
+                    <float_array id="ID14" count="60">393.7008 0 0 0 78.74016 0 0 0 0 393.7008 78.74016 0 393.7008 78.74016 118.1102 0 78.74016 0 393.7008 78.74016 0 0 78.74016 118.1102 0 78.74016 0 0 0 118.1102 0 0 0 0 78.74016 118.1102 0 0 118.1102 393.7008 0 0 0 0 0 393.7008 0 118.1102 393.7008 78.74016 118.1102 393.7008 0 0 393.7008 0 118.1102 393.7008 78.74016 0</float_array>
                     <technique_common>
-                        <accessor count="40" source="#ID14" stride="3">
+                        <accessor count="20" source="#ID14" stride="3">
                             <param name="X" type="float" />
                             <param name="Y" type="float" />
                             <param name="Z" type="float" />
@@ -99,9 +99,9 @@
                     </technique_common>
                 </source>
                 <source id="ID11">
-                    <float_array id="ID15" count="120">0 0 1 0 0 1 0 0 1 0 0 1 -0 -0 -1 -0 -0 -1 -0 -0 -1 -0 -0 -1 0 -1 0 0 -1 0 0 -1 0 0 -1 0 -0 1 -0 -0 1 -0 -0 1 -0 -0 1 -0 1 0 0 1 0 0 1 0 0 1 0 0 -1 -0 -0 -1 -0 -0 -1 -0 -0 -1 -0 -0 0 1 0 0 1 0 0 1 0 0 1 0 -0 -1 -0 -0 -1 -0 -0 -1 -0 -0 -1 -0 -1 -0 -0 -1 -0 -0 -1 -0 -0 -1 -0 -0 1 0 0 1 0 0 1 0 0 1 0 0</float_array>
+                    <float_array id="ID15" count="60">0 0 1 0 0 1 0 0 1 0 0 1 0 -1 0 0 -1 0 0 -1 0 0 -1 0 1 0 0 1 0 0 1 0 0 1 0 0 0 1 0 0 1 0 0 1 0 0 1 0 -1 -0 -0 -1 -0 -0 -1 -0 -0 -1 -0 -0</float_array>
                     <technique_common>
-                        <accessor count="40" source="#ID15" stride="3">
+                        <accessor count="20" source="#ID15" stride="3">
                             <param name="X" type="float" />
                             <param name="Y" type="float" />
                             <param name="Z" type="float" />
@@ -121,10 +121,10 @@
                     <input semantic="POSITION" source="#ID10" />
                     <input semantic="NORMAL" source="#ID11" />
                 </vertices>
-                <triangles count="20" material="Material2">
+                <triangles count="10" material="Material2">
                     <input offset="0" semantic="VERTEX" source="#ID12" />
                     <input offset="1" semantic="TEXCOORD" source="#ID13" />
-                    <p>0 0 1 1 2 2 1 1 0 0 3 3 4 3 5 0 6 1 7 2 6 1 5 0 8 4 9 2 10 0 9 2 8 4 11 5 12 5 13 4 14 2 15 0 14 2 13 4 16 6 17 5 18 2 17 5 16 6 19 7 20 7 21 6 22 5 23 2 22 5 21 6 24 5 25 8 26 2 25 8 24 5 27 9 28 9 29 5 30 8 31 2 30 8 29 5 32 10 33 2 34 5 33 2 32 10 35 11 36 11 37 10 38 2 39 5 38 2 37 10</p>
+                    <p>0 0 1 1 2 2 1 1 0 0 3 3 4 4 5 2 6 0 5 2 4 4 7 5 8 6 9 5 10 2 9 5 8 6 11 7 12 5 13 8 14 2 13 8 12 5 15 9 16 10 17 2 18 5 17 2 16 10 19 11</p>
                 </triangles>
             </mesh>
         </geometry>
