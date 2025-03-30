@@ -41,7 +41,7 @@ namespace garbage {
 		locker = document.querySelector('garbage-instructions')! as HTMLElement;
 		main = document.querySelector('garbage-body');
 
-		glob.level = 'starwars';
+		glob.level = 'gen2';
 		glob.wireframes = false;
 		glob.propAxes = false;
 		glob.gripRays = false;

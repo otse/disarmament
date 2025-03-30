@@ -143,7 +143,7 @@
 		"xhelper": true,
 		"hide": true,
 		"color": "lavender",
-		"intensity": 30.0,
+		"intensity": 40.0,
 		"target": [
 			0.0,
 			0.0,
@@ -161,7 +161,7 @@
 		}
 	},
 	"rlofficefloor": {
-		"xdisabled": true,
+		"disabled": true,
 		"xhelper": true,
 		"hide": true,
 		"color": "azure",

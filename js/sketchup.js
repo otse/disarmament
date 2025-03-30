@@ -13,7 +13,8 @@ var sketchup;
     var loresToggle = true;
     var normalToggle = true;
     async function getMats() {
-        let url = 'figs/mats.json';
+        const seed = `?x=${Math.random()}`;
+        let url = `figs/mats.json${seed}`;
         let response = await fetch(url);
         const arrSales = await response.json();
         figsMats = arrSales;
@@ -130,7 +131,7 @@ var sketchup;
         }
         mat.onBeforeCompile = (shader) => {
             console.warn(' onbeforecompile ', mat.name);
-            shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
+            shader.defines = { xSAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
             shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
 
 			vec3 lumaWeights = vec3(.25,.50,.25);
@@ -264,7 +265,8 @@ var sketchup;
     }
     sketchup.objectsTakeMats = objectsTakeMats;
     async function load_level_config(name) {
-        let url = `./assets/${name}.json`;
+        const seed = `?x=${Math.random()}`;
+        let url = `./assets/${name}.json${seed}`;
         let response = await fetch(url);
         const arrSales = await response.json();
         return arrSales;
@@ -277,7 +279,8 @@ var sketchup;
         const colladaLoader = new ColladaLoader(loadingManager);
         const levelConfig = await load_level_config(name);
         props.presets = Object.assign(props.presets, levelConfig);
-        await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
+        const seed = `?x=${Math.random()}`;
+        await colladaLoader.loadAsync(`./assets/${name}.dae${seed}`).then((collada) => {
             const scene = collada.scene;
             scene.updateMatrix();
             scene.updateMatrixWorld(true); // without this everything explodes

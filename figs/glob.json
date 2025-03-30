@@ -9,6 +9,32 @@
 	"fansw": {
 		"speed": 1
 	},
+	"rlmossy": {
+		"xdisabled": true,
+		"xhelper": true,
+		"hide": true,
+		"color": "chartreuse",
+		"intensity": 0.007,
+		"target": [
+			0,
+			0,
+			1
+		],
+		"xbehavior": {
+			"type": "bounce",
+			"cycle": 6,
+			"base": 1.0,
+			"variance": 0.15
+		}
+	},
+	"plhalltypea": {
+		"xdisabled": true,
+		"hide": true,
+		"color": "lavender",
+		"intensity": 0.1,
+		"distance": 2,
+		"decay": 1.0
+	},
 	"plsmall4000k": {
 		"hide": true,
 		"color": "mintcream",

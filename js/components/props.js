@@ -10,6 +10,7 @@ import common from "../common.js";
 var props;
 (function (props_1) {
     props_1.componentName = 'Props Component';
+    // New comment
     async function boot() {
         console.log(' Stagehand Boot ');
         reload();

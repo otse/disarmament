@@ -1,9 +1,9 @@
 import app from "./app.js";
-import garbage from "./garbage.js";
 import glob from "./lib/glob.js";
 import { hooks } from "./lib/hooks.js";
 import renderer from "./renderer.js";
 import tunnels from "./components/tunnels.js";
+import garbage from "./garbage.js";
 import props from "./components/props.js";
 import vr from "./vr/vr.js";
 
@@ -32,7 +32,8 @@ namespace sketchup {
 	var normalToggle = true;
 
 	export async function getMats() {
-		let url = 'figs/mats.json';
+		const seed = `?x=${Math.random()}`;
+		let url = `figs/mats.json${seed}`;
 		let response = await fetch(url);
 		const arrSales = await response.json();
 		figsMats = arrSales;
@@ -150,7 +151,7 @@ namespace sketchup {
 		}
 		mat.onBeforeCompile = (shader) => {
 			console.warn(' onbeforecompile ', mat.name);
-			shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
+			shader.defines = { xSAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
 			shader.fragmentShader = shader.fragmentShader.replace(
 				`#include <tonemapping_fragment>`,
 				`#include <tonemapping_fragment>
@@ -296,7 +297,8 @@ namespace sketchup {
 	}
 
 	export async function load_level_config(name) {
-		let url = `./assets/${name}.json`;
+		const seed = `?x=${Math.random()}`;
+		let url = `./assets/${name}.json${seed}`;
 		let response = await fetch(url);
 		const arrSales = await response.json();
 		return arrSales;
@@ -309,7 +311,8 @@ namespace sketchup {
 		const colladaLoader = new ColladaLoader(loadingManager);
 		const levelConfig = await load_level_config(name);
 		props.presets = Object.assign(props.presets, levelConfig);
-		await colladaLoader.loadAsync(`./assets/${name}.dae`).then((collada) => {
+		const seed = `?x=${Math.random()}`;
+		await colladaLoader.loadAsync(`./assets/${name}.dae${seed}`).then((collada) => {
 			const scene = collada.scene;
 			scene.updateMatrix();
 			scene.updateMatrixWorld(true); // without this everything explodes

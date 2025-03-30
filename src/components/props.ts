@@ -15,7 +15,7 @@ import tunnels from "./tunnels.js";
 namespace props {
 
 	export var componentName = 'Props Component';
-
+// New comment
 	export async function boot() {
 		console.log(' Stagehand Boot ');
 		reload();
