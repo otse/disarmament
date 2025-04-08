@@ -131,13 +131,13 @@ var sketchup;
         }
         mat.onBeforeCompile = (shader) => {
             console.warn(' onbeforecompile ', mat.name);
-            shader.defines = { xSAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
+            shader.defines = { SAT: '', REDUCE: '', xRESAT: '', xREREDUCE: '' };
             shader.fragmentShader = shader.fragmentShader.replace(`#include <tonemapping_fragment>`, `#include <tonemapping_fragment>
 
 			vec3 lumaWeights = vec3(.25,.50,.25);
 
 			vec3 grey;
-			float sat = 2.0;
+			float sat = 1.5;
 			float reduce = 100.0;
 			float resat = 2.0;
 			float rereduce = 100.0;
