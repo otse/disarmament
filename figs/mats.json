@@ -3,7 +3,7 @@
     "ebony": ["white", "./assets/textures/black", 0.5, 0.5, 0, false],
     "floor1": ["white", "./assets/textures/floor1", 0.5, 0.1, 0.0, true, false, false, false],
     "floor2": ["white", "./assets/textures/floor2", 0.5, 0.2, 0.0, true],
-    "floor3": ["white", "./assets/textures/floorneat", 0.5, 0.2, 0.0, true, false, false, false],
+    "floor3": ["white", "./assets/textures/floor3", 0.5, 0.15, 0.0, true, false, false, true],
     "floormossy": ["white", "./assets/textures/mossyfloor", 0.8, 0.3, 0, true, false],
     "concrete1": ["white", "./assets/textures/concrete1", 0.5, 0.3, 0.0, false],
     "wall1": ["white", "./assets/textures/wall1", 0.5, 0.3, 0.0, true],

@@ -156,11 +156,11 @@ namespace sketchup {
 				`#include <tonemapping_fragment>`,
 				`#include <tonemapping_fragment>
 
-			vec3 lumaWeights = vec3(.25,.50,.25);
+			vec3 lumaWeights = vec3(0.2126, 0.7152, 0.0722);
 
 			vec3 grey;
 			float sat = 1.5;
-			float reduce = 100.0;
+			float reduce = 127.0;
 			float resat = 2.0;
 			float rereduce = 100.0;
 
