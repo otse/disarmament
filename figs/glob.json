@@ -9,6 +9,9 @@
 	"fansw": {
 		"speed": 1
 	},
+	"fanslow": {
+		"speed": 0.3
+	},
 	"rlmossy": {
 		"xdisabled": true,
 		"xhelper": true,
@@ -54,6 +57,13 @@
 		"hide": true,
 		"color": "white",
 		"intensity": 0.25,
+		"distance": 2,
+		"decay": 1.0
+	},
+	"pldim": {
+		"hide": true,
+		"color": "azure",
+		"intensity": 0.1,
 		"distance": 2,
 		"decay": 1.0
 	},

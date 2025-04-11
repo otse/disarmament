@@ -425,7 +425,11 @@ var props;
             super(object, parameters);
             this.type = 'pfan';
         }
+        _hide() {
+            this.object.visible = false;
+        }
         _show() {
+            this.object.visible = true;
             this.preset_ = props_1.presets[this.preset || 'none'];
             console.log('fan preset_', this.preset_, this.preset);
             //this.group.add(new THREE.AxesHelper(1 * hunt.inchMeter));
@@ -435,14 +439,14 @@ var props;
             this.aabb.getCenter(center);
             const temp = new THREE.Vector3(size.x, size.z, size.y);
             temp.multiplyScalar(garbage.spaceMultiply);
-            size.divideScalar(2);
-            size.z = -size.z;
+            size.divideScalar(1);
+            //size.z = -size.z;
             if (this.parameters.rotation == 'y') {
             }
             if (this.parameters.rotation == 'z') {
             }
-            this.object.position.sub(temp.divideScalar(2));
-            this.group.position.add(size);
+            //this.object.position.sub(temp.divideScalar(2));
+            //this.group.position.add(size);
             //size.divideScalar(2);
             //this.object.position.sub(size);
             //this.object.position.add(size);

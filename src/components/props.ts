@@ -446,7 +446,12 @@ namespace props {
 			super(object, parameters);
 			this.type = 'pfan';
 		}
+		override _hide() {
+			this.object.visible = false;
+		}
 		override _show() {
+			this.object.visible = true;
+
 			this.preset_ = presets[this.preset || 'none'];
 			console.log('fan preset_', this.preset_, this.preset);
 
@@ -459,8 +464,8 @@ namespace props {
 			const temp = new THREE.Vector3(size.x, size.z, size.y);
 			temp.multiplyScalar(garbage.spaceMultiply);
 
-			size.divideScalar(2);
-			size.z = -size.z;
+			size.divideScalar(1);
+			//size.z = -size.z;
 
 			if (this.parameters.rotation == 'y') {
 			}
@@ -468,8 +473,8 @@ namespace props {
 			if (this.parameters.rotation == 'z') {
 			}
 
-			this.object.position.sub(temp.divideScalar(2));
-			this.group.position.add(size);
+			//this.object.position.sub(temp.divideScalar(2));
+			//this.group.position.add(size);
 
 			//size.divideScalar(2);
 

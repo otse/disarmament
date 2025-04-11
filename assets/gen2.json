@@ -143,7 +143,7 @@
 		"xhelper": true,
 		"hide": true,
 		"color": "lavender",
-		"intensity": 50.0,
+		"intensity": 30.0,
 		"target": [
 			0.0,
 			0.0,
@@ -153,7 +153,7 @@
 			"type": "bounce",
 			"cycle": 5,
 			"base": 1.0,
-			"variance": 0.2
+			"variance": 0.5
 		},
 		"angled": {
 			"degrees": -4,
@@ -213,6 +213,29 @@
 		"behavior": {
 			"type": "bounce",
 			"cycle": 5,
+			"base": 1,
+			"variance": 0.5
+		}
+	},
+	"slsewerworld": {
+		"disabled": false,
+		"lensflare": false,
+		"hide": true,
+		"color": "cadetblue",
+		"angle": 0.7,
+		"intensity": 0.5,
+		"distance": 11,
+		"penumbra": 1.5,
+		"decay": 1.0,
+		"shadow": true,
+		"target": [
+			0,
+			-1,
+			0
+		],
+		"behavior": {
+			"type": "bounce",
+			"cycle": 4,
 			"base": 1,
 			"variance": 0.5
 		}
